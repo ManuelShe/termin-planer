@@ -1,6 +1,6 @@
 # Zeitplaner
 
-Eine kleine Webapp für Termine: Aus der gewünschten Ankunftszeit rechnet sie aus, **wann man sich fertig machen** und **wann man losfahren** muss – auch mit Zwischenstopps und weiteren Stationen unterwegs. Dazu erzeugt sie einen Text, den man in die Notizen des Kalendertermins kopiert. Ein Link in diesem Text öffnet später genau diesen Zeitplan wieder in der App.
+Eine kleine Webapp für Termine: Aus der gewünschten Ankunftszeit rechnet sie aus, **wann man sich fertig machen** und **wann man losgehen bzw. losfahren** muss – zu Fuß, mit dem Rad, Auto oder Bus – auch mit Zwischenstopps und weiteren Stationen unterwegs. Dazu erzeugt sie einen Text, den man in die Notizen des Kalendertermins kopiert. Ein Link in diesem Text öffnet später genau diesen Zeitplan wieder in der App.
 
 Die App läuft komplett im Browser auf Handy, Tablet und Computer – ohne Server, ohne Konto, ohne Installation.
 
@@ -11,11 +11,11 @@ Die App läuft komplett im Browser auf Handy, Tablet und Computer – ohne Serve
 - Nach Stationen mit Aufenthalt oder Puffer fügt die App automatisch „Weiter“ bzw. „Weiter spätestens“ mit Uhrzeit ein – im Ablauf in derselben Zeile wie die Station („bis 17:20“), im Notiztext als eigene Zeile
 - Ablauf aller Schritte mit **senkrechtem Fortschrittsbalken**, der sich mit der Zeit füllt; ein Punkt zeigt, wo man gerade steht
 - Bei jedem Schritt steht, wie lange es noch dauert („in 25 Min.“) bzw. wie lange er her ist; der nächste Schritt ist hervorgehoben
-- **Aufteilungsbalken** ganz unten im Ablauf: farbig in zeitlicher Reihenfolge Vorbereitung, Fahrt, Zeit vor Ort (z. B. durch „zuvor ankommen“ oder Puffer) und Aufenthalt, darunter die Summen und die Gesamtzeit
+- **Aufteilungsbalken** ganz unten im Ablauf: farbig in zeitlicher Reihenfolge Vorbereitung, Weg, Zeit vor Ort (z. B. durch „zuvor ankommen“ oder Puffer) und Aufenthalt, darunter die Summen und die Gesamtzeit
 - Warnung, wenn man zu spät ankommen würde oder ein Zwischenstopp zu knapp ist
 
 **Teilen und Kalender**
-- **In den Kalender:** erstellt eine Kalenderdatei (.ics) mit Titel, Datum und dem Notiztext. Der Termin beginnt mit „Los“ und endet mit der letzten Station; Erinnerungen gibt es zum Fertigmachen, zum Losfahren und bei jedem „Weiter“. Auf dem Handy die Datei öffnen und „Hinzufügen“ wählen
+- **In den Kalender:** erstellt eine Kalenderdatei (.ics) mit Titel, Datum und dem Notiztext. Der Termin beginnt mit „Los“ und endet mit der letzten Station; Erinnerungen gibt es zum Fertigmachen, bei „Los“ und bei jedem „Weiter“. Auf dem Handy die Datei öffnen und „Hinzufügen“ wählen
 - **Teilen:** öffnet das Teilen-Menü des Handys (WhatsApp, Mail, Notizen …) mit dem Notiztext
 - **Text kopieren** für die Notizen eines vorhandenen Termins
 
@@ -27,14 +27,14 @@ Die App läuft komplett im Browser auf Handy, Tablet und Computer – ohne Serve
 - **Wiederholung** (optional): täglich, werktags (Mo–Fr), wöchentlich an ausgewählten Tagen, monatlich oder jährlich – ab dem gewählten Datum bzw. ab heute. Die App zeigt dann immer den nächsten Termin, im Kalender entsteht ein Serientermin
 - **Vorbereitungszeit:** Keine, Normal (15 Min.), Lang (30 Min.) oder individuell in 5‑Minuten-Schritten. Ohne Vorbereitungszeit entfällt „Fertig machen“
 - **Stationen** (bis zu 12), alle vom gleichen Typ. Für jede Station stellt man ein:
-  - **Bezeichnung:** Zwischenstopp, Ankommen, Ziel, Beginn, Rückweg oder Individuell. „Rückweg“ ist die Heimfahrt als letzte Station – im Ablauf mit Haus-Symbol
+  - **Bezeichnung:** Zwischenstopp, Ankommen, Ziel, Beginn, Rückweg oder Individuell. „Rückweg“ ist der Heimweg als letzte Station – im Ablauf mit Haus-Symbol
   - **Beschreibung** (optional), z. B. „Bäcker“ – bei „Individuell“ ist das der Name der Station
   - **Fest um:** eine feste Uhrzeit (mindestens eine Station braucht eine)
-  - **Zeit bis hierhin:** Fahrzeit bzw. Abstand zur Station davor (bei der ersten: ab Los), beim Rückweg „Zeit für den Rückweg“
+  - **Zeit bis hierhin:** Wegzeit (zu Fuß, mit Rad, Auto, Bus …) bzw. Abstand zur Station davor (bei der ersten: ab Los), beim Rückweg „Zeit für den Rückweg“
   - **zuvor ankommen:** so viele Minuten vor der Uhrzeit der Station dort sein, z. B. 15 Min. vor Beginn. Im Ablauf erscheint dann automatisch eine Zeile „Ankommen“
   - **Aufenthalt**
 - Stationen lassen sich mit ↑ und ↓ umsortieren und mit ✕ entfernen
-- **Puffer für Fahrten:** +5 bis +20 Min. oder +10 bis +50 % auf jede Fahrzeit, z. B. für Stau oder Parkplatzsuche
+- **Puffer für Wege:** +5 bis +20 Min. oder +10 bis +50 % auf jede Wegzeit, z. B. für Stau, Parkplatzsuche oder Umsteigen
 - **Link zur Route** (optional), z. B. aus Google Maps oder Apple Karten über „Teilen“ kopiert. In der App erscheint dann der Button „Route öffnen“
 - Notiztext mit oder ohne Symbole, mit oder ohne Link
 
@@ -47,9 +47,9 @@ Termin: Elternabend 7b
 Datum: Donnerstag, 03.12.2026
 
 Fertig machen: 14:15 Uhr
-Los: 14:30 Uhr (Fahrzeit 15 Min.)
+Los: 14:30 Uhr (Weg 15 Min.)
 Zwischenstopp Bäcker: 14:45 Uhr (Aufenthalt 10 Min.)
-Weiter: 14:55 Uhr (Fahrzeit 25 Min.)
+Weiter: 14:55 Uhr (Weg 25 Min.)
 Ankommen: 15:20 Uhr
 Beginn: 15:30 Uhr
 
@@ -100,7 +100,7 @@ Hinter dem `#` stehen alle Einstellungen. Zuerst ein Block aus Buchstaben und Za
 | `c` | Vorbereitung individuell in Minuten | `c45` |
 | `b` | neue Station: 0 Ziel, 1 Ankommen, 2 Beginn, 3 Zwischenstopp, 4 Individuell, 5 Rückweg | `b1` |
 | `u` | feste Uhrzeit der Station (hhmm) | `u1400` |
-| `n` | Minuten nach der vorherigen Station (Fahrzeit) | `n30` |
+| `n` | Minuten nach der vorherigen Station (Wegzeit) | `n30` |
 | `y` | Aufenthalt in Minuten | `y10` |
 | `e` | zuvor ankommen (Minuten vor der Uhrzeit der Station) | `e15` |
 | `d` | Datum (jjjjmmtt) | `d20261203` |
@@ -108,7 +108,7 @@ Hinter dem `#` stehen alle Einstellungen. Zuerst ein Block aus Buchstaben und Za
 | `k` | Wochentage bei wöchentlich (Mo = 1, Di = 2, Mi = 4 … So = 64, addiert) | `k6` |
 | `i` | Symbole im Notiztext an | `i1` |
 | `r` | Route-Link vorhanden (steht hinter dem Titel) | `r1` |
-| `g` / `h` | Puffer je Fahrt in Minuten / in Prozent | `g10`, `h20` |
+| `g` / `h` | Puffer je Weg in Minuten / in Prozent | `g10`, `h20` |
 
 ## Dateien
 

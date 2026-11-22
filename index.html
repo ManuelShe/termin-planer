@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Zeitplaner</title>
-<meta name="description" content="Zeitplan für Termine: wann fertig machen, wann losfahren, Stationen unterwegs – mit Text für die Termin-Notizen.">
+<meta name="description" content="Zeitplan für Termine: wann fertig machen, wann los, Stationen unterwegs – mit Text für die Termin-Notizen.">
 <meta name="theme-color" content="#e5483b">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
@@ -323,17 +323,17 @@ details.more summary{cursor:pointer;font-weight:700;min-height:44px;display:flex
    <span class="lt">Stationen</span>
    <div class="stations" id="stations"></div>
    <button type="button" class="addst" id="addSt">+ Station hinzufügen</button>
-   <p class="hint">Mindestens eine Station braucht eine feste Uhrzeit – alles andere rechnet die App davon aus. „Zeit bis hierhin“ ist die Fahrzeit bzw. der Abstand zur Station davor (bei der ersten Station ab „Los“). Für die Heimfahrt als letzte Station „Rückweg“ wählen.</p>
+   <p class="hint">Mindestens eine Station braucht eine feste Uhrzeit – alles andere rechnet die App davon aus. „Zeit bis hierhin“ ist die Wegzeit (zu Fuß, mit Rad, Auto, Bus …) bzw. der Abstand zur Station davor (bei der ersten Station ab „Los“). Für den Heimweg als letzte Station „Rückweg“ wählen.</p>
   </div>
 
   <div class="sec">
-   <label class="lt" for="buffer">Puffer für Fahrten</label>
+   <label class="lt" for="buffer">Puffer für Wege</label>
    <select class="field" id="buffer">
     <option value="">Kein Puffer</option>
-    <option value="m5">+5 Min. je Fahrt</option><option value="m10">+10 Min. je Fahrt</option><option value="m15">+15 Min. je Fahrt</option><option value="m20">+20 Min. je Fahrt</option>
-    <option value="p10">+10 % der Fahrzeit</option><option value="p20">+20 % der Fahrzeit</option><option value="p30">+30 % der Fahrzeit</option><option value="p50">+50 % der Fahrzeit</option>
+    <option value="m5">+5 Min. je Weg</option><option value="m10">+10 Min. je Weg</option><option value="m15">+15 Min. je Weg</option><option value="m20">+20 Min. je Weg</option>
+    <option value="p10">+10 % der Wegzeit</option><option value="p20">+20 % der Wegzeit</option><option value="p30">+30 % der Wegzeit</option><option value="p50">+50 % der Wegzeit</option>
    </select>
-   <p class="hint">Für Stau, Parkplatzsuche oder Umsteigen – wird auf jede Fahrzeit aufgeschlagen.</p>
+   <p class="hint">Für Stau, Parkplatzsuche oder Umsteigen – wird auf jede Wegzeit aufgeschlagen.</p>
   </div>
 
   <div class="sec">
@@ -537,7 +537,7 @@ function compute(){
   const S = state.stations, n = S.length;
   const prep = state.prep === 'custom' ? clamp(Math.round(+state.prepCustom || 0), 0, 600) : +state.prep;
   const base = S.map((s, k) => Math.max(s.after || 0, k ? (S[k-1].before || 0) : 0));
-  // Puffer auf Fahrten
+  // Puffer auf Wege
   const bm = /^m(\d+)$/.exec(state.buffer), bp = /^p(\d+)$/.exec(state.buffer);
   // (kein Puffer auf die reine Wartezeit vor „Beginn“; Prozent-Puffer auf volle 5 Min. aufgerundet)
   const buf = base.map((g, k) => !g || (S[k].type === 'start' && !S[k].early) ? 0 : bm ? +bm[1] : bp ? Math.ceil(g * +bp[1] / 500) * 5 : 0);
@@ -653,7 +653,7 @@ function updatePreview(c){
     el.querySelector('.sttime').textContent = fmt(c.arr[i]);
     el.classList.toggle('fixed', !!state.stations[i].fixed);
   });
-  const g0 = $('gap0'); if(g0) g0.textContent = `Los ${fmt(c.depart)} · ${c.gap[0] ? dur(c.gap[0]) + ' Fahrt' + (c.buf[0] ? ` (inkl. ${dur(c.buf[0])} Puffer)` : '') : 'kein Abstand'}`;
+  const g0 = $('gap0'); if(g0) g0.textContent = `Los ${fmt(c.depart)} · ${c.gap[0] ? dur(c.gap[0]) + ' Weg' + (c.buf[0] ? ` (inkl. ${dur(c.buf[0])} Puffer)` : '') : 'kein Abstand'}`;
   document.querySelectorAll('#stations .gap[data-g]').forEach(g => {
     const k = +g.dataset.g; if(k >= state.stations.length) return;
     const s = c.slack[k-1];
@@ -746,18 +746,18 @@ function render(){
   const {d: base, auto} = baseDay(c.arr[last]);
   steps = [
     ...(c.prep ? [{k:'Fertig machen', m:c.ready, ready:true, d:`${dur(c.prep)} Vorbereitung`, ic:'⏰', note:''}] : []),
-    {k:'Los', m:c.depart,  d: S[0].type === 'back' ? `${dur(c.gap[0])} Fahrzeit nach Hause` : `${dur(c.gap[0])} bis ${goal(S[0])}`, ic:'🚗', go:true, dotIcon:'go', note:` (Fahrzeit ${dur(c.gap[0])})`}
+    {k:'Los', m:c.depart,  d: S[0].type === 'back' ? `${dur(c.gap[0])} Weg nach Hause` : `${dur(c.gap[0])} bis ${goal(S[0])}`, ic:'➡️', go:true, dotIcon:'go', note:` (Weg ${dur(c.gap[0])})`}
   ];
   S.forEach((s, k) => {
     const parts = [], noteParts = [];
     const gapNext = k < last ? c.gap[k+1] : 0;
-    // eigene Zeile „Weiter“, wenn man dort Zeit verbringt und danach noch gefahren wird
+    // eigene Zeile „Weiter“, wenn man dort Zeit verbringt und danach noch unterwegs ist
     const depStep = k < last && gapNext > 0 && (s.stay > 0 || c.slack[k] > 0);
     if(s.fixed) parts.push('feste Uhrzeit');
     if(s.stay){ parts.push(`${dur(s.stay)} Aufenthalt`); noteParts.push(`Aufenthalt ${dur(s.stay)}`); }
     if(c.slack[k] > 0) parts.push(`${dur(c.slack[k])} Puffer`);
     if(k === last && s.stay){ parts.push(`bis ${fmt(c.leave[k])}`); noteParts.push(`bis ${fmt(c.leave[k])} Uhr`); }
-    const toNext = k < last ? (S[k+1].type === 'back' ? `${dur(gapNext)} Fahrzeit nach Hause` : `${dur(gapNext)} bis ${goal(S[k+1])}`) : '';
+    const toNext = k < last ? (S[k+1].type === 'back' ? `${dur(gapNext)} Weg nach Hause` : `${dur(gapNext)} bis ${goal(S[k+1])}`) : '';
     if(k < last && !depStep && gapNext) parts.push(toNext);
     if(s.early){
       const isArr = s.type === 'arrive';
@@ -767,7 +767,7 @@ function render(){
     if(depStep){
       const latest = c.slack[k] > 0;
       const home = S[k+1].type === 'back';
-      steps.push({k: (home ? 'Rückweg' : 'Weiter') + (latest ? ' spätestens' : ''), m: c.leave[k], d: toNext, ic:'🚗', dotIcon:'go', merge:true, latest, note: ` (Fahrzeit ${dur(gapNext)})`});
+      steps.push({k: (home ? 'Rückweg' : 'Weiter') + (latest ? ' spätestens' : ''), m: c.leave[k], d: toNext, ic:'➡️', dotIcon:'go', merge:true, latest, note: ` (Weg ${dur(gapNext)})`});
     }
   });
   steps.forEach(s => s.at = at(base, s.m));
@@ -810,7 +810,7 @@ function render(){
   save();
 }
 
-/* Aufteilung in zeitlicher Reihenfolge: Vorbereitung, Fahrt, Zeit vor Ort (zuvor ankommen / Puffer), Aufenthalt */
+/* Aufteilung in zeitlicher Reihenfolge: Vorbereitung, Weg, Zeit vor Ort (zuvor ankommen / Puffer), Aufenthalt */
 function renderSplit(c, S){
   const seg = [], add = (cls, min, what) => { if(min > 0) seg.push({cls, min, what}); };
   add('c-prep', c.prep, 'Vorbereitung');
@@ -818,7 +818,7 @@ function renderSplit(c, S){
     const prevEnd = k ? c.arr[k-1] + S[k-1].stay : c.depart;
     const arrive = c.arr[k] - (c.early[k] || 0), travelStart = arrive - c.gap[k];
     add('c-wait', travelStart - prevEnd, k ? `Zeit vor Ort (${label(S[k-1])})` : 'Zeit vor Ort');
-    add('c-drive', c.gap[k], s.type === 'back' ? 'Rückweg' : `Fahrt bis ${goal(s)}`);
+    add('c-drive', c.gap[k], s.type === 'back' ? 'Rückweg' : `Weg bis ${goal(s)}`);
     add('c-wait', c.early[k] || 0, `Zeit vor Ort (vor ${label(s)})`);
     add('c-stay', s.stay, `Aufenthalt ${label(s)}`);
   });
@@ -827,7 +827,7 @@ function renderSplit(c, S){
   if(!total) return;
   $('sbar').innerHTML = seg.map(x => `<i class="${x.cls}" style="flex-grow:${x.min};background:var(--c)" title="${esc(x.what)}: ${dur(x.min)}"></i>`).join('');
   const sum = cls => seg.filter(x => x.cls === cls).reduce((a, x) => a + x.min, 0);
-  $('sleg').innerHTML = [['c-prep','Vorbereitung'],['c-drive','Fahrt'],['c-wait','Zeit vor Ort'],['c-stay','Aufenthalt']]
+  $('sleg').innerHTML = [['c-prep','Vorbereitung'],['c-drive','Weg'],['c-wait','Zeit vor Ort'],['c-stay','Aufenthalt']]
     .filter(([cls]) => sum(cls)).map(([cls, name]) => `<span class="${cls}">${name} ${dur(sum(cls))}</span>`).join('');
   $('stotal').textContent = `Gesamtzeit ${dur(total)}`;
 }
