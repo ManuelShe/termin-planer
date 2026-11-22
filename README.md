@@ -17,7 +17,7 @@ Die App läuft komplett im Browser auf Handy, Tablet und Computer – ohne Serve
 **Teilen und Kalender**
 - **In den Kalender:** erstellt eine Kalenderdatei (.ics) mit Titel, Datum und dem Notiztext. Der Termin beginnt mit „Los“ und endet mit der letzten Station; Erinnerungen gibt es zum Fertigmachen, bei „Los“ und bei jedem „Weiter“. Auf dem Handy die Datei öffnen und „Hinzufügen“ wählen
 - **Teilen:** öffnet das Teilen-Menü des Handys (WhatsApp, Mail, Notizen …) mit dem Notiztext
-- **Nur Link teilen:** teilt nur den Link zum Zeitplan (wo kein Teilen-Menü da ist, wird er kopiert)
+- **Nur Link teilen:** teilt nur den Link zum Zeitplan (wo kein Teilen-Menü da ist, wird er kopiert). Bei einer lokal geöffneten Datei gibt es keinen Link
 - **Text kopieren** für die Notizen eines vorhandenen Termins
 
 **Einstellungen** (öffnen sich über das Symbol oben rechts als kompaktes Seitenpanel)
@@ -36,7 +36,8 @@ Die App läuft komplett im Browser auf Handy, Tablet und Computer – ohne Serve
     | Zwischenstopp | kurz etwas erledigen | kleiner Punkt |
     | Termin | Ziel mit Uhrzeit und Dauer | Zielflagge – mit „zuvor ankommen“ Kalender (die Flagge steht dann bei „Ankommen“) |
     | Beginn | Beginn einer Veranstaltung | Zielflagge – mit „zuvor ankommen“ Play-Zeichen |
-    | Abholen | jemanden abholen oder bringen | Person |
+    | Abholen | jemanden abholen | Person |
+    | Bringen | jemanden irgendwo hinbringen | Person mit Pfeil |
     | Haltestelle | Bus oder Bahn – die feste Uhrzeit ist die Abfahrt | Bus |
     | Pause | Rast auf langen Wegen (im Balken eigene Farbe) | Tasse |
     | Rückweg | Heimweg als letzte Station | Haus |
@@ -112,7 +113,7 @@ Hinter dem `#` stehen alle Einstellungen. Zuerst ein Block aus Buchstaben und Za
 |---|---|---|
 | `p` | Vorbereitung Keine/Normal/Lang (0, 15 oder 30 Min.) | `p15` |
 | `c` | Vorbereitung individuell in Minuten | `c45` |
-| `b` | neue Station: 2 Beginn, 3 Zwischenstopp, 4 Individuell, 5 Rückweg, 6 Termin, 7 Abholen, 8 Haltestelle, 9 Pause (0 und 1 aus älteren Links werden zu Termin) | `b6` |
+| `b` | neue Station: 2 Beginn, 3 Zwischenstopp, 4 Individuell, 5 Rückweg, 6 Termin, 7 Abholen, 8 Haltestelle, 9 Pause, 10 Bringen (0 und 1 aus älteren Links werden zu Termin) | `b6` |
 | `u` | feste Uhrzeit der Station (hhmm) | `u1400` |
 | `n` | Minuten nach der vorherigen Station (Wegzeit) | `n30` |
 | `y` | Aufenthalt in Minuten | `y10` |
