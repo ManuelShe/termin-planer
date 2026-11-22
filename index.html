@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wann muss ich los?</title>
+<meta name="description" content="Zeiten zum Termin ausrechnen: fertig machen, losfahren, ankommen – mit Text für die Termin-Notizen.">
+<meta name="theme-color" content="#e5483b">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Losfahren">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<style>
+/* Schriften lokal eingebunden (kein Abruf bei Google) */
+@font-face{font-family:"Red Hat Display";font-style:normal;font-weight:600;font-display:swap;src:url(red-hat-display-latin-600-normal.woff2) format("woff2")}
+@font-face{font-family:"Red Hat Display";font-style:normal;font-weight:800;font-display:swap;src:url(red-hat-display-latin-800-normal.woff2) format("woff2")}
+@font-face{font-family:"Red Hat Text";font-style:normal;font-weight:400;font-display:swap;src:url(red-hat-text-latin-400-normal.woff2) format("woff2")}
+@font-face{font-family:"Red Hat Text";font-style:normal;font-weight:500;font-display:swap;src:url(red-hat-text-latin-500-normal.woff2) format("woff2")}
+@font-face{font-family:"Red Hat Text";font-style:normal;font-weight:700;font-display:swap;src:url(red-hat-text-latin-700-normal.woff2) format("woff2")}
+/* VOICE: freundlich-praktisch, wie ein kleines Werkzeug, das man täglich nutzt
+   IDEA: ein Abfahrtsplan – große hängende Uhrzeiten wie an der Haltestelle
+   PICTURE: der Ablauf selbst (Fertig machen → Losfahren → Ankommen → Beginn) mit Zeitbalken
+   COLOUR and TYPE: tomatenrotes Feld, dunkle Tinte, sonniges Gelb als Akzent; Red Hat Display/Text
+   LAYOUT: rotes Band mit Abfahrtszeit, darunter Einstellungen | Ablauf + Notiztext; unter 760px gestapelt */
+:root{color-scheme:light dark;
+ --bg:light-dark(#fbfaf8,#15161b);--ink:light-dark(#1d1f26,#f1efe9);--muted:light-dark(#5d606b,#a9abb4);
+ --line:light-dark(#e4e1db,#2c2e36);--card:light-dark(#ffffff,#1d1f26);
+ --red:#e5483b;--redDeep:light-dark(#c9372b,#b7342a);--sun:#ffd23f}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Red Hat Text",system-ui,sans-serif;overflow-x:clip}
+.band{padding:clamp(24px,4vw,48px) max(5vw,16px)}
+.top{background:var(--red);color:#fff}
+.top .in{max-width:1240px;margin:auto;display:flex;flex-wrap:wrap;gap:16px 40px;align-items:end;justify-content:space-between}
+h1{font:800 clamp(30px,5vw,46px)/1.05 "Red Hat Display",sans-serif;margin:0;text-wrap:balance}
+.top p{margin:8px 0 0;opacity:.92;max-width:44ch}
+.dep{text-align:right}
+.dep small{display:block;font-weight:700;font-size:15px}
+.dep b{font:800 clamp(56px,11vw,104px)/1 "Red Hat Display",sans-serif;font-variant-numeric:tabular-nums;white-space:nowrap}
+.dep b span{color:var(--sun)}
+.times{display:flex;flex-wrap:wrap;align-items:end;gap:8px clamp(20px,4vw,44px)}
+.ready{opacity:.95}
+.ready b{font-size:clamp(38px,6.5vw,64px);color:rgba(255,255,255,.88)}
+.grid{max-width:1240px;margin:auto;display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:clamp(20px,3vw,40px)}
+@media(max-width:760px){.grid{grid-template-columns:minmax(0,1fr)}.dep{text-align:left}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:clamp(18px,2.5vw,28px)}
+h2{font:600 22px/1.2 "Red Hat Display",sans-serif;margin:0 0 14px}
+fieldset{border:0;margin:0 0 22px;padding:0}
+legend,.lab{font-weight:700;margin-bottom:8px;padding:0;display:block}
+.hint{color:var(--muted);font-size:14px;margin:6px 0 0}
+.seg{display:flex;flex-wrap:wrap;gap:8px}
+.seg label{flex:1 1 auto}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg span{display:flex;align-items:center;justify-content:center;min-height:44px;padding:6px 14px;border:1.5px solid var(--line);border-radius:12px;cursor:pointer;font-weight:500;white-space:nowrap;background:var(--bg)}
+.seg input:checked+span{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.seg input:focus-visible+span{outline:3px solid var(--sun);outline-offset:2px}
+.step{display:flex;align-items:center;gap:8px}
+.step button{width:48px;height:48px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);font:700 22px/1 "Red Hat Display",sans-serif;cursor:pointer}
+.step button:active{transform:scale(.96)}
+.step output{min-width:6.5em;text-align:center;font:800 26px/1 "Red Hat Display",sans-serif;font-variant-numeric:tabular-nums;white-space:nowrap}
+input[type=time],input[type=number]{font:500 18px "Red Hat Text",sans-serif;min-height:48px;padding:8px 12px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);font-variant-numeric:tabular-nums}
+input[type=number]{width:7em}
+input[type=range]{width:100%;accent-color:var(--red);margin-top:10px;height:28px}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.sub{margin-top:12px}
+.hide{display:none!important}
+.load{margin:18px 0 0;padding-top:18px;border-top:1px solid var(--line)}
+.load .row{flex-wrap:nowrap}
+#loadIn{flex:1;font:16px "Red Hat Text",sans-serif;min-height:48px;padding:8px 12px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink)}
+.btn.ghost{background:var(--ink);color:var(--bg)}.btn.ghost:hover{background:var(--ink);opacity:.88}
+.chips{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:10px}
+.chips button{min-height:44px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);font:500 15px "Red Hat Text",sans-serif;cursor:pointer;white-space:nowrap}
+.chips button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chk{display:flex;gap:10px;align-items:center;min-height:44px;cursor:pointer}
+.chk input{width:22px;height:22px;accent-color:var(--red)}
+.clear{background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer;font:inherit;min-height:44px;padding:0 6px}
+/* Ablauf */
+.plan{list-style:none;margin:0 0 18px;padding:0}
+.plan li{display:grid;grid-template-columns:5.2em minmax(0,1fr);gap:14px;padding:12px 0;border-bottom:1px solid var(--line);align-items:baseline}
+.plan li:last-child{border-bottom:0}
+.plan time{font:800 30px/1 "Red Hat Display",sans-serif;font-variant-numeric:tabular-nums;white-space:nowrap;text-align:right}
+.plan .k{font-weight:700}
+.plan .d{display:block;color:var(--muted);font-size:14px}
+.plan li.go time{color:var(--red)}
+.bar{display:flex;height:14px;border-radius:7px;overflow:hidden;margin:4px 0 6px;background:var(--line)}
+.bar i{display:block;height:100%;transition:width .35s ease}
+.leg{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:14px;color:var(--muted);margin-bottom:18px}
+.leg span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;background:var(--c)}
+.c1{--c:var(--sun)}.c2{--c:var(--red)}.c3{--c:light-dark(#1d1f26,#f1efe9)}
+textarea{width:100%;min-height:150px;resize:vertical;font:16px/1.6 "Red Hat Text",sans-serif;padding:14px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink)}
+.copy{margin-top:12px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.btn{min-height:48px;padding:0 22px;border:0;border-radius:12px;background:var(--red);color:#fff;font:700 17px "Red Hat Text",sans-serif;cursor:pointer}
+.btn:hover{background:var(--redDeep)}
+.ok{color:var(--muted);font-size:14px}
+.warn{background:light-dark(#fff4cc,#3a3012);border-radius:12px;padding:10px 14px;font-size:15px;margin:0 0 14px}
+@media(prefers-reduced-motion:reduce){.bar i{transition:none}}
+</style>
+</head>
+<body>
+<header class="band top">
+ <div class="in">
+  <div>
+   <h1>Wann muss ich los?</h1>
+   <p>Zeiten für den Termin ausrechnen und als Text in die Notizen kopieren.</p>
+  </div>
+  <div class="times" aria-live="polite">
+   <div class="dep ready"><small>Fertig machen um</small><b id="bigReady">--:--</b></div>
+   <div class="dep"><small>Losfahren um</small><b id="bigDep">--:--</b></div>
+  </div>
+ </div>
+</header>
+
+<main class="band">
+ <div class="grid">
+  <section class="card" aria-labelledby="h-set">
+   <h2 id="h-set">Einstellungen</h2>
+
+   <fieldset>
+    <legend>Vorbereitungszeit</legend>
+    <div class="seg">
+     <label><input type="radio" name="prep" value="15" checked><span>Normal · 15 Min.</span></label>
+     <label><input type="radio" name="prep" value="30"><span>Lang · 30 Min.</span></label>
+     <label><input type="radio" name="prep" value="custom"><span>Individuell</span></label>
+    </div>
+    <div class="sub hide" id="prepCustomRow">
+     <div class="step">
+      <button type="button" id="prepMinus" aria-label="Vorbereitungszeit 5 Minuten weniger">−</button>
+      <output id="prepOut">45 Min.</output>
+      <button type="button" id="prepPlus" aria-label="Vorbereitungszeit 5 Minuten mehr">+</button>
+     </div>
+    </div>
+   </fieldset>
+
+   <fieldset>
+    <legend>Fahrzeit</legend>
+    <div class="step">
+     <button type="button" id="driveMinus" aria-label="Fahrzeit 5 Minuten weniger">−</button>
+     <output id="driveOut" for="drive">30 Min.</output>
+     <button type="button" id="drivePlus" aria-label="Fahrzeit 5 Minuten mehr">+</button>
+    </div>
+    <input type="range" id="drive" min="5" max="240" step="5" value="30" aria-label="Fahrzeit in Minuten">
+   </fieldset>
+
+   <fieldset>
+    <legend>Ankommen</legend>
+    <div class="seg" id="arrSeg">
+     <label><input type="radio" name="arrMode" value="time" checked><span>Um Uhrzeit</span></label>
+     <label id="befOpt"><input type="radio" name="arrMode" value="before"><span>Minuten vor Beginn</span></label>
+    </div>
+    <div class="row sub" id="arrTimeRow">
+     <input type="time" id="arr" step="300" value="14:00" aria-label="Ankunftszeit">
+    </div>
+    <div class="sub hide" id="arrBeforeRow">
+     <div class="step">
+      <button type="button" id="befMinus" aria-label="5 Minuten weniger">−</button>
+      <output id="befOut">10 Min.</output>
+      <button type="button" id="befPlus" aria-label="5 Minuten mehr">+</button>
+     </div>
+     <p class="hint" id="befHint">vor Beginn der Veranstaltung</p>
+     <div class="chips" id="befQuick" role="group" aria-label="Schnellauswahl Minuten vor Beginn">
+      <button type="button" data-m="10">10 Min.</button>
+      <button type="button" data-m="15">15 Min.</button>
+      <button type="button" data-m="30">30 Min.</button>
+      <button type="button" data-m="60">60 Min.</button>
+     </div>
+    </div>
+   </fieldset>
+
+   <fieldset>
+    <legend>Beginn der Veranstaltung <span style="font-weight:400;color:var(--muted)">(optional)</span></legend>
+    <div class="row">
+     <input type="time" id="start" step="300" aria-label="Beginn der Veranstaltung">
+     <button type="button" class="clear" id="startClear">Leeren</button>
+    </div>
+    <p class="hint">Mit Beginn kannst du bei „Ankommen“ auch „Minuten vor Beginn“ wählen.</p>
+   </fieldset>
+
+   <label class="chk"><input type="checkbox" id="icons"> Symbole im Notiztext</label>
+   <label class="chk"><input type="checkbox" id="withCode" checked> Code zum Wiederherstellen im Notiztext</label>
+   <label class="chk" id="withLinkRow"><input type="checkbox" id="withLink" checked> Link zur App im Notiztext</label>
+
+   <fieldset class="load">
+    <legend>Einstellungen aus einer Notiz laden</legend>
+    <div class="row">
+     <input type="text" id="loadIn" placeholder="Notiztext, Link oder Code einfügen" aria-label="Notiztext, Link oder Code einfügen" autocomplete="off" spellcheck="false">
+     <button type="button" class="btn ghost" id="loadBtn">Laden</button>
+    </div>
+    <p class="hint" id="loadMsg" aria-live="polite">Du kannst den ganzen Notiztext einfügen, der Code wird darin gefunden.</p>
+   </fieldset>
+  </section>
+
+  <section class="card" aria-labelledby="h-plan">
+   <h2 id="h-plan">Ablauf</h2>
+   <p class="warn hide" id="warn"></p>
+   <ol class="plan" id="plan"></ol>
+   <div class="bar" id="bar" aria-hidden="true"></div>
+   <div class="leg" id="leg"></div>
+
+   <label class="lab" for="note">Text für die Termin-Notizen</label>
+   <textarea id="note" spellcheck="false"></textarea>
+   <div class="copy">
+    <button type="button" class="btn" id="copyBtn">Text kopieren</button>
+    <span class="ok" id="copyMsg" aria-live="polite"></span>
+   </div>
+   <p class="hint">Den Text kannst du vor dem Kopieren auch noch ändern. Deine Einstellungen merkt sich der Browser.</p>
+  </section>
+ </div>
+</main>
+
+<script>
+{
+const $ = id => document.getElementById(id);
+const KEY = 'termin-zeiten-v1';
+/* Adresse für den Link im Notiztext.
+   LINK_URL leer lassen = automatisch die Adresse, unter der diese Datei aufgerufen wird.
+   Wer die Datei z. B. auf einem eigenen Webspace ablegt, kann die Adresse hier auch fest eintragen. */
+const LINK_URL = '';
+const ARTIFACT_URL = 'https://claude.ai/artifact/6hRMvAmwQqc71XAmjny7QZ';
+const APP_URL = LINK_URL
+  || (/claude/i.test(location.hostname) ? ARTIFACT_URL
+  : /^https?:$/.test(location.protocol) ? location.origin + location.pathname
+  : '');
+const state = {prep:'15', prepCustom:45, drive:30, arrMode:'time', arr:'14:00', before:10, start:'', icons:false, withLink:true, withCode:true};
+let edited = false;
+
+try { Object.assign(state, JSON.parse(localStorage.getItem(KEY) || '{}')); } catch(e) {}
+
+/* Einstellungs-Code, z. B. zt15f30a1400s1410 → ztp15f30a1400s1410: ein einziges Wort (Doppeltippen markiert alles), passt in den Link-Anker */
+const hm = t => t.replace(':','');
+const unhm = s => s.slice(0,2) + ':' + s.slice(2);
+function encode(){
+  const t = ['zt', state.prep === 'custom' ? 'c' + state.prepCustom : 'p' + state.prep, 'f' + state.drive];
+  t.push(state.arrMode === 'before' && state.start ? 'v' + state.before : 'a' + hm(state.arr || '14:00'));
+  if(state.start) t.push('s' + hm(state.start));
+  if(state.icons) t.push('i1');
+  return t.join('');
+}
+function decode(text){
+  const m = String(text || '').match(/(?<![a-z])zt((?:-?[a-z]\d+)+)/i);
+  if(!m) return false;
+  const n = {};
+  for(const [, k, v] of m[1].toLowerCase().replace(/-/g,'').matchAll(/([a-z])(\d+)/g)){
+    const num = parseInt(v, 10);
+    if(k === 'p' && (v === '15' || v === '30')) n.prep = v;
+    else if(k === 'c' && num >= 0 && num <= 600){ n.prep = 'custom'; n.prepCustom = num; }
+    else if(k === 'f' && num >= 5 && num <= 240) n.drive = Math.round(num/5)*5;
+    else if(k === 'a' && /^([01]\d|2[0-3])[0-5]\d$/.test(v)){ n.arrMode = 'time'; n.arr = unhm(v); }
+    else if(k === 'v' && num >= 0 && num <= 240){ n.arrMode = 'before'; n.before = num; }
+    else if(k === 's' && /^([01]\d|2[0-3])[0-5]\d$/.test(v)) n.start = unhm(v);
+    else if(k === 'i') n.icons = v === '1';
+  }
+  if(!('drive' in n) || !('arrMode' in n)) return false;
+  if(!('start' in n)) n.start = '';
+  if(!('icons' in n)) n.icons = false;
+  Object.assign(state, n);
+  return true;
+}
+const fromHash = () => decode(decodeURIComponent(location.hash.slice(1)));
+fromHash();
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e) {} };
+
+const toMin = t => { if(!t) return null; const [h,m] = t.split(':').map(Number); return h*60+m; };
+const fmt = m => { const d = ((m % 1440) + 1440) % 1440; return String(Math.floor(d/60)).padStart(2,'0') + ':' + String(d%60).padStart(2,'0'); };
+const dayNote = m => m < 0 ? ' (Vortag)' : m >= 1440 ? ' (Folgetag)' : '';
+const dur = m => m >= 60 ? Math.floor(m/60) + ' Std.' + (m%60 ? ' ' + (m%60) + ' Min.' : '') : m + ' Min.';
+const clamp = (v,a,b) => Math.min(b, Math.max(a, v));
+
+function syncUI(){
+  document.querySelector(`input[name=prep][value="${state.prep}"]`).checked = true;
+  document.querySelector(`input[name=arrMode][value="${state.arrMode}"]`).checked = true;
+  $('drive').value = state.drive;
+  $('arr').value = state.arr;
+  $('start').value = state.start;
+  $('icons').checked = state.icons;
+  $('withLink').checked = state.withLink;
+  $('withCode').checked = state.withCode;
+  $('withLinkRow').classList.toggle('hide', !APP_URL);
+}
+
+function render(){
+  const prep = state.prep === 'custom' ? clamp(Math.round(+state.prepCustom || 0), 0, 600) : +state.prep;
+  const drive = state.drive;
+  const start = toMin(state.start);
+  $('befOpt').classList.toggle('hide', start === null);
+  if(start === null && state.arrMode === 'before'){
+    state.arrMode = 'time';
+    document.querySelector('input[name=arrMode][value="time"]').checked = true;
+  }
+  $('prepCustomRow').classList.toggle('hide', state.prep !== 'custom');
+  $('arrTimeRow').classList.toggle('hide', state.arrMode !== 'time');
+  $('arrBeforeRow').classList.toggle('hide', state.arrMode !== 'before');
+  $('driveOut').textContent = dur(drive);
+  $('prepOut').textContent = dur(clamp(Math.round(+state.prepCustom || 0), 0, 600));
+  $('befOut').textContent = dur(state.before);
+  document.querySelectorAll('#befQuick button').forEach(b => b.setAttribute('aria-pressed', +b.dataset.m === state.before));
+
+  let warn = '', arr = null;
+  if(state.arrMode === 'before'){
+    if(start === null) warn = 'Bitte oben den Beginn der Veranstaltung eintragen – sonst lässt sich „Minuten vor Beginn“ nicht ausrechnen.';
+    else arr = start - state.before;
+  } else {
+    arr = toMin(state.arr);
+    if(arr === null) warn = 'Bitte eine Ankunftszeit eintragen.';
+    else if(start !== null && arr > start) warn = 'Achtung: Du kommst erst nach Beginn der Veranstaltung an.';
+  }
+  $('warn').textContent = warn;
+  $('warn').classList.toggle('hide', !warn);
+
+  if(arr === null){
+    $('bigDep').textContent = '--:--';
+    $('bigReady').textContent = '--:--';
+    $('plan').innerHTML = ''; $('bar').innerHTML = ''; $('leg').innerHTML = '';
+    if(!edited) $('note').value = '';
+    save(); return;
+  }
+  const depart = arr - drive, ready = depart - prep;
+  const buffer = start !== null && start > arr ? start - arr : 0;
+
+  const steps = [
+    {k:'Fertig machen', t:ready, d: prep ? `${dur(prep)} Vorbereitung` : 'keine Vorbereitungszeit', ic:'⏰'},
+    {k:'Losfahren', t:depart, d:`${dur(drive)} Fahrzeit`, ic:'🚗', go:true},
+    {k:'Ankommen', t:arr, d: buffer ? `${dur(buffer)} vor Beginn` : '', ic:'📍'}
+  ];
+  if(start !== null) steps.push({k:'Beginn', t:start, d:'', ic:'▶️'});
+
+  const [hh, mm] = fmt(depart).split(':');
+  $('bigDep').innerHTML = `${hh}<span>:</span>${mm}`;
+  const [rh, rm] = fmt(ready).split(':');
+  $('bigReady').innerHTML = `${rh}<span>:</span>${rm}`;
+
+  $('plan').innerHTML = steps.map(s => `<li class="${s.go ? 'go' : ''}"><time>${fmt(s.t)}</time><div><span class="k">${s.k}</span>${dayNote(s.t)}<span class="d">${s.d || '&nbsp;'}</span></div></li>`).join('');
+
+  const parts = [[prep,'c1','Vorbereitung'],[drive,'c2','Fahrt'],[buffer,'c3','Puffer bis Beginn']].filter(p => p[0] > 0);
+  const total = parts.reduce((a,p) => a + p[0], 0) || 1;
+  $('bar').innerHTML = parts.map(p => `<i class="${p[1]}" style="width:${p[0]/total*100}%;background:var(--c)"></i>`).join('');
+  $('leg').innerHTML = parts.map(p => `<span class="${p[1]}">${p[2]} ${dur(p[0])}</span>`).join('');
+
+  if(!edited){
+    $('note').value = steps.map(s => `${state.icons ? s.ic + ' ' : ''}${s.k}: ${fmt(s.t)} Uhr${dayNote(s.t)}${s.k==='Losfahren' ? ` (Fahrzeit ${dur(drive)})` : ''}`).join('\n')
+      + (state.withCode || (state.withLink && APP_URL) ? '\n' : '')
+      + (state.withCode ? `\nEinstellungs-Code: ${encode()}` : '')
+      + (state.withLink && APP_URL ? `\nZeitplan öffnen: ${APP_URL}#${encode()}` : '');
+  }
+  save();
+}
+
+const change = fn => e => { fn(e); edited = false; $('copyMsg').textContent = ''; render(); };
+document.querySelectorAll('input[name=prep]').forEach(r => r.addEventListener('change', change(e => state.prep = e.target.value)));
+document.querySelectorAll('input[name=arrMode]').forEach(r => r.addEventListener('change', change(e => state.arrMode = e.target.value)));
+$('prepMinus').addEventListener('click', change(() => state.prepCustom = clamp(Math.round((+state.prepCustom || 0) / 5) * 5 - 5, 0, 600)));
+$('prepPlus').addEventListener('click', change(() => state.prepCustom = clamp(Math.round((+state.prepCustom || 0) / 5) * 5 + 5, 0, 600)));
+$('drive').addEventListener('input', change(e => state.drive = +e.target.value));
+$('driveMinus').addEventListener('click', change(() => state.drive = clamp(state.drive - 5, 5, 240)));
+$('drivePlus').addEventListener('click', change(() => state.drive = clamp(state.drive + 5, 5, 240)));
+$('befMinus').addEventListener('click', change(() => state.before = clamp(state.before - 5, 0, 240)));
+$('befPlus').addEventListener('click', change(() => state.before = clamp(state.before + 5, 0, 240)));
+document.querySelectorAll('#befQuick button').forEach(b => b.addEventListener('click', change(() => state.before = +b.dataset.m)));
+$('arr').addEventListener('input', change(e => state.arr = e.target.value));
+$('start').addEventListener('input', change(e => state.start = e.target.value));
+$('startClear').addEventListener('click', change(() => { state.start = ''; $('start').value = ''; }));
+$('icons').addEventListener('change', change(e => state.icons = e.target.checked));
+$('withLink').addEventListener('change', change(e => state.withLink = e.target.checked));
+$('withCode').addEventListener('change', change(e => state.withCode = e.target.checked));
+$('note').addEventListener('input', () => { edited = true; });
+
+function loadFrom(text, msgEl){
+  if(decode(text)){
+    edited = false; syncUI(); render();
+    if(msgEl) msgEl.textContent = 'Einstellungen geladen.';
+    return true;
+  }
+  if(msgEl) msgEl.textContent = 'Kein Einstellungs-Code gefunden. Er beginnt mit „zt“, z. B. ztp15f30a1400.';
+  return false;
+}
+$('loadBtn').addEventListener('click', () => { if(loadFrom($('loadIn').value, $('loadMsg'))) $('loadIn').value = ''; });
+$('loadIn').addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); $('loadBtn').click(); } });
+$('loadIn').addEventListener('paste', () => setTimeout(() => { if(loadFrom($('loadIn').value, $('loadMsg'))) $('loadIn').value = ''; }, 0));
+window.addEventListener('hashchange', () => loadFrom(decodeURIComponent(location.hash.slice(1))));
+
+$('copyBtn').addEventListener('click', async () => {
+  const ta = $('note'), msg = $('copyMsg');
+  if(!ta.value){ msg.textContent = 'Noch kein Text zum Kopieren.'; return; }
+  try { await navigator.clipboard.writeText(ta.value); msg.textContent = 'Kopiert – jetzt in die Termin-Notizen einfügen.'; }
+  catch(e){
+    ta.focus(); ta.select();
+    let ok = false; try { ok = document.execCommand('copy'); } catch(_) {}
+    msg.textContent = ok ? 'Kopiert – jetzt in die Termin-Notizen einfügen.' : 'Text ist markiert – bitte mit Strg/Cmd + C kopieren.';
+  }
+});
+
+syncUI();
+render();
+
+/* Offline-Nutzung (nur wenn die Seite über https läuft, z. B. GitHub Pages) */
+if('serviceWorker' in navigator && location.protocol === 'https:' && !/claude/i.test(location.hostname)){
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+}
+}
+</script>
+</body>
+</html>
