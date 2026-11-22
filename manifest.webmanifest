@@ -1,7 +1,7 @@
 {
-  "name": "Wann muss ich los?",
-  "short_name": "Losfahren",
-  "description": "Zeiten zum Termin ausrechnen: fertig machen, losfahren, ankommen – mit Text für die Termin-Notizen.",
+  "name": "Zeitplan",
+  "short_name": "Zeitplan",
+  "description": "Zeitplan für Termine: wann fertig machen, wann losfahren, Zwischenstopps – mit Text für die Termin-Notizen.",
   "lang": "de",
   "start_url": "./",
   "scope": "./",
@@ -9,8 +9,21 @@
   "background_color": "#e5483b",
   "theme_color": "#e5483b",
   "icons": [
-    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
-    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ]
 }
