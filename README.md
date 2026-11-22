@@ -1,4 +1,4 @@
-# Zeitplan
+# Zeitplaner
 
 Eine kleine Webapp für Termine: Aus der gewünschten Ankunftszeit rechnet sie aus, **wann man sich fertig machen** und **wann man losfahren** muss – auch mit Zwischenstopps und weiteren Stationen unterwegs. Dazu erzeugt sie einen Text, den man in die Notizen des Kalendertermins kopiert. Ein Link in diesem Text öffnet später genau diesen Zeitplan wieder in der App.
 
@@ -13,20 +13,26 @@ Die App läuft komplett im Browser auf Handy, Tablet und Computer – ohne Serve
 - Bei jedem Schritt steht, wie lange es noch dauert („in 25 Min.“) bzw. wie lange er her ist; der nächste Schritt ist hervorgehoben
 - Warnung, wenn man zu spät ankommen würde oder ein Zwischenstopp zu knapp ist
 
+**Teilen und Kalender**
+- **In den Kalender:** erstellt eine Kalenderdatei (.ics) mit Titel, Datum und dem Notiztext. Der Termin beginnt mit „Los“ und endet mit der letzten Station; Erinnerungen gibt es zum Fertigmachen, zum Losfahren und bei jedem „Weiter“. Auf dem Handy die Datei öffnen und „Hinzufügen“ wählen
+- **Teilen:** öffnet das Teilen-Menü des Handys (WhatsApp, Mail, Notizen …) mit dem Notiztext
+- **Text kopieren** für die Notizen eines vorhandenen Termins
+
 **Einstellungen** (öffnen sich über das Symbol oben rechts als kompaktes Seitenpanel)
 - Oben im Panel stehen immer die voraussichtlichen Zeiten (Fertig machen, Los, letzte Station), jede Station zeigt ihre berechnete Uhrzeit – so sieht man beim Planen sofort, was sich ändert
 - **Neu** legt einen leeren Zeitplan an (mit „Rückgängig“)
 - **Titel des Termins** (optional), z. B. „Zahnarzt“
 - **Datum** (optional) über einen Kalender. Ohne Datum gilt der Plan für heute – oder für morgen, wenn er heute schon vorbei ist
-- **Vorbereitungszeit:** Normal (15 Min.), Lang (30 Min.) oder individuell in 5‑Minuten-Schritten
+- **Vorbereitungszeit:** Keine, Normal (15 Min.), Lang (30 Min.) oder individuell in 5‑Minuten-Schritten. Ohne Vorbereitungszeit entfällt „Fertig machen“
 - **Stationen** (bis zu 12), alle vom gleichen Typ. Für jede Station stellt man ein:
-  - **Bezeichnung:** Ziel, Ankommen, Beginn, Zwischenstopp oder Individuell
+  - **Bezeichnung:** Zwischenstopp, Ankommen, Ziel, Beginn, Rückweg oder Individuell. „Rückweg“ ist die Heimfahrt als letzte Station – im Ablauf mit Haus-Symbol
   - **Beschreibung** (optional), z. B. „Bäcker“ – bei „Individuell“ ist das der Name der Station
   - **Fest um:** eine feste Uhrzeit (mindestens eine Station braucht eine)
-  - **nach vorheriger:** Fahrzeit bzw. Abstand zur Station davor (bei der ersten: ab Los)
-  - **vor nächster:** Abstand zur Station danach, z. B. „Ankommen 10 Min. vor Beginn“
+  - **Zeit bis hierhin:** Fahrzeit bzw. Abstand zur Station davor (bei der ersten: ab Los), beim Rückweg „Zeit für den Rückweg“
+  - **zuvor ankommen:** so viele Minuten vor der Uhrzeit der Station dort sein, z. B. 15 Min. vor Beginn. Im Ablauf erscheint dann automatisch eine Zeile „Ankommen“
   - **Aufenthalt**
 - Stationen lassen sich mit ↑ und ↓ umsortieren und mit ✕ entfernen
+- **Puffer für Fahrten:** +5 bis +20 Min. oder +10 bis +50 % auf jede Fahrzeit, z. B. für Stau oder Parkplatzsuche
 - **Link zur Route** (optional), z. B. aus Google Maps oder Apple Karten über „Teilen“ kopiert. In der App erscheint dann der Button „Route öffnen“
 - Notiztext mit oder ohne Symbole, mit oder ohne Link
 
@@ -47,7 +53,7 @@ Beginn: 15:30 Uhr
 
 Route: https://maps.app.goo.gl/AbC123xyz
 
-Zeitplan öffnen: https://<benutzername>.github.io/termin-planer/#ztp15b3n15y10b1n25q10b2u1530d20261203r1.Elternabend%207b.https%3A%2F%2Fmaps%2Eapp%2Egoo%2Egl%2FAbC123xyz.B%C3%A4cker
+Zeitplan öffnen: https://<benutzername>.github.io/termin-planer/#ztp15b3n15y10b1n25b2u1530n10d20261203r1.Elternabend%207b.https%3A%2F%2Fmaps%2Eapp%2Egoo%2Egl%2FAbC123xyz.B%C3%A4cker
 ```
 
 Tippt man im Kalender auf den Link, öffnet sich die App mit dem kompletten Zeitplan – inklusive Titel, Datum, Stationen und Route. Falls ein Kalender den Link nicht öffnet, kann man in den Einstellungen unter „Plan aus einem Link laden“ den Link oder den ganzen Notiztext einfügen. Links aus älteren Versionen der App funktionieren weiterhin.
@@ -88,16 +94,17 @@ Hinter dem `#` stehen alle Einstellungen. Zuerst ein Block aus Buchstaben und Za
 
 | Kürzel | Bedeutung | Beispiel |
 |---|---|---|
-| `p` | Vorbereitung Normal/Lang (15 oder 30 Min.) | `p15` |
+| `p` | Vorbereitung Keine/Normal/Lang (0, 15 oder 30 Min.) | `p15` |
 | `c` | Vorbereitung individuell in Minuten | `c45` |
-| `b` | neue Station: 0 Ziel, 1 Ankommen, 2 Beginn, 3 Zwischenstopp, 4 Individuell | `b1` |
+| `b` | neue Station: 0 Ziel, 1 Ankommen, 2 Beginn, 3 Zwischenstopp, 4 Individuell, 5 Rückweg | `b1` |
 | `u` | feste Uhrzeit der Station (hhmm) | `u1400` |
 | `n` | Minuten nach der vorherigen Station (Fahrzeit) | `n30` |
-| `q` | Minuten vor der nächsten Station | `q10` |
 | `y` | Aufenthalt in Minuten | `y10` |
+| `e` | zuvor ankommen (Minuten vor der Uhrzeit der Station) | `e15` |
 | `d` | Datum (jjjjmmtt) | `d20261203` |
 | `i` | Symbole im Notiztext an | `i1` |
 | `r` | Route-Link vorhanden (steht hinter dem Titel) | `r1` |
+| `g` / `h` | Puffer je Fahrt in Minuten / in Prozent | `g10`, `h20` |
 
 ## Dateien
 

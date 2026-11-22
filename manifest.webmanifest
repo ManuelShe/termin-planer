@@ -1,6 +1,6 @@
 {
-  "name": "Zeitplan",
-  "short_name": "Zeitplan",
+  "name": "Zeitplaner",
+  "short_name": "Zeitplaner",
   "description": "Zeitplan für Termine: wann fertig machen, wann losfahren, Zwischenstopps – mit Text für die Termin-Notizen.",
   "lang": "de",
   "start_url": "./",
