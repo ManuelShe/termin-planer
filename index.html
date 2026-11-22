@@ -103,7 +103,7 @@ h2{font:600 22px/1.2 "Red Hat Display",sans-serif;margin:0}
 .sleg span{white-space:nowrap}
 .stotal{margin:6px 0 0;font-size:14px;color:var(--muted)}
 .sleg span::before{content:"";display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px;vertical-align:-1px;background:var(--c)}
-.c-prep{--c:var(--sun)}.c-drive{--c:var(--red)}.c-stay{--c:light-dark(#3a3d47,#d9d6cf)}.c-wait{--c:light-dark(#6b6e79,#aeaba4)}
+.c-prep{--c:var(--sun)}.c-drive{--c:var(--red)}.c-stay{--c:light-dark(#3a3d47,#d9d6cf)}.c-wait{--c:light-dark(#6b6e79,#aeaba4)}.c-pause{--c:light-dark(#f0a49b,#8f3b33)}
 @media(prefers-reduced-motion:reduce){.sbar i{transition:none}}
 .plan li.ready time{font-size:24px;color:light-dark(#55585f,#b3b5bc)}
 .plan .cd{font-size:14px;line-height:1.3;font-weight:700;max-width:15em;justify-self:end;text-align:center;padding:4px 10px;border-radius:12px;background:var(--soft);color:var(--ink);overflow-wrap:break-word}
@@ -197,6 +197,15 @@ dialog.sheet[open]{animation:slide .25s ease}
 .addst:hover{border-color:var(--ink)}
 details.more summary{cursor:pointer;font-weight:700;min-height:44px;display:flex;align-items:center;font-size:15px}
 .load .row{flex-wrap:nowrap}
+/* Vorlagen */
+.tpls{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.tpl{display:inline-flex;align-items:stretch;border:1.5px solid var(--line);border-radius:10px;background:var(--bg);overflow:hidden;max-width:100%}
+.tpl button{border:0;background:none;cursor:pointer;min-height:40px}
+.tpl .use{padding:0 12px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:16em}
+.tpl .use:hover{background:var(--soft)}
+.tpl .del{width:36px;color:var(--muted);border-left:1.5px solid var(--line)}
+.tpl .del:hover{color:var(--red);background:var(--soft)}
+.tplsave{flex-wrap:nowrap}.tplsave .field{flex:1}
 .wdays{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;margin-top:8px}
 .wdays button{min-height:44px;border:1.5px solid var(--line);border-radius:10px;background:var(--bg);font-weight:700;font-size:14px;cursor:pointer;padding:0}
 .wdays button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
@@ -266,9 +275,20 @@ details.more summary{cursor:pointer;font-weight:700;min-height:44px;display:flex
    </div>
   </div>
   <div class="preview" id="preview" aria-live="polite"></div>
-  <div class="undo hide" id="undoBar"><span>Neuer Zeitplan angelegt.</span><button type="button" class="btn ghost" id="undoBtn">Rückgängig</button></div>
+  <div class="undo hide" id="undoBar"><span id="undoText">Neuer Zeitplan angelegt.</span><button type="button" class="btn ghost" id="undoBtn">Rückgängig</button></div>
  </div>
  <div class="sheetbody">
+  <div class="sec">
+   <span class="lt">Vorlagen</span>
+   <div class="tpls" id="tplList"></div>
+   <p class="hint" id="tplEmpty">Noch keine Vorlagen. Speichere den aktuellen Plan für Wege, die öfter vorkommen – z. B. „Schule“ oder „Training“.</p>
+   <div class="row tplsave">
+    <input type="text" class="field" id="tplName" placeholder="Name der Vorlage" maxlength="40" autocomplete="off" aria-label="Name der Vorlage">
+    <button type="button" class="btn dark" id="tplSave">Speichern</button>
+   </div>
+   <p class="hint hide" id="tplMsg" aria-live="polite"></p>
+  </div>
+
   <div class="sec">
    <label class="lt" for="title">Titel <span class="opt">(optional)</span></label>
    <input type="text" class="field" id="title" placeholder="z. B. Zahnarzt oder Elternabend" maxlength="60" autocomplete="off">
@@ -323,7 +343,7 @@ details.more summary{cursor:pointer;font-weight:700;min-height:44px;display:flex
    <span class="lt">Stationen</span>
    <div class="stations" id="stations"></div>
    <button type="button" class="addst" id="addSt">+ Station hinzufügen</button>
-   <p class="hint">Mindestens eine Station braucht eine feste Uhrzeit – alles andere rechnet die App davon aus. „Zeit bis hierhin“ ist die Wegzeit (zu Fuß, mit Rad, Auto, Bus …) bzw. der Abstand zur Station davor (bei der ersten Station ab „Los“). Für den Heimweg als letzte Station „Rückweg“ wählen.</p>
+   <p class="hint">Mindestens eine Station braucht eine feste Uhrzeit – alles andere rechnet die App davon aus. „Zeit bis hierhin“ ist die Wegzeit (zu Fuß, mit Rad, Auto, Bus …) bzw. der Abstand zur Station davor (bei der ersten Station ab „Los“). Für den Heimweg als letzte Station „Rückweg“ wählen. Bei „Haltestelle“ ist die feste Uhrzeit die Abfahrt von Bus oder Bahn.</p>
   </div>
 
   <div class="sec">
@@ -372,10 +392,25 @@ const APP_URL = LINK_URL
   : '');
 
 /* Stationstypen (Reihenfolge = Nummer im Link) */
-const TYPES = ['dest','arrive','start','stop','custom','back'];
-const MENU = ['stop','arrive','dest','start','back','custom'];   // Reihenfolge im Auswahlmenü
-const TLABEL = {dest:'Ziel', arrive:'Ankommen', start:'Beginn', stop:'Zwischenstopp', custom:'Individuell', back:'Rückweg'};
-const TICON = {dest:'🏁', arrive:'📍', start:'▶️', stop:'📌', custom:'🔹', back:'🏠'};
+const TYPES = ['dest','arrive','start','stop','custom','back','termin','pickup','transit','pause'];   // Nummern im Link – nie umsortieren
+const MENU = ['stop','termin','start','pickup','transit','pause','back','custom'];   // Reihenfolge im Auswahlmenü (Ziel/Ankommen gibt es nicht mehr → Termin)
+const TLABEL = {dest:'Termin', arrive:'Termin', termin:'Termin', start:'Beginn', stop:'Zwischenstopp', pickup:'Abholen', transit:'Haltestelle', pause:'Pause', custom:'Individuell', back:'Rückweg'};
+const TICON = {dest:'🏁', arrive:'🏁', termin:'🏁', start:'▶️', stop:'📌', pickup:'🙋', transit:'🚏', pause:'☕', custom:'🔹', back:'🏠'};
+const TDOT = {termin:'flag', start:'flag', back:'home', pickup:'person', transit:'bus', pause:'cup'};   // Symbol im Kreis des Fortschrittsbalkens
+// Mit „zuvor ankommen“ bekommt die Zeile „Ankommen“ die Flagge, der Termin selbst ein Kalender-, der Beginn ein Play-Symbol
+const dotFor = s => s.early && s.type === 'termin' ? 'cal' : s.early && s.type === 'start' ? 'play' : (TDOT[s.type] || '');
+const TPH = {termin:'Beschreibung (optional), z. B. Zahnarzt', start:'Beschreibung (optional), z. B. Elternabend', stop:'Beschreibung (optional), z. B. Bäcker',
+  pickup:'Beschreibung (optional), z. B. Kind von der Musikschule', transit:'Beschreibung (optional), z. B. Linie 512 Richtung Hbf', pause:'Beschreibung (optional), z. B. Raststätte',
+  back:'Beschreibung (optional), z. B. Wohnung', custom:'Bezeichnung, z. B. Treffpunkt'};
+/* Startwerte je Kategorie – nur für Felder, die noch leer sind */
+function typeDefaults(s){
+  if(s.type === 'back'){ s.early = 0; s.stay = 0; return; }
+  if(s.type === 'termin'){ if(!s.early) s.early = 10; }
+  if(s.type === 'stop' && !s.stay) s.stay = 10;
+  if(s.type === 'pickup'){ s.fixed = true; if(!s.stay) s.stay = 5; }
+  if(s.type === 'transit'){ s.fixed = true; s.stay = 0; if(!s.early) s.early = 3; }
+  if(s.type === 'pause' && !s.stay) s.stay = 20;
+}
 
 /* Hilfsfunktionen */
 const pad = n => String(n).padStart(2,'0');
@@ -408,7 +443,7 @@ function cleanRoute(x){
 const station = (o = {}) => ({type:'stop', desc:'', fixed:false, time:'', after:0, before:0, stay:0, early:0, ...o});
 const nextHour = () => { const d = new Date(); return pad((d.getHours() + 2) % 24) + ':00'; };
 const freshPlan = () => ({prep:'15', prepCustom:45, date:'', title:'', route:'', buffer:'', rep:'', repDays:0,
-  stations:[station({type:'arrive', fixed:true, time:nextHour(), after:30})]});
+  stations:[station({type:'termin', fixed:true, time:nextHour(), after:30})]});
 
 /* Alte Einstellungen (vor den Stationen) umwandeln */
 function migrate(L){
@@ -433,6 +468,7 @@ state.stations = state.stations.map(s => station(s));
 function normalize(){
   const S = state.stations;
   S.forEach((s, k) => { if(s.before){ if(S[k+1]) S[k+1].after = Math.max(S[k+1].after || 0, s.before); s.before = 0; } });
+  S.forEach(s => { if(s.type === 'dest' || s.type === 'arrive') s.type = 'termin'; });   // Ziel/Ankommen → Termin
   if(typeof state.buffer !== 'string') state.buffer = '';
 }
 normalize();
@@ -531,7 +567,7 @@ function decode(text){
 if(decode(location.hash.slice(1))) normalize();
 
 /* ---------- Berechnung ---------- */
-const goal = s => s.early ? 'Ankommen' : s.type === 'back' ? 'zu Hause' : label(s);   // wohin man fährt: bei „zuvor ankommen“ zum Ankommen
+const goal = s => s.early ? (s.type === 'transit' ? label(s) : 'Ankommen') : s.type === 'back' ? 'zu Hause' : label(s);   // wohin man fährt: bei „zuvor ankommen“ zum Ankommen
 const label = s => s.type === 'custom' ? (s.desc.trim() || 'Station') : s.type === 'back' ? 'Zu Hause' + (s.desc.trim() ? ' (' + s.desc.trim() + ')' : '') : TLABEL[s.type] + (s.desc.trim() ? ' ' + s.desc.trim() : '');
 function compute(){
   const S = state.stations, n = S.length;
@@ -630,12 +666,12 @@ function renderStations(){
      <button type="button" class="ib" data-act="down" aria-label="Station nach unten" ${i < S.length - 1 ? '' : 'disabled'}>↓</button>
      <button type="button" class="ib" data-act="rm" aria-label="Station entfernen" ${S.length > 1 ? '' : 'disabled'}>✕</button>
     </div>
-    <input type="text" class="field desc" data-f="desc" value="${esc(s.desc)}" placeholder="${s.type === 'custom' ? 'Bezeichnung, z. B. Treffpunkt' : s.type === 'back' ? 'Beschreibung (optional), z. B. Wohnung' : 'Beschreibung (optional), z. B. Bäcker'}" maxlength="40" aria-label="Beschreibung von Station ${i+1}">
+    <input type="text" class="field desc" data-f="desc" value="${esc(s.desc)}" placeholder="${TPH[s.type] || 'Beschreibung (optional)'}" maxlength="40" aria-label="Beschreibung von Station ${i+1}">
     <div class="st2">
-     <div class="fxrow"><label class="fx"><input type="checkbox" data-f="fixed"${s.fixed ? ' checked' : ''}> Fest um</label><input type="time" data-f="time" step="300" value="${esc(s.time)}"${s.fixed ? '' : ' disabled'} aria-label="Feste Uhrzeit von Station ${i+1}"></div>
+     <div class="fxrow"><label class="fx"><input type="checkbox" data-f="fixed"${s.fixed ? ' checked' : ''}> ${s.type === 'transit' ? 'Abfahrt' : 'Fest um'}</label><input type="time" data-f="time" step="300" value="${esc(s.time)}"${s.fixed ? '' : ' disabled'} aria-label="Feste Uhrzeit von Station ${i+1}"></div>
      <label>${s.type === 'back' ? 'Zeit für den Rückweg' : 'Zeit bis hierhin'}<select data-f="after">${minOpts(s.after)}</select></label>
-     ${s.type === 'back' ? '' : `<label>zuvor ankommen<select data-f="early">${minOpts(s.early)}</select></label>
-     <label>Aufenthalt<select data-f="stay">${minOpts(s.stay)}</select></label>`}
+     ${s.type === 'back' ? '' : `<label>${s.type === 'transit' ? 'vorher da sein' : 'zuvor ankommen'}<select data-f="early">${minOpts(s.early)}</select></label>
+     ${s.type === 'transit' ? '' : `<label>${s.type === 'pause' ? 'Pause' : 'Aufenthalt'}<select data-f="stay">${minOpts(s.stay)}</select></label>`}`}
     </div>
    </div>
    <div class="gap" data-g="${i+1}"${i === S.length - 1 ? ' hidden' : ''}></div>`).join('');
@@ -692,6 +728,7 @@ function syncDate(){
   $('repHint').classList.toggle('hide', !state.rep);
 }
 function syncUI(){
+  if(typeof renderTpls === 'function') renderTpls();
   $('title').value = state.title;
   $('route').value = state.route;
   $('buffer').value = state.buffer;
@@ -705,7 +742,12 @@ function syncUI(){
 
 /* ---------- Hauptansicht ---------- */
 const DOT_ICONS = {
+  cal: '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1.5" y="2.4" width="9" height="8.2" rx="1.3"/><path d="M1.5 5h9M4 1.2v2.2M8 1.2v2.2"/><path d="M3.6 7h1M5.5 7h1M7.4 7h1M3.6 8.8h1M5.5 8.8h1" stroke-width="1.2"/></svg>',
+  play: '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3.6 2.1v7.8L10 6z" fill="currentColor" stroke="currentColor" stroke-width="1" stroke-linejoin="round"/></svg>',
   go: '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 1.5v8.5M2.5 6.5 6 10l3.5-3.5"/></svg>',
+  person: '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="6" cy="3.6" r="2"/><path d="M2.2 11c.4-2.5 1.9-3.8 3.8-3.8s3.4 1.3 3.8 3.8"/></svg>',
+  bus: '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" aria-hidden="true"><rect x="2.2" y="1.3" width="7.6" height="8" rx="1.4"/><path d="M2.2 5.6h7.6"/><path d="M3.6 9.3v1.4M8.4 9.3v1.4" stroke-linecap="round"/><circle cx="4" cy="7.5" r=".6" fill="currentColor" stroke="none"/><circle cx="8" cy="7.5" r=".6" fill="currentColor" stroke="none"/></svg>',
+  cup: '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" aria-hidden="true"><path d="M2 4.5h6.2v3.2a2.4 2.4 0 0 1-2.4 2.4h-1.4A2.4 2.4 0 0 1 2 7.7z"/><path d="M8.2 5.3h.8a1.3 1.3 0 0 1 0 2.6h-.9"/><path d="M4 1.2v1.6M6.2 1.2v1.6" stroke-linecap="round"/></svg>',
   home: '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="M1.5 6 6 2l4.5 4"/><path d="M2.8 5v5.3h6.4V5"/><path d="M5 10.3V7.6h2v2.7" fill="currentColor" stroke="none"/></svg>',
   flag: '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 1v10.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M3.2 1.5h7.3v5H3.2z" fill="none" stroke="currentColor" stroke-width="1"/><path d="M3.2 1.5h1.8v1.7H3.2zM6.8 1.5h1.8v1.7H6.8zM5 3.2h1.8v1.6H5zM8.6 3.2h1.9v1.6H8.6zM3.2 4.8h1.8v1.7H3.2zM6.8 4.8h1.8v1.7H6.8z" fill="currentColor"/></svg>'
 };
@@ -752,18 +794,20 @@ function render(){
     const parts = [], noteParts = [];
     const gapNext = k < last ? c.gap[k+1] : 0;
     // eigene Zeile „Weiter“, wenn man dort Zeit verbringt und danach noch unterwegs ist
-    const depStep = k < last && gapNext > 0 && (s.stay > 0 || c.slack[k] > 0);
-    if(s.fixed) parts.push('feste Uhrzeit');
+    // (nicht bei der Haltestelle: dort fährt der Bus zur festen Uhrzeit ab)
+    const depStep = k < last && gapNext > 0 && s.type !== 'transit' && (s.stay > 0 || c.slack[k] > 0);
+    if(s.fixed) parts.push(s.type === 'transit' ? 'Abfahrt' : 'feste Uhrzeit');
+    if(s.type === 'transit') noteParts.push('Abfahrt');
     if(s.stay){ parts.push(`${dur(s.stay)} Aufenthalt`); noteParts.push(`Aufenthalt ${dur(s.stay)}`); }
     if(c.slack[k] > 0) parts.push(`${dur(c.slack[k])} Puffer`);
     if(k === last && s.stay){ parts.push(`bis ${fmt(c.leave[k])}`); noteParts.push(`bis ${fmt(c.leave[k])} Uhr`); }
     const toNext = k < last ? (S[k+1].type === 'back' ? `${dur(gapNext)} Weg nach Hause` : `${dur(gapNext)} bis ${goal(S[k+1])}`) : '';
     if(k < last && !depStep && gapNext) parts.push(toNext);
     if(s.early){
-      const isArr = s.type === 'arrive';
-      steps.push({k: isArr ? 'Ankommen (früher)' : 'Ankommen', m: c.arr[k] - s.early, d: `${dur(s.early)} vor ${label(s)}`, ic:'📍', dotIcon:'flag', note: ` (${dur(s.early)} vor ${label(s)})`});
+      const tr = s.type === 'transit', what = tr ? 'Abfahrt' : label(s);
+      steps.push({k: tr ? 'An der Haltestelle' : 'Ankommen', m: c.arr[k] - s.early, d: `${dur(s.early)} vor ${what}`, ic: tr ? '🚏' : '📍', dotIcon: tr ? '' : 'flag', note: ` (${dur(s.early)} vor ${what})`});
     }
-    steps.push({k: label(s), m: c.arr[k], d: parts.join(' · '), ic: TICON[s.type], stop: s.type === 'stop' || s.type === 'custom', fixed: s.fixed && toMin(s.time) !== null, dotIcon: s.type === 'dest' || s.type === 'arrive' ? 'flag' : s.type === 'back' ? 'home' : '', note: noteParts.length ? ` (${noteParts.join(', ')})` : ''});
+    steps.push({k: label(s), m: c.arr[k], d: parts.join(' · '), ic: s.type === 'termin' && s.early ? '📅' : TICON[s.type], stop: s.type === 'stop' || s.type === 'custom', fixed: s.fixed && toMin(s.time) !== null, dotIcon: dotFor(s), note: noteParts.length ? ` (${noteParts.join(', ')})` : ''});
     if(depStep){
       const latest = c.slack[k] > 0;
       const home = S[k+1].type === 'back';
@@ -817,17 +861,20 @@ function renderSplit(c, S){
   S.forEach((s, k) => {
     const prevEnd = k ? c.arr[k-1] + S[k-1].stay : c.depart;
     const arrive = c.arr[k] - (c.early[k] || 0), travelStart = arrive - c.gap[k];
-    add('c-wait', travelStart - prevEnd, k ? `Zeit vor Ort (${label(S[k-1])})` : 'Zeit vor Ort');
+    // nach einer Haltestelle fährt man sofort los – die übrige Zeit liegt dann am Ziel
+    const afterTransit = k && S[k-1].type === 'transit';
+    if(!afterTransit) add('c-wait', travelStart - prevEnd, k ? `Zeit vor Ort (${label(S[k-1])})` : 'Zeit vor Ort');
     add('c-drive', c.gap[k], s.type === 'back' ? 'Rückweg' : `Weg bis ${goal(s)}`);
+    if(afterTransit) add('c-wait', travelStart - prevEnd, `Zeit vor Ort (${label(s)})`);
     add('c-wait', c.early[k] || 0, `Zeit vor Ort (vor ${label(s)})`);
-    add('c-stay', s.stay, `Aufenthalt ${label(s)}`);
+    add(s.type === 'pause' ? 'c-pause' : 'c-stay', s.stay, `${s.type === 'pause' ? 'Pause' : 'Aufenthalt'} ${label(s)}`);
   });
   const total = seg.reduce((a, x) => a + x.min, 0);
   $('split').classList.toggle('hide', !total);
   if(!total) return;
   $('sbar').innerHTML = seg.map(x => `<i class="${x.cls}" style="flex-grow:${x.min};background:var(--c)" title="${esc(x.what)}: ${dur(x.min)}"></i>`).join('');
   const sum = cls => seg.filter(x => x.cls === cls).reduce((a, x) => a + x.min, 0);
-  $('sleg').innerHTML = [['c-prep','Vorbereitung'],['c-drive','Weg'],['c-wait','Zeit vor Ort'],['c-stay','Aufenthalt']]
+  $('sleg').innerHTML = [['c-prep','Vorbereitung'],['c-drive','Weg'],['c-wait','Zeit vor Ort'],['c-stay','Aufenthalt'],['c-pause','Pause']]
     .filter(([cls]) => sum(cls)).map(([cls, name]) => `<span class="${cls}">${name} ${dur(sum(cls))}</span>`).join('');
   $('stotal').textContent = `Gesamtzeit ${dur(total)}`;
 }
@@ -918,8 +965,7 @@ $('calNext').addEventListener('click', () => { calView.setMonth(calView.getMonth
 const stOf = el => { const c = el.closest('.st'); return c ? {i: +c.dataset.i, s: state.stations[+c.dataset.i], el: c} : null; };
 $('addSt').addEventListener('click', () => {
   const S = state.stations;
-  S.push(station({type: S.length ? 'start' : 'arrive', after: S.length ? 0 : 30, before: 0}));
-  if(S.length > 1 && !S[S.length-2].before && S[S.length-1].type === 'start') S[S.length-2].before = 10;
+  S.push(S.length ? station({type:'stop', after:15, stay:10}) : station({type:'termin', fixed:true, time:nextHour(), after:30}));
   renderStations(); update();
   const cards = $('stations').querySelectorAll('.st'); cards[cards.length-1].scrollIntoView({block:'nearest'});
 });
@@ -934,7 +980,7 @@ $('stations').addEventListener('click', e => {
 });
 $('stations').addEventListener('change', e => {
   const o = stOf(e.target); const f = e.target.dataset.f; if(!o || !f) return;
-  if(f === 'type'){ o.s.type = e.target.value; if(o.s.type === 'back'){ o.s.early = 0; o.s.stay = 0; } renderStations(); }
+  if(f === 'type'){ o.s.type = e.target.value; typeDefaults(o.s); if(o.s.fixed && !o.s.time) o.s.time = o.el.querySelector('.sttime').textContent.replace('--:--', '') || nextHour(); renderStations(); }
   else if(f === 'fixed'){
     o.s.fixed = e.target.checked;
     const t = o.el.querySelector('input[data-f=time]'); t.disabled = !o.s.fixed;
@@ -958,13 +1004,55 @@ const closeSet = () => { if(sheet.close) sheet.close(); else sheet.removeAttribu
 $('openSet').addEventListener('click', openSet);
 $('closeSet').addEventListener('click', closeSet);
 sheet.addEventListener('click', e => { if(e.target === sheet) closeSet(); });
+/* ---------- Vorlagen (nur in diesem Browser gespeichert) ---------- */
+const TPL_KEY = 'zeitplan-vorlagen';
+const TPL_FIELDS = ['prep','prepCustom','title','route','buffer','rep','repDays','stations'];   // ohne Datum
+const loadTpls = () => { try { const t = JSON.parse(localStorage.getItem(TPL_KEY) || '[]'); return Array.isArray(t) ? t : []; } catch(e) { return []; } };
+const saveTpls = t => { try { localStorage.setItem(TPL_KEY, JSON.stringify(t)); return true; } catch(e) { return false; } };
+function renderTpls(){
+  const t = loadTpls();
+  $('tplList').innerHTML = t.map((x, i) => `<span class="tpl"><button type="button" class="use" data-i="${i}" title="Vorlage laden">${esc(x.name)}</button><button type="button" class="del" data-i="${i}" aria-label="Vorlage ${esc(x.name)} löschen">✕</button></span>`).join('');
+  $('tplEmpty').classList.toggle('hide', t.length > 0);
+  if(!$('tplName').value) $('tplName').placeholder = state.title.trim() ? `Name der Vorlage, z. B. ${state.title.trim()}` : 'Name der Vorlage';
+}
+const tplMsg = text => { $('tplMsg').textContent = text; $('tplMsg').classList.toggle('hide', !text); };
+function showUndo(text){
+  $('undoText').textContent = text;
+  $('undoBar').classList.remove('hide');
+  clearTimeout(undoTimer); undoTimer = setTimeout(() => $('undoBar').classList.add('hide'), 8000);
+}
+$('tplSave').addEventListener('click', () => {
+  const name = ($('tplName').value.trim() || state.title.trim()).slice(0, 40);
+  if(!name){ tplMsg('Bitte einen Namen für die Vorlage eingeben.'); $('tplName').focus(); return; }
+  const data = {}; TPL_FIELDS.forEach(f => data[f] = JSON.parse(JSON.stringify(state[f])));
+  const t = loadTpls(), i = t.findIndex(x => x.name.toLowerCase() === name.toLowerCase());
+  if(i >= 0) t[i] = {name, data}; else { if(t.length >= 20){ tplMsg('Es sind höchstens 20 Vorlagen möglich – bitte erst eine löschen.'); return; } t.push({name, data}); }
+  tplMsg(saveTpls(t) ? (i >= 0 ? `Vorlage „${name}“ aktualisiert.` : `Vorlage „${name}“ gespeichert.`) : 'Speichern ist in diesem Browser nicht möglich.');
+  $('tplName').value = ''; renderTpls();
+});
+$('tplName').addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); $('tplSave').click(); } });
+$('tplList').addEventListener('click', e => {
+  const b = e.target.closest('button[data-i]'); if(!b) return;
+  const t = loadTpls(), x = t[+b.dataset.i]; if(!x) return;
+  if(b.classList.contains('del')){
+    t.splice(+b.dataset.i, 1); saveTpls(t); renderTpls(); tplMsg(`Vorlage „${x.name}“ gelöscht.`);
+    return;
+  }
+  undoState = JSON.stringify(state);
+  TPL_FIELDS.forEach(f => { if(f in x.data) state[f] = JSON.parse(JSON.stringify(x.data[f])); });
+  state.stations = (state.stations || []).map(s => station(s));
+  normalize(); edited = false; calOpen = false; tplMsg('');
+  if(location.hash) history.replaceState(null, '', location.pathname + location.search);
+  syncUI(); update(); sheet.scrollTop = 0;
+  showUndo(`Vorlage „${x.name}“ geladen.`);
+});
+
 $('newPlan').addEventListener('click', () => {
   undoState = JSON.stringify(state);
   Object.assign(state, freshPlan());
   if(location.hash) history.replaceState(null, '', location.pathname + location.search);
   calOpen = false; syncUI(); update(); sheet.scrollTop = 0;
-  $('undoBar').classList.remove('hide');
-  clearTimeout(undoTimer); undoTimer = setTimeout(() => $('undoBar').classList.add('hide'), 8000);
+  showUndo('Neuer Zeitplan angelegt.');
 });
 $('undoBtn').addEventListener('click', () => {
   if(undoState){ Object.assign(state, JSON.parse(undoState)); normalize(); }

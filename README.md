@@ -22,12 +22,25 @@ Die App läuft komplett im Browser auf Handy, Tablet und Computer – ohne Serve
 **Einstellungen** (öffnen sich über das Symbol oben rechts als kompaktes Seitenpanel)
 - Oben im Panel stehen immer die voraussichtlichen Zeiten (Fertig machen, Los, letzte Station), jede Station zeigt ihre berechnete Uhrzeit – so sieht man beim Planen sofort, was sich ändert
 - **Neu** legt einen leeren Zeitplan an (mit „Rückgängig“)
+- **Vorlagen:** den aktuellen Plan unter einem Namen speichern (z. B. „Schule“) und später mit einem Tipp wieder laden – mit Stationen, Vorbereitung, Puffer, Route und Wiederholung, aber ohne Datum. Gleicher Name überschreibt die Vorlage, ✕ löscht sie. Vorlagen liegen nur im Browser des jeweiligen Geräts
 - **Titel des Termins** (optional), z. B. „Zahnarzt“
 - **Datum** (optional) über einen Kalender. Ohne Datum gilt der Plan für heute – oder für morgen, wenn er heute schon vorbei ist
 - **Wiederholung** (optional): täglich, werktags (Mo–Fr), wöchentlich an ausgewählten Tagen, monatlich oder jährlich – ab dem gewählten Datum bzw. ab heute. Die App zeigt dann immer den nächsten Termin, im Kalender entsteht ein Serientermin
 - **Vorbereitungszeit:** Keine, Normal (15 Min.), Lang (30 Min.) oder individuell in 5‑Minuten-Schritten. Ohne Vorbereitungszeit entfällt „Fertig machen“
 - **Stationen** (bis zu 12), alle vom gleichen Typ. Für jede Station stellt man ein:
-  - **Bezeichnung:** Zwischenstopp, Ankommen, Ziel, Beginn, Rückweg oder Individuell. „Rückweg“ ist der Heimweg als letzte Station – im Ablauf mit Haus-Symbol
+  - **Bezeichnung** – jede Kategorie hat ihr eigenes Symbol im Fortschrittsbalken:
+
+    | Kategorie | Wofür | Symbol |
+    |---|---|---|
+    | Zwischenstopp | kurz etwas erledigen | kleiner Punkt |
+    | Termin | Ziel mit Uhrzeit und Dauer | Zielflagge – mit „zuvor ankommen“ Kalender (die Flagge steht dann bei „Ankommen“) |
+    | Beginn | Beginn einer Veranstaltung | Zielflagge – mit „zuvor ankommen“ Play-Zeichen |
+    | Abholen | jemanden abholen oder bringen | Person |
+    | Haltestelle | Bus oder Bahn – die feste Uhrzeit ist die Abfahrt | Bus |
+    | Pause | Rast auf langen Wegen (im Balken eigene Farbe) | Tasse |
+    | Rückweg | Heimweg als letzte Station | Haus |
+    | Individuell | alles andere, Name über die Beschreibung | Punkt |
+
   - **Beschreibung** (optional), z. B. „Bäcker“ – bei „Individuell“ ist das der Name der Station
   - **Fest um:** eine feste Uhrzeit (mindestens eine Station braucht eine)
   - **Zeit bis hierhin:** Wegzeit (zu Fuß, mit Rad, Auto, Bus …) bzw. Abstand zur Station davor (bei der ersten: ab Los), beim Rückweg „Zeit für den Rückweg“
@@ -98,7 +111,7 @@ Hinter dem `#` stehen alle Einstellungen. Zuerst ein Block aus Buchstaben und Za
 |---|---|---|
 | `p` | Vorbereitung Keine/Normal/Lang (0, 15 oder 30 Min.) | `p15` |
 | `c` | Vorbereitung individuell in Minuten | `c45` |
-| `b` | neue Station: 0 Ziel, 1 Ankommen, 2 Beginn, 3 Zwischenstopp, 4 Individuell, 5 Rückweg | `b1` |
+| `b` | neue Station: 2 Beginn, 3 Zwischenstopp, 4 Individuell, 5 Rückweg, 6 Termin, 7 Abholen, 8 Haltestelle, 9 Pause (0 und 1 aus älteren Links werden zu Termin) | `b6` |
 | `u` | feste Uhrzeit der Station (hhmm) | `u1400` |
 | `n` | Minuten nach der vorherigen Station (Wegzeit) | `n30` |
 | `y` | Aufenthalt in Minuten | `y10` |
