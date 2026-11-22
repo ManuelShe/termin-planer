@@ -11,6 +11,7 @@ Die App läuft komplett im Browser auf Handy, Tablet und Computer – ohne Serve
 - Nach Stationen mit Aufenthalt oder Puffer fügt die App automatisch „Weiter“ bzw. „Weiter spätestens“ mit Uhrzeit ein – im Ablauf in derselben Zeile wie die Station („bis 17:20“), im Notiztext als eigene Zeile
 - Ablauf aller Schritte mit **senkrechtem Fortschrittsbalken**, der sich mit der Zeit füllt; ein Punkt zeigt, wo man gerade steht
 - Bei jedem Schritt steht, wie lange es noch dauert („in 25 Min.“) bzw. wie lange er her ist; der nächste Schritt ist hervorgehoben
+- **Aufteilungsbalken** ganz unten im Ablauf: farbig in zeitlicher Reihenfolge Vorbereitung, Fahrt, Zeit vor Ort (z. B. durch „zuvor ankommen“ oder Puffer) und Aufenthalt, darunter die Summen und die Gesamtzeit
 - Warnung, wenn man zu spät ankommen würde oder ein Zwischenstopp zu knapp ist
 
 **Teilen und Kalender**
@@ -23,6 +24,7 @@ Die App läuft komplett im Browser auf Handy, Tablet und Computer – ohne Serve
 - **Neu** legt einen leeren Zeitplan an (mit „Rückgängig“)
 - **Titel des Termins** (optional), z. B. „Zahnarzt“
 - **Datum** (optional) über einen Kalender. Ohne Datum gilt der Plan für heute – oder für morgen, wenn er heute schon vorbei ist
+- **Wiederholung** (optional): täglich, werktags (Mo–Fr), wöchentlich an ausgewählten Tagen, monatlich oder jährlich – ab dem gewählten Datum bzw. ab heute. Die App zeigt dann immer den nächsten Termin, im Kalender entsteht ein Serientermin
 - **Vorbereitungszeit:** Keine, Normal (15 Min.), Lang (30 Min.) oder individuell in 5‑Minuten-Schritten. Ohne Vorbereitungszeit entfällt „Fertig machen“
 - **Stationen** (bis zu 12), alle vom gleichen Typ. Für jede Station stellt man ein:
   - **Bezeichnung:** Zwischenstopp, Ankommen, Ziel, Beginn, Rückweg oder Individuell. „Rückweg“ ist die Heimfahrt als letzte Station – im Ablauf mit Haus-Symbol
@@ -102,6 +104,8 @@ Hinter dem `#` stehen alle Einstellungen. Zuerst ein Block aus Buchstaben und Za
 | `y` | Aufenthalt in Minuten | `y10` |
 | `e` | zuvor ankommen (Minuten vor der Uhrzeit der Station) | `e15` |
 | `d` | Datum (jjjjmmtt) | `d20261203` |
+| `w` | Wiederholung: 1 täglich, 2 werktags, 3 wöchentlich, 4 monatlich, 5 jährlich | `w3` |
+| `k` | Wochentage bei wöchentlich (Mo = 1, Di = 2, Mi = 4 … So = 64, addiert) | `k6` |
 | `i` | Symbole im Notiztext an | `i1` |
 | `r` | Route-Link vorhanden (steht hinter dem Titel) | `r1` |
 | `g` / `h` | Puffer je Fahrt in Minuten / in Prozent | `g10`, `h20` |

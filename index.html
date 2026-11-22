@@ -95,6 +95,16 @@ h2{font:600 22px/1.2 "Red Hat Display",sans-serif;margin:0}
 .t2{margin-top:5px;max-width:100%;font-size:14px;line-height:1.25;font-weight:700;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
 .t2 b{white-space:nowrap}
 .plan li.fixed time{color:var(--red)}
+/* Aufteilungsbalken unter dem Ablauf */
+.split{margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}
+.sbar{display:flex;height:16px;border-radius:8px;overflow:hidden;background:var(--line);gap:2px}
+.sbar i{display:block;height:100%;min-width:3px;transition:flex-grow .4s ease}
+.sleg{display:flex;flex-wrap:wrap;gap:4px 16px;margin-top:10px;font-size:14px;color:var(--muted)}
+.sleg span{white-space:nowrap}
+.stotal{margin:6px 0 0;font-size:14px;color:var(--muted)}
+.sleg span::before{content:"";display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px;vertical-align:-1px;background:var(--c)}
+.c-prep{--c:var(--sun)}.c-drive{--c:var(--red)}.c-stay{--c:light-dark(#3a3d47,#d9d6cf)}.c-wait{--c:light-dark(#6b6e79,#aeaba4)}
+@media(prefers-reduced-motion:reduce){.sbar i{transition:none}}
 .plan li.ready time{font-size:24px;color:light-dark(#55585f,#b3b5bc)}
 .plan .cd{font-size:14px;line-height:1.3;font-weight:700;max-width:15em;justify-self:end;text-align:center;padding:4px 10px;border-radius:12px;background:var(--soft);color:var(--ink);overflow-wrap:break-word}
 .plan li.next .cd{background:var(--red);color:#fff}
@@ -187,6 +197,9 @@ dialog.sheet[open]{animation:slide .25s ease}
 .addst:hover{border-color:var(--ink)}
 details.more summary{cursor:pointer;font-weight:700;min-height:44px;display:flex;align-items:center;font-size:15px}
 .load .row{flex-wrap:nowrap}
+.wdays{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;margin-top:8px}
+.wdays button{min-height:44px;border:1.5px solid var(--line);border-radius:10px;background:var(--bg);font-weight:700;font-size:14px;cursor:pointer;padding:0}
+.wdays button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 @media(max-width:400px){.sttime{min-width:3.4em;font-size:16px;padding:8px 4px}.st1{gap:4px}.st1 select{font-size:15px}}
 </style>
 </head>
@@ -221,6 +234,11 @@ details.more summary{cursor:pointer;font-weight:700;min-height:44px;display:flex
     <div id="dots"></div>
     <div class="nowdot hide" id="nowdot" title="Jetzt"></div>
     <ol class="plan" id="plan"></ol>
+   </div>
+   <div class="split" id="split" aria-label="Aufteilung der Zeit">
+    <div class="sbar" id="sbar"></div>
+    <div class="sleg" id="sleg"></div>
+    <p class="stotal" id="stotal"></p>
    </div>
   </section>
 
@@ -271,6 +289,19 @@ details.more summary{cursor:pointer;font-weight:700;min-height:44px;display:flex
     </div>
     <div class="calgrid" id="calGrid"></div>
    </div>
+   <label class="lt" for="rep" style="margin-top:12px">Wiederholung</label>
+   <select class="field" id="rep">
+    <option value="">Keine</option>
+    <option value="d">Täglich</option>
+    <option value="wd">Werktags (Mo–Fr)</option>
+    <option value="w">Wöchentlich an …</option>
+    <option value="m">Monatlich</option>
+    <option value="y">Jährlich</option>
+   </select>
+   <div class="wdays hide" id="repDays" role="group" aria-label="Wochentage">
+    <button type="button" data-b="0">Mo</button><button type="button" data-b="1">Di</button><button type="button" data-b="2">Mi</button><button type="button" data-b="3">Do</button><button type="button" data-b="4">Fr</button><button type="button" data-b="5">Sa</button><button type="button" data-b="6">So</button>
+   </div>
+   <p class="hint hide" id="repHint"></p>
   </fieldset>
 
   <fieldset class="sec">
@@ -376,7 +407,7 @@ function cleanRoute(x){
 }
 const station = (o = {}) => ({type:'stop', desc:'', fixed:false, time:'', after:0, before:0, stay:0, early:0, ...o});
 const nextHour = () => { const d = new Date(); return pad((d.getHours() + 2) % 24) + ':00'; };
-const freshPlan = () => ({prep:'15', prepCustom:45, date:'', title:'', route:'', buffer:'',
+const freshPlan = () => ({prep:'15', prepCustom:45, date:'', title:'', route:'', buffer:'', rep:'', repDays:0,
   stations:[station({type:'arrive', fixed:true, time:nextHour(), after:30})]});
 
 /* Alte Einstellungen (vor den Stationen) umwandeln */
@@ -424,6 +455,8 @@ function encode(){
     if(s.early) t.push('e' + s.early);
   }
   if(state.date) t.push('d' + state.date.replace(/-/g,''));
+  const RC = {d:1, wd:2, w:3, m:4, y:5};
+  if(RC[state.rep]){ t.push('w' + RC[state.rep]); if(state.rep === 'w' && state.repDays) t.push('k' + state.repDays); }
   if(state.icons) t.push('i1');
   if(state.route) t.push('r1');
   if(/^m\d+$/.test(state.buffer)) t.push('g' + state.buffer.slice(1));
@@ -440,11 +473,13 @@ function decode(text){
   const m = text.match(/(?<![a-z])zt((?:-?[a-z]\d+)+)/i);
   if(!m) return false;
   const toks = [...m[1].toLowerCase().replace(/-/g,'').matchAll(/([a-z])(\d+)/g)].map(x => [x[1], x[2], parseInt(x[2], 10)]);
-  const n = {date:'', title:'', route:'', icons:false, buffer:''};
+  const n = {date:'', title:'', route:'', icons:false, buffer:'', rep:'', repDays:0};
   let hasRoute = false, S = [];
   const common = (k, v, num) => {
     if(k === 'p' && (v === '0' || v === '15' || v === '30')) n.prep = v;
     else if(k === 'c' && num >= 0 && num <= 600){ n.prep = 'custom'; n.prepCustom = num; }
+    else if(k === 'w' && num >= 1 && num <= 5) n.rep = ['', 'd', 'wd', 'w', 'm', 'y'][num];
+    else if(k === 'k' && num >= 1 && num <= 127) n.repDays = num;
     else if(k === 'd' && /^20\d\d(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])$/.test(v)) n.date = `${v.slice(0,4)}-${v.slice(4,6)}-${v.slice(6)}`;
     else if(k === 'i') n.icons = v === '1';
     else if(k === 'r') hasRoute = v === '1';
@@ -531,13 +566,47 @@ function compute(){
 }
 
 /* Tag, auf den sich der Plan bezieht */
+const at = (base, m) => new Date(base.getFullYear(), base.getMonth(), base.getDate(), 0, m);
+/* Wiederholung: Wochentag-Bit (Mo = Bit 0 … So = Bit 6) */
+const wbit = d => 1 << ((d.getDay() + 6) % 7);
+function occurs(d, start){
+  if(d < start) return false;
+  switch(state.rep){
+    case 'd': return true;
+    case 'wd': return d.getDay() >= 1 && d.getDay() <= 5;
+    case 'w': return !!((state.repDays || wbit(start)) & wbit(d));
+    case 'm': return d.getDate() === start.getDate();
+    case 'y': return d.getDate() === start.getDate() && d.getMonth() === start.getMonth();
+  }
+  return false;
+}
+const WDS = ['Mo','Di','Mi','Do','Fr','Sa','So'];
+function repText(){
+  const start = state.date ? fromIso(state.date) : new Date();
+  switch(state.rep){
+    case 'd': return 'täglich';
+    case 'wd': return 'werktags (Mo–Fr)';
+    case 'w': { const m = state.repDays || wbit(start); return 'jeden ' + WDS.filter((x, i) => m & (1 << i)).join(', '); }
+    case 'm': return `monatlich am ${start.getDate()}.`;
+    case 'y': return `jährlich am ${pad(start.getDate())}.${pad(start.getMonth()+1)}.`;
+  }
+  return '';
+}
 function baseDay(lastMin){
+  if(state.rep){
+    const start = state.date ? fromIso(state.date) : new Date(); start.setHours(0,0,0,0);
+    const t = new Date(); t.setHours(0,0,0,0);
+    const d = new Date(Math.max(+start, +t) - 86400000);   // ab gestern prüfen (Termine über Mitternacht)
+    for(let i = 0; i < 800; i++, d.setDate(d.getDate() + 1)){
+      if(occurs(d, start) && at(d, lastMin) >= new Date()) return {d: new Date(d), auto:false, rep:true};
+    }
+    return {d: start, auto:false, rep:true};
+  }
   if(state.date) return {d: fromIso(state.date), auto:false};
   const t = new Date(); t.setHours(0,0,0,0);
   if(new Date(t.getFullYear(), t.getMonth(), t.getDate(), 0, lastMin) < new Date()) t.setDate(t.getDate() + 1);
   return {d: t, auto:true};
 }
-const at = (base, m) => new Date(base.getFullYear(), base.getMonth(), base.getDate(), 0, m);
 function dayWord(base){
   const t = new Date(); t.setHours(0,0,0,0);
   const diff = Math.round((base - t) / 86400000);
@@ -615,6 +684,12 @@ function syncDate(){
   $('dateBtn').setAttribute('aria-expanded', calOpen);
   $('cal').classList.toggle('hide', !calOpen);
   if(calOpen) renderCal();
+  $('rep').value = state.rep;
+  $('repDays').classList.toggle('hide', state.rep !== 'w');
+  const m = state.repDays || wbit(state.date ? fromIso(state.date) : new Date());
+  $('repDays').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', !!(m & (1 << +b.dataset.b))));
+  $('repHint').textContent = state.rep ? `Gilt ${state.date ? 'ab ' + dLong(fromIso(state.date)) : 'ab heute'} – ${repText()}. Im Kalender wird ein Serientermin angelegt.` : '';
+  $('repHint').classList.toggle('hide', !state.rep);
 }
 function syncUI(){
   $('title').value = state.title;
@@ -658,7 +733,7 @@ function render(){
     steps = [];
     for(const id of ['bigDep','bigReady']) $(id).textContent = '--:--';
     $('summary').textContent = '';
-    $('plan').innerHTML = ''; $('dots').innerHTML = '';
+    $('plan').innerHTML = ''; $('dots').innerHTML = ''; $('split').classList.add('hide');
     if(!edited) $('note').value = '';
     tick(); save(); return;
   }
@@ -706,13 +781,15 @@ function render(){
     } else view.push({...s});
   }
   steps = view;
+  renderSplit(c, S);
   lastPlan = {all, base, c, ttl};
 
   const big = m => { const [h, mi] = fmt(m).split(':'); return `${h}<span>:</span>${mi}`; };
   $('bigDep').innerHTML = big(c.depart);
   $('bigReady').innerHTML = big(c.ready);
   const word = dayWord(base);
-  $('whenLine').textContent = state.date ? (word ? `${word}, ` : '') + dLong(base) : `${word || dLong(base)}${auto && word === 'Morgen' ? ' (heute ist es schon vorbei)' : ''}`;
+  $('whenLine').textContent = state.rep ? `${repText()[0].toUpperCase() + repText().slice(1)} · nächster Termin: ${word ? word + ', ' : ''}${dLong(base)}`
+    : state.date ? (word ? `${word}, ` : '') + dLong(base) : `${word || dLong(base)}${auto && word === 'Morgen' ? ' (heute ist es schon vorbei)' : ''}`;
 
   $('plan').innerHTML = steps.map((s, i) => `<li class="${s.fixed ? 'fixed' : ''}${s.ready ? 'ready' : ''}" data-i="${i}"><span class="tc"><time>${fmt(s.m)}</time>${s.m2 !== undefined ? `<span class="t2">bis${s.latest ? ' max' : ''} <b>${fmt(s.m2)}</b></span>` : ''}</span><div><span class="k">${esc(s.k)}${dayNote(s.m)}</span>${s.d ? `<span class="d">${esc(s.d)}</span>` : ''}</div><span class="cd"></span></li>`).join('');
   $('dots').innerHTML = steps.map(s => s.dotIcon ? `<span class="dot ico">${DOT_ICONS[s.dotIcon]}</span>` : `<span class="dot${s.stop ? ' small' : ''}"></span>`).join('');
@@ -720,7 +797,8 @@ function render(){
   if(!edited){
     const lines = [];
     if(ttl) lines.push(`Termin: ${ttl}`);
-    if(state.date) lines.push(`Datum: ${dLong(base)}`);
+    if(state.date && !state.rep) lines.push(`Datum: ${dLong(base)}`);
+    if(state.rep) lines.push(`Wiederholung: ${repText()}`);
     if(lines.length) lines.push('');
     lines.push(...all.map(s => `${state.icons ? s.ic + ' ' : ''}${s.k}: ${fmt(s.m)} Uhr${dayNote(s.m)}${s.note}`));
     const ic = x => state.icons ? x + ' ' : '';
@@ -730,6 +808,28 @@ function render(){
   }
   tick();
   save();
+}
+
+/* Aufteilung in zeitlicher Reihenfolge: Vorbereitung, Fahrt, Zeit vor Ort (zuvor ankommen / Puffer), Aufenthalt */
+function renderSplit(c, S){
+  const seg = [], add = (cls, min, what) => { if(min > 0) seg.push({cls, min, what}); };
+  add('c-prep', c.prep, 'Vorbereitung');
+  S.forEach((s, k) => {
+    const prevEnd = k ? c.arr[k-1] + S[k-1].stay : c.depart;
+    const arrive = c.arr[k] - (c.early[k] || 0), travelStart = arrive - c.gap[k];
+    add('c-wait', travelStart - prevEnd, k ? `Zeit vor Ort (${label(S[k-1])})` : 'Zeit vor Ort');
+    add('c-drive', c.gap[k], s.type === 'back' ? 'Rückweg' : `Fahrt bis ${goal(s)}`);
+    add('c-wait', c.early[k] || 0, `Zeit vor Ort (vor ${label(s)})`);
+    add('c-stay', s.stay, `Aufenthalt ${label(s)}`);
+  });
+  const total = seg.reduce((a, x) => a + x.min, 0);
+  $('split').classList.toggle('hide', !total);
+  if(!total) return;
+  $('sbar').innerHTML = seg.map(x => `<i class="${x.cls}" style="flex-grow:${x.min};background:var(--c)" title="${esc(x.what)}: ${dur(x.min)}"></i>`).join('');
+  const sum = cls => seg.filter(x => x.cls === cls).reduce((a, x) => a + x.min, 0);
+  $('sleg').innerHTML = [['c-prep','Vorbereitung'],['c-drive','Fahrt'],['c-wait','Zeit vor Ort'],['c-stay','Aufenthalt']]
+    .filter(([cls]) => sum(cls)).map(([cls, name]) => `<span class="${cls}">${name} ${dur(sum(cls))}</span>`).join('');
+  $('stotal').textContent = `Gesamtzeit ${dur(total)}`;
 }
 
 /* Countdown und Fortschrittsbalken – läuft jede halbe Minute */
@@ -784,6 +884,17 @@ const ro = new ResizeObserver(() => tick()); ro.observe($('flow'));
 const update = () => { edited = false; $('copyMsg').textContent = ''; render(); };
 $('title').addEventListener('input', e => { state.title = e.target.value; update(); });
 $('route').addEventListener('input', e => { state.route = cleanRoute(e.target.value); update(); });
+$('rep').addEventListener('change', e => {
+  state.rep = e.target.value;
+  if(state.rep === 'w' && !state.repDays) state.repDays = wbit(state.date ? fromIso(state.date) : new Date());
+  syncDate(); update();
+});
+$('repDays').addEventListener('click', e => {
+  const b = e.target.closest('button[data-b]'); if(!b) return;
+  const m = (state.repDays || wbit(state.date ? fromIso(state.date) : new Date())) ^ (1 << +b.dataset.b);
+  if(!m) return;   // mindestens ein Tag
+  state.repDays = m; syncDate(); update();
+});
 $('buffer').addEventListener('change', e => { state.buffer = e.target.value; update(); });
 $('route').addEventListener('blur', () => { $('route').value = state.route; });
 document.querySelectorAll('input[name=prep]').forEach(r => r.addEventListener('change', e => { state.prep = e.target.value; update(); }));
@@ -799,6 +910,7 @@ document.querySelectorAll('input[name=dateMode]').forEach(r => r.addEventListene
 }));
 $('dateBtn').addEventListener('click', () => { calOpen = !calOpen; calView = null; syncDate(); });
 $('calGrid').addEventListener('click', e => { const b = e.target.closest('button[data-d]'); if(!b) return; state.date = b.dataset.d; calOpen = false; syncDate(); update(); });
+
 $('calPrev').addEventListener('click', () => { calView.setMonth(calView.getMonth() - 1); renderCal(); });
 $('calNext').addEventListener('click', () => { calView.setMonth(calView.getMonth() + 1); renderCal(); });
 
@@ -882,17 +994,25 @@ function icsText(){
   const endMin = c.leave[last] + (!S[last].stay && S[last].type !== 'back' ? 120 : 0);
   const endAt = new Date(+P.base); endAt.setHours(0, endMin, 0, 0);
   const utc = d => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+  const loc = d => `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`;   // ortsübliche Zeit
   const escI = x => String(x).replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
   const fold = line => { const out = []; let cur = ''; for(const ch of line){ if(new TextEncoder().encode(cur + ch).length > 73){ out.push(cur); cur = ' ' + ch; } else cur += ch; } out.push(cur); return out.join('\r\n'); };
   const alarm = (min, text) => ['BEGIN:VALARM','ACTION:DISPLAY',`DESCRIPTION:${escI(text)}`,`TRIGGER:${min < 0 ? '-' : ''}PT${Math.abs(min)}M`,'END:VALARM'];
   const lines = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Zeitplan//DE','CALSCALE:GREGORIAN','METHOD:PUBLISH','BEGIN:VEVENT',
     `UID:${Date.now()}-${Math.random().toString(36).slice(2)}@zeitplan`,
     `DTSTAMP:${utc(new Date())}`,
-    `DTSTART:${utc(losStep.at)}`,
-    `DTEND:${utc(endAt > losStep.at ? endAt : new Date(+losStep.at + 60000))}`,
+    `DTSTART:${loc(losStep.at)}`,
+    `DTEND:${loc(endAt > losStep.at ? endAt : new Date(+losStep.at + 60000))}`,
     `SUMMARY:${escI(P.ttl || label(S[S.length - 1]))}`,
     `DESCRIPTION:${escI($('note').value)}`];
   if(state.route) lines.push(`URL:${state.route}`);
+  if(state.rep){
+    const start = state.date ? fromIso(state.date) : new Date();
+    const BD = ['MO','TU','WE','TH','FR','SA','SU'];
+    const rule = {d:'FREQ=DAILY', wd:'FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR', m:`FREQ=MONTHLY;BYMONTHDAY=${start.getDate()}`, y:'FREQ=YEARLY',
+      w:'FREQ=WEEKLY;BYDAY=' + BD.filter((x, i) => (state.repDays || wbit(start)) & (1 << i)).join(',')}[state.rep];
+    lines.push('RRULE:' + rule);
+  }
   if(readyStep) lines.push(...alarm(-Math.round((losStep.at - readyStep.at) / 60000), 'Fertig machen'));
   lines.push(...alarm(0, 'Los!'));
   for(const s of all) if(s.merge) lines.push(...alarm(Math.round((s.at - losStep.at) / 60000), s.k));
