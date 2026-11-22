@@ -39,6 +39,7 @@ Ankommen: 16:00 Uhr
 Beginn: 16:10 Uhr
 
 Route: https://maps.app.goo.gl/AbC123xyz
+
 Zeitplan öffnen: https://<benutzername>.github.io/termin-planer/#ztp15f20a1600s1610x15y10x25y5z1520d20261203r1.Elternabend%207b.https%3A%2F%2Fmaps%2Eapp%2Egoo%2Egl%2FAbC123xyz.B%C3%A4cker.Kind%20abholen
 ```
 

@@ -385,7 +385,7 @@ function decode(text){
   if(tail){ const segs = tail[1].split('.').map(x => { try { return decodeURIComponent(x); } catch(e) { return ''; } }); title = segs[0] || ''; if(n.hasRoute) n.route = cleanRoute(segs.splice(1, 1)[0] || ''); names = segs.slice(1); }
   else {
     const tm = String(text).match(/^Termin:[ \u00a0]+(.+)$/m); if(tm) title = tm[1].trim();
-    const rm = String(text).match(/^Route:[ \u00a0]+(\S+)/m); if(rm) n.route = cleanRoute(rm[1]);
+    const rm = String(text).match(/^[^\n:]*?Route:[ \u00a0]+(\S+)/m); if(rm) n.route = cleanRoute(rm[1]);
   }
   delete n.hasRoute;
   n.title = title.slice(0, 60);
@@ -578,9 +578,10 @@ function render(){
     if(lines.length) lines.push('');
     lines.push(...steps.map(s => `${state.icons ? s.ic + ' ' : ''}${s.k}: ${fmt(s.m)} Uhr${dayNote(s.m)}${s.go ? ` (Fahrzeit ${dur(firstLeg)})` : ''}${s.stop ? ` (Weiterfahrt ${fmt(s.leave)} Uhr, Fahrzeit ${dur(s.next)})` : ''}`));
     const extra = [];
-    if(state.route) extra.push(`Route: ${state.route}`);
-    if(state.withLink && APP_URL) extra.push(`Zeitplan öffnen: ${APP_URL}#${encode()}`);
-    if(extra.length) lines.push('', ...extra);
+    const ic = x => state.icons ? x + ' ' : '';
+    if(state.route) extra.push(`${ic('🗺️')}Route: ${state.route}`);
+    if(state.withLink && APP_URL) extra.push(`${ic('🔗')}Zeitplan öffnen: ${APP_URL}#${encode()}`);
+    for(const x of extra) lines.push('', x);
     $('note').value = lines.join('\n');
   }
   tick();
