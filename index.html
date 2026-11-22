@@ -194,6 +194,14 @@ dialog.sheet[open]{animation:slide .25s ease}
 .fxrow{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:6px;align-items:center}
 .st2 .fx{flex-direction:row;align-items:center;gap:8px;font-size:14px;color:var(--ink);min-height:40px;cursor:pointer}
 .whys{grid-column:1/-1;font-size:12px;font-weight:700;color:var(--muted)}
+.sel{display:flex;flex-direction:column;gap:2px}
+.st2{align-items:end}
+.lab2{display:flex;justify-content:space-between;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--muted)}
+.st2 .lab2 .ca,.lab2 .ca{flex-direction:row;display:inline-flex;align-items:center;gap:4px;font-weight:700;cursor:pointer;min-height:24px}
+.lab2 .ca input{width:16px;height:16px;margin:0;accent-color:var(--red)}
+.st .info{margin-top:6px;font-size:14px}
+.plan .in{display:block;font-size:14px;color:var(--ink);opacity:.8;font-style:italic;overflow-wrap:anywhere}
+.ca-s{font-size:.5em;font-weight:700;margin-right:3px;vertical-align:.45em}
 .whys .whyx{margin-top:6px;min-height:40px;font-size:15px}
 .whychips{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
 .whychips button{min-height:36px;padding:0 10px;border:1.5px solid var(--line);border-radius:999px;background:var(--card);font:500 14px "Red Hat Text",sans-serif;cursor:pointer}
@@ -268,8 +276,8 @@ details.more summary{cursor:pointer;font-weight:700;min-height:44px;display:flex
    </button>
   </div>
   <div class="times" aria-live="polite">
-   <div class="dep ready" id="readyBox"><small>Fertig machen um</small><b id="bigReady">--:--</b><span class="cd" id="cdReady">–</span></div>
-   <div class="dep"><small>Los um</small><b id="bigDep">--:--</b><span class="cd" id="cdDep">–</span></div>
+   <div class="dep ready" id="readyBox"><small>Fertig machen um<span id="caReady"></span></small><b id="bigReady">--:--</b><span class="cd" id="cdReady">–</span></div>
+   <div class="dep"><small>Los um<span id="caDep"></span></small><b id="bigDep">--:--</b><span class="cd" id="cdDep">–</span></div>
   </div>
  </div>
 </header>
@@ -469,6 +477,7 @@ const pad = n => String(n).padStart(2,'0');
 const toMin = t => { if(!t || !/^\d\d:\d\d$/.test(t)) return null; const [h,m] = t.split(':').map(Number); return h*60+m; };
 const fmt = m => { const d = ((m % 1440) + 1440) % 1440; return pad(Math.floor(d/60)) + ':' + pad(d%60); };
 const dayNote = m => m < 0 ? ' (Vortag)' : m >= 1440 ? ' (Folgetag)' : '';
+const ca = (a, x) => (a ? 'ca. ' : '') + x;   // „ca. “ voranstellen, wenn ungefähr
 const dur = m => m >= 60 ? Math.floor(m/60) + ' Std.' + (m%60 ? ' ' + (m%60) + ' Min.' : '') : m + ' Min.';
 const clamp = (v,a,b) => Math.min(b, Math.max(a, v));
 const iso = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
@@ -492,7 +501,7 @@ function cleanRoute(x){
   if(/^[\w-]+(\.[\w-]+)+(\/\S*)?$/.test(x)) return ('https://' + x).slice(0, 1500);
   return '';
 }
-const station = (o = {}) => ({type:'stop', desc:'', fixed:false, time:'', after:0, before:0, stay:0, early:0, why:0, whyx:'', ...o});
+const station = (o = {}) => ({type:'stop', desc:'', fixed:false, time:'', after:0, before:0, stay:0, early:0, why:0, whyx:'', info:'', afterCa:false, stayCa:false, ...o});
 /* Gründe für „zuvor ankommen“ (Nummer = Position + 1, im Link als j…) – nur hinten ergänzen */
 const WHY = ['Parkplatzsuche','Fußweg vom Parkplatz','Puffer','Treffpunkt','Anmeldung','Einlass','Einchecken','Sicherheitskontrolle','Ticket holen','Garderobe','Umziehen','Aufwärmen','Platz suchen','Material aufbauen'];
 // s.why ist eine Bitmaske: Grund Nr. n ↔ Bit n-1 (mehrere Gründe möglich)
@@ -547,6 +556,7 @@ function encode(){
     if(s.stay) t.push('y' + s.stay);
     if(s.early) t.push('e' + s.early);
     if(s.early && s.why) t.push('o' + s.why);
+    if(s.afterCa || s.stayCa) t.push('x' + ((s.afterCa ? 1 : 0) | (s.stayCa ? 2 : 0)));
   }
   if(state.date) t.push('d' + state.date.replace(/-/g,''));
   const RC = {d:1, wd:2, w:3, m:4, y:5};
@@ -554,14 +564,16 @@ function encode(){
   if(state.icons) t.push('i1');
   if(state.route) t.push('r1');
   if(state.stations.some(s => s.early && s.whyx && s.whyx.trim())) t.push('t1');
+  if(state.stations.some(s => s.info && s.info.trim())) t.push('l1');
   if(/^m\d+$/.test(state.buffer)) t.push('g' + state.buffer.slice(1));
   if(/^p\d+$/.test(state.buffer)) t.push('h' + state.buffer.slice(1));
   const code = t.join('');
   const enc = x => encodeURIComponent(String(x).trim()).replace(/[.!'()*~_-]/g, c => '%' + c.charCodeAt(0).toString(16).toUpperCase());
   // eigene Gründe: hinter den Beschreibungen, angezeigt durch t1 (dann stehen alle Beschreibungen vollständig davor)
   const ownWhy = state.stations.some(s => s.early && s.whyx && s.whyx.trim());
-  const extra = [state.title, ...(state.route ? [state.route] : []), ...state.stations.map(s => s.desc), ...(ownWhy ? state.stations.map(s => s.early ? s.whyx || '' : '') : [])];
-  const keep = (state.route ? 2 : 1) + (ownWhy ? state.stations.length : 0);
+  const ownInfo = state.stations.some(s => s.info && s.info.trim());
+  const extra = [state.title, ...(state.route ? [state.route] : []), ...state.stations.map(s => s.desc), ...(ownWhy ? state.stations.map(s => s.early ? s.whyx || '' : '') : []), ...(ownInfo ? state.stations.map(s => s.info || '') : [])];
+  const keep = (state.route ? 2 : 1) + (ownWhy ? state.stations.length : 0) + (ownInfo ? state.stations.length : 0);
   while(extra.length > keep && !String(extra[extra.length-1]).trim()) extra.pop();
   return extra.some(x => String(x).trim()) ? code + '.' + extra.map(enc).join('.') : code;
 }
@@ -571,7 +583,7 @@ function decode(text){
   if(!m) return false;
   const toks = [...m[1].toLowerCase().replace(/-/g,'').matchAll(/([a-z])(\d+)/g)].map(x => [x[1], x[2], parseInt(x[2], 10)]);
   const n = {date:'', title:'', route:'', icons:false, buffer:'', rep:'', repDays:0};
-  let hasRoute = false, hasOwnWhy = false, S = [];
+  let hasRoute = false, hasOwnWhy = false, hasInfo = false, S = [];
   const common = (k, v, num) => {
     if(k === 'p' && (v === '0' || v === '15' || v === '30')) n.prep = v;
     else if(k === 'c' && num >= 0 && num <= 600){ n.prep = 'custom'; n.prepCustom = num; }
@@ -581,6 +593,7 @@ function decode(text){
     else if(k === 'i') n.icons = v === '1';
     else if(k === 'r') hasRoute = v === '1';
     else if(k === 't') hasOwnWhy = v === '1';
+    else if(k === 'l') hasInfo = v === '1';
     else if(k === 'g' && num > 0 && num <= 120) n.buffer = 'm' + num;
     else if(k === 'h' && num > 0 && num <= 200) n.buffer = 'p' + num;
     else return false;
@@ -599,6 +612,7 @@ function decode(text){
       else if(k === 'e' && num <= 1440) last.early = num;
       else if(k === 'j' && num >= 1 && num <= WHY.length) last.why = 1 << (num - 1);   // ältere Links: ein einzelner Grund
       else if(k === 'o' && num > 0 && num < (1 << WHY.length)) last.why = num;
+      else if(k === 'x' && num >= 1 && num <= 3){ last.afterCa = !!(num & 1); last.stayCa = !!(num & 2); }
     }
   } else {
     // ältere Links (vor den Stationen)
@@ -624,6 +638,7 @@ function decode(text){
     if(hasRoute) n.route = cleanRoute(segs.shift() || '');
     segs.slice(0, S.length).forEach((d, i) => { S[i].desc = d.slice(0, 40); });
     if(hasOwnWhy) segs.slice(S.length, 2 * S.length).forEach((d, i) => { S[i].whyx = d.slice(0, 40); });
+    if(hasInfo){ const o = (hasOwnWhy ? 2 : 1) * S.length; segs.slice(o, o + S.length).forEach((d, i) => { S[i].info = d.slice(0, 120); }); }
   }
   n.stations = S;
   Object.assign(state, n);
@@ -658,21 +673,27 @@ function compute(){
   // arr = Uhrzeit der Station, early = so viele Minuten vorher dort ankommen
   const early = S.map(s => s.early || 0);
   const arr = Array(n), leave = Array(n), slack = Array(n).fill(null);
+  // „ca.“: eine Zeit ist ungefähr, wenn sie über eine ungefähre Dauer berechnet wurde – eine feste Uhrzeit hebt das wieder auf
+  const arrA = Array(n).fill(false), leaveA = Array(n).fill(false), slackA = Array(n).fill(false);
   arr[L] = fixed[L];
   for(let k = L - 1; k >= 0; k--){
     const latest = arr[k+1] - early[k+1] - gap[k+1];
-    if(fixed[k] !== null){ arr[k] = fixed[k]; slack[k] = latest - (arr[k] + S[k].stay); }
-    else arr[k] = latest - S[k].stay;
-    leave[k] = latest;
+    const latestA = arrA[k+1] || !!S[k+1].afterCa;
+    if(fixed[k] !== null){ arr[k] = fixed[k]; slack[k] = latest - (arr[k] + S[k].stay); slackA[k] = latestA || !!S[k].stayCa; }
+    else { arr[k] = latest - S[k].stay; arrA[k] = latestA || !!S[k].stayCa; }
+    leave[k] = latest; leaveA[k] = latestA;
   }
   for(let k = L + 1; k < n; k++){
     leave[k-1] = arr[k-1] + S[k-1].stay;
+    leaveA[k-1] = arrA[k-1] || !!S[k-1].stayCa;
     arr[k] = leave[k-1] + gap[k] + early[k];
-    if(fixed[k] !== null){ slack[k-1] = fixed[k] - arr[k]; arr[k] = fixed[k]; }
+    arrA[k] = leaveA[k-1] || !!S[k].afterCa;
+    if(fixed[k] !== null){ slack[k-1] = fixed[k] - arr[k]; slackA[k-1] = arrA[k]; arr[k] = fixed[k]; arrA[k] = false; }
   }
   leave[n-1] = arr[n-1] + S[n-1].stay;
-  const depart = arr[0] - early[0] - gap[0];
-  return {prep, gap, buf, ride, arr, leave, slack, early, depart, ready: depart - prep};
+  leaveA[n-1] = arrA[n-1] || !!S[n-1].stayCa;
+  const depart = arr[0] - early[0] - gap[0], departA = arrA[0] || !!S[0].afterCa;
+  return {prep, gap, buf, ride, arr, leave, slack, early, depart, ready: depart - prep, arrA, leaveA, slackA, departA};
 }
 
 /* Tag, auf den sich der Plan bezieht */
@@ -741,11 +762,12 @@ function renderStations(){
      <button type="button" class="ib" data-act="rm" aria-label="Station entfernen" ${S.length > 1 ? '' : 'disabled'}>✕</button>
     </div>
     <input type="text" class="field desc" data-f="desc" value="${esc(s.desc)}" placeholder="${TPH[s.type] || 'Beschreibung (optional)'}" maxlength="40" aria-label="Beschreibung von Station ${i+1}">
+    <input type="text" class="field desc info" data-f="info" value="${esc(s.info || '')}" placeholder="Details (optional), z. B. Adresse, Raum, Ansprechpartner" maxlength="120" aria-label="Details zu Station ${i+1}">
     <div class="st2">
      <div class="fxrow"><label class="fx"><input type="checkbox" data-f="fixed"${s.fixed ? ' checked' : ''}> ${DEP(s.type) ? depWord(s.type) : 'Fest um'}</label><input type="time" data-f="time" step="300" value="${esc(s.time)}"${s.fixed ? '' : ' disabled'} aria-label="Feste Uhrzeit von Station ${i+1}"></div>
-     <label>${s.type === 'back' ? 'Zeit für den Rückweg' : 'Zeit bis hierhin'}<select data-f="after">${minOpts(s.after)}</select></label>
+     <div class="sel"><div class="lab2"><span>${s.type === 'back' ? 'Zeit für den Rückweg' : 'Zeit bis hierhin'}</span><label class="ca"><input type="checkbox" data-f="afterCa"${s.afterCa ? ' checked' : ''}>ca.</label></div><select data-f="after" aria-label="${s.type === 'back' ? 'Zeit für den Rückweg' : 'Zeit bis hierhin'}">${minOpts(s.after)}</select></div>
      ${s.type === 'back' ? '' : `${s.type === 'arrival' ? '' : `<label>${DEP(s.type) ? 'vorher da sein' : 'zuvor ankommen'}<select data-f="early">${minOpts(s.early)}</select></label>`}
-     ${DEP(s.type) ? '' : `<label>${s.type === 'pause' ? 'Pause' : 'Aufenthalt'}<select data-f="stay">${minOpts(s.stay)}</select></label>`}
+     ${DEP(s.type) ? '' : `<div class="sel"><div class="lab2"><span>${s.type === 'pause' ? 'Pause' : 'Aufenthalt'}</span><label class="ca"><input type="checkbox" data-f="stayCa"${s.stayCa ? ' checked' : ''}>ca.</label></div><select data-f="stay" aria-label="${s.type === 'pause' ? 'Pause' : 'Aufenthalt'}">${minOpts(s.stay)}</select></div>`}
      ${s.early ? `<div class="whys"><span>Gründe fürs Früher-da-sein <span class="opt">(mehrere möglich)</span></span><div class="whychips" role="group" aria-label="Gründe fürs Früher-da-sein">${WHY.map((w, j) => `<button type="button" data-why="${j}" aria-pressed="${!!(s.why & (1 << j))}">${w}</button>`).join('')}</div><input type="text" class="field whyx" data-f="whyx" value="${esc(s.whyx || '')}" placeholder="Eigener Grund, z. B. Schlüssel abholen" maxlength="40" aria-label="Eigener Grund"></div>` : ''}`}
     </div>
    </div>
@@ -759,16 +781,17 @@ function updatePreview(c){
     cards.forEach(el => el.querySelector('.sttime').textContent = '--:--');
     return;
   }
-  $('preview').innerHTML = `${c.prep ? `<span>Fertig machen <b>${fmt(c.ready)}</b></span>` : ''}<span>Los <b>${fmt(c.depart)}</b></span><span${state.stations[state.stations.length-1].fixed ? ' class="fx"' : ''}>${esc(label(state.stations[state.stations.length-1]))} <b>${fmt(c.arr[c.arr.length-1])}</b></span>`;
+  const ln = c.arr.length - 1;
+  $('preview').innerHTML = `${c.prep ? `<span>Fertig machen <b>${ca(c.departA, fmt(c.ready))}</b></span>` : ''}<span>Los <b>${ca(c.departA, fmt(c.depart))}</b></span><span${state.stations[ln].fixed ? ' class="fx"' : ''}>${esc(label(state.stations[ln]))} <b>${ca(c.arrA[ln], fmt(c.arr[ln]))}</b></span>`;
   cards.forEach((el, i) => {
-    el.querySelector('.sttime').textContent = fmt(c.arr[i]);
+    el.querySelector('.sttime').textContent = (c.arrA[i] ? '≈' : '') + fmt(c.arr[i]);
     el.classList.toggle('fixed', !!state.stations[i].fixed);
   });
-  const g0 = $('gap0'); if(g0) g0.textContent = `Los ${fmt(c.depart)} · ${c.gap[0] ? dur(c.gap[0]) + ' Weg' + (c.buf[0] ? ` (inkl. ${dur(c.buf[0])} Puffer)` : '') : 'kein Abstand'}`;
+  const g0 = $('gap0'); if(g0) g0.textContent = `Los ${ca(c.departA, fmt(c.depart))} · ${c.gap[0] ? ca(state.stations[0].afterCa, dur(c.gap[0])) + ' Weg' + (c.buf[0] ? ` (inkl. ${dur(c.buf[0])} Puffer)` : '') : 'kein Abstand'}`;
   document.querySelectorAll('#stations .gap[data-g]').forEach(g => {
     const k = +g.dataset.g; if(k >= state.stations.length) return;
     const s = c.slack[k-1];
-    g.textContent = `weiter ${fmt(c.leave[k-1])} · ${c.ride[k] ? dur(c.gap[k]) + ' unterwegs (aus Abfahrt und Ankunft)' : c.gap[k] ? dur(c.gap[k]) + (c.buf[k] ? ` (inkl. ${dur(c.buf[k])} Puffer)` : '') : 'kein Abstand'}${s > 0 ? ` · ${dur(s)} Puffer` : s < 0 ? ` · ${dur(-s)} zu knapp!` : ''}`;
+    g.textContent = `weiter ${ca(c.leaveA[k-1], fmt(c.leave[k-1]))} · ${c.ride[k] ? dur(c.gap[k]) + ' unterwegs (aus Abfahrt und Ankunft)' : c.gap[k] ? ca(state.stations[k].afterCa, dur(c.gap[k])) + (c.buf[k] ? ` (inkl. ${dur(c.buf[k])} Puffer)` : '') : 'kein Abstand'}${s > 0 ? ` · ${dur(s)} Puffer` : s < 0 ? ` · ${dur(-s)} zu knapp!` : ''}`;
   });
 }
 
@@ -866,8 +889,8 @@ function render(){
   const last = S.length - 1;
   const {d: base, auto} = baseDay(c.arr[last]);
   steps = [
-    ...(c.prep ? [{k:'Fertig machen', m:c.ready, ready:true, d:`${dur(c.prep)} Vorbereitung`, ic:'⏰', note:''}] : []),
-    {k:'Los', m:c.depart,  d: S[0].type === 'back' ? `${dur(c.gap[0])} Weg nach Hause` : `${dur(c.gap[0])} bis ${goal(S[0])}`, ic:'➡️', go:true, dotIcon:'go', note:` (Weg ${dur(c.gap[0])})`}
+    ...(c.prep ? [{k:'Fertig machen', m:c.ready, ca:c.departA, ready:true, d:`${dur(c.prep)} Vorbereitung`, ic:'⏰', note:''}] : []),
+    {k:'Los', m:c.depart, ca:c.departA, d: S[0].type === 'back' ? `${ca(S[0].afterCa, dur(c.gap[0]))} Weg nach Hause` : `${ca(S[0].afterCa, dur(c.gap[0]))} bis ${goal(S[0])}`, ic:'➡️', go:true, dotIcon:'go', note:` (Weg ${ca(S[0].afterCa, dur(c.gap[0]))})`}
   ];
   S.forEach((s, k) => {
     const parts = [], noteParts = [];
@@ -877,21 +900,22 @@ function render(){
     const depStep = k < last && gapNext > 0 && !DEP(s.type) && (s.stay > 0 || c.slack[k] > 0);
     if(s.fixed) parts.push(DEP(s.type) ? depWord(s.type) : s.type === 'arrival' ? 'Ankunft' : 'feste Uhrzeit');
     if(DEP(s.type)) noteParts.push(depWord(s.type));
-    if(s.stay){ parts.push(`${dur(s.stay)} Aufenthalt`); noteParts.push(`Aufenthalt ${dur(s.stay)}`); }
-    if(c.slack[k] > 0) parts.push(`${dur(c.slack[k])} Puffer`);
-    if(k === last && s.stay){ parts.push(`bis ${fmt(c.leave[k])}`); noteParts.push(`bis ${fmt(c.leave[k])} Uhr`); }
-    const toNext = k < last ? (S[k+1].type === 'back' ? `${dur(gapNext)} Weg nach Hause` : `${dur(gapNext)} bis ${goal(S[k+1])}`) : '';
+    if(s.stay){ parts.push(`${ca(s.stayCa, dur(s.stay))} Aufenthalt`); noteParts.push(`Aufenthalt ${ca(s.stayCa, dur(s.stay))}`); }
+    if(c.slack[k] > 0) parts.push(`${ca(c.slackA[k], dur(c.slack[k]))} Puffer`);
+    if(k === last && s.stay){ parts.push(`bis ${ca(c.leaveA[k], fmt(c.leave[k]))}`); noteParts.push(`bis ${ca(c.leaveA[k], fmt(c.leave[k]))} Uhr`); }
+    const nextCa = k < last && S[k+1].afterCa;
+    const toNext = k < last ? (S[k+1].type === 'back' ? `${ca(nextCa, dur(gapNext))} Weg nach Hause` : `${ca(nextCa, dur(gapNext))} bis ${goal(S[k+1])}`) : '';
     if(k < last && !depStep && gapNext) parts.push(toNext);
     if(s.early){
       const tr = DEP(s.type), fl = s.type === 'flight', what = tr ? depWord(s.type) : label(s);
       const why = whyText(s);
-      steps.push({k: fl ? 'Am Flughafen' : tr ? 'An der Haltestelle' : 'Ankommen', m: c.arr[k] - s.early, d: `${dur(s.early)} vor ${what}${why ? ' · ' + why : ''}`, ic: fl ? '🛄' : tr ? '🚏' : '📍', dotIcon: tr ? '' : 'flag', note: ` (${dur(s.early)} vor ${what}${why ? ' – ' + why : ''})`});
+      steps.push({k: fl ? 'Am Flughafen' : tr ? 'An der Haltestelle' : 'Ankommen', m: c.arr[k] - s.early, ca: c.arrA[k], d: `${dur(s.early)} vor ${what}${why ? ' · ' + why : ''}`, ic: fl ? '🛄' : tr ? '🚏' : '📍', dotIcon: tr ? '' : 'flag', note: ` (${dur(s.early)} vor ${what}${why ? ' – ' + why : ''})`});
     }
-    steps.push({k: label(s), m: c.arr[k], d: parts.join(' · '), ic: s.type === 'termin' && s.early ? '📅' : TICON[s.type], stop: s.type === 'stop' || s.type === 'custom', fixed: s.fixed && toMin(s.time) !== null, dotIcon: dotFor(s), note: noteParts.length ? ` (${noteParts.join(', ')})` : ''});
+    steps.push({k: label(s), m: c.arr[k], ca: c.arrA[k], info: (s.info || '').trim(), d: parts.join(' · '), ic: s.type === 'termin' && s.early ? '📅' : TICON[s.type], stop: s.type === 'stop' || s.type === 'custom', fixed: s.fixed && toMin(s.time) !== null, dotIcon: dotFor(s), note: noteParts.length ? ` (${noteParts.join(', ')})` : ''});
     if(depStep){
       const latest = c.slack[k] > 0;
       const home = S[k+1].type === 'back';
-      steps.push({k: (home ? 'Rückweg' : 'Weiter') + (latest ? ' spätestens' : ''), m: c.leave[k], d: toNext, ic:'➡️', dotIcon:'go', merge:true, latest, note: ` (Weg ${dur(gapNext)})`});
+      steps.push({k: (home ? 'Rückweg' : 'Weiter') + (latest ? ' spätestens' : ''), m: c.leave[k], ca: c.leaveA[k], d: toNext, ic:'➡️', dotIcon:'go', merge:true, latest, note: ` (Weg ${ca(nextCa, dur(gapNext))})`});
     }
   });
   steps.forEach(s => s.at = at(base, s.m));
@@ -900,8 +924,8 @@ function render(){
   for(const s of all){
     if(s.merge && view.length){
       const p = view[view.length-1];
-      Object.assign(p, {m2: s.m, at2: s.at, latest: s.latest});
-      p.d = [p.d, `${s.k.startsWith('Rückweg') ? 'Rückweg' : 'weiter'} ${s.latest ? 'spätestens ' : 'um '}${fmt(s.m)}`, s.d].filter(Boolean).join(' · ');
+      Object.assign(p, {m2: s.m, at2: s.at, latest: s.latest, ca2: s.ca});
+      p.d = [p.d, `${s.k.startsWith('Rückweg') ? 'Rückweg' : 'weiter'} ${s.latest ? 'spätestens ' : 'um '}${ca(s.ca, fmt(s.m))}`, s.d].filter(Boolean).join(' · ');
     } else view.push({...s});
   }
   steps = view;
@@ -911,13 +935,14 @@ function render(){
   const big = m => { const [h, mi] = fmt(m).split(':'); return `${h}<span>:</span>${mi}`; };
   $('bigDep').innerHTML = big(c.depart);
   $('bigReady').innerHTML = big(c.ready);
+  $('caReady').textContent = $('caDep').textContent = c.departA ? ' ca.' : '';
   const word = dayWord(base);
   $('whenLine').textContent = state.rep ? `${repText()[0].toUpperCase() + repText().slice(1)} · nächster Termin: ${word ? word + ', ' : ''}${dLong(base)}`
     : state.date ? (word ? `${word}, ` : '') + dLong(base) : `${word || dLong(base)}${auto && word === 'Morgen' ? ' (heute ist es schon vorbei)' : ''}`;
   // beim Drucken immer das volle Datum zeigen (aus „Heute“ wird „Heute, Montag, 23.11.2026“)
   $('printDate').textContent = !state.rep && !state.date && word ? `, ${dLong(base)}` : '';
 
-  $('plan').innerHTML = steps.map((s, i) => `<li class="${s.fixed ? 'fixed' : ''}${s.ready ? 'ready' : ''}" data-i="${i}">${s.dotIcon ? `<span class="pdot ico">${DOT_ICONS[s.dotIcon]}</span>` : `<span class="pdot${s.stop ? ' small' : ''}"></span>`}<span class="tc"><time>${fmt(s.m)}</time>${s.m2 !== undefined ? `<span class="t2">bis${s.latest ? ' max' : ''} <b>${fmt(s.m2)}</b></span>` : ''}</span><div><span class="k">${esc(s.k)}${dayNote(s.m)}</span>${s.d ? `<span class="d">${esc(s.d)}</span>` : ''}</div><span class="cd"></span></li>`).join('');
+  $('plan').innerHTML = steps.map((s, i) => `<li class="${s.fixed ? 'fixed' : ''}${s.ready ? 'ready' : ''}" data-i="${i}">${s.dotIcon ? `<span class="pdot ico">${DOT_ICONS[s.dotIcon]}</span>` : `<span class="pdot${s.stop ? ' small' : ''}"></span>`}<span class="tc"><time>${s.ca ? '<span class="ca-s">ca.</span>' : ''}${fmt(s.m)}</time>${s.m2 !== undefined ? `<span class="t2">bis${s.latest ? ' max' : ''}${s.ca2 ? ' ca.' : ''} <b>${fmt(s.m2)}</b></span>` : ''}</span><div><span class="k">${esc(s.k)}${dayNote(s.m)}</span>${s.d ? `<span class="d">${esc(s.d)}</span>` : ''}${s.info ? `<span class="in">${esc(s.info)}</span>` : ''}</div><span class="cd"></span></li>`).join('');
   $('dots').innerHTML = steps.map(s => s.dotIcon ? `<span class="dot ico">${DOT_ICONS[s.dotIcon]}</span>` : `<span class="dot${s.stop ? ' small' : ''}"></span>`).join('');
 
   if(!edited){
@@ -926,7 +951,10 @@ function render(){
     if(state.date && !state.rep) lines.push(`Datum: ${dLong(base)}`);
     if(state.rep) lines.push(`Wiederholung: ${repText()}`);
     if(lines.length) lines.push('');
-    lines.push(...all.map(s => `${state.icons ? s.ic + ' ' : ''}${s.k}: ${fmt(s.m)} Uhr${dayNote(s.m)}${s.note}`));
+    for(const s of all){
+      lines.push(`${state.icons ? s.ic + ' ' : ''}${s.k}: ${ca(s.ca, fmt(s.m))} Uhr${dayNote(s.m)}${s.note}`);
+      if(s.info) lines.push(`   ${s.info}`);
+    }
     const ic = x => state.icons ? x + ' ' : '';
     if(state.route) lines.push('', `${ic('🗺️')}Route: ${state.route}`);
     if(state.withLink && APP_URL) lines.push('', `${ic('🔗')}Zeitplan öffnen: ${APP_URL}#${encode()}`);
@@ -1070,6 +1098,7 @@ $('stations').addEventListener('click', e => {
 $('stations').addEventListener('change', e => {
   const o = stOf(e.target); const f = e.target.dataset.f; if(!o || !f) return;
   if(f === 'type'){ o.s.type = e.target.value; typeDefaults(o.s); if(o.s.fixed && !o.s.time) o.s.time = o.el.querySelector('.sttime').textContent.replace('--:--', '') || nextHour(); renderStations(); }
+  else if(f === 'afterCa' || f === 'stayCa') o.s[f] = e.target.checked;
   else if(f === 'fixed'){
     o.s.fixed = e.target.checked;
     const t = o.el.querySelector('input[data-f=time]'); t.disabled = !o.s.fixed;
@@ -1085,6 +1114,7 @@ $('stations').addEventListener('input', e => {
   const o = stOf(e.target); const f = e.target.dataset.f; if(!o) return;
   if(f === 'desc'){ o.s.desc = e.target.value; update(); }
   else if(f === 'whyx'){ o.s.whyx = e.target.value; update(); }
+  else if(f === 'info'){ o.s.info = e.target.value; update(); }
   else if(f === 'time'){ o.s.time = e.target.value; update(); }
 });
 

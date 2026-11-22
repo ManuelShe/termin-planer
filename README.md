@@ -48,11 +48,13 @@ Die App läuft komplett im Browser auf Handy, Tablet und Computer – ohne Serve
     | Individuell | alles andere, Name über die Beschreibung | Punkt |
 
   - **Beschreibung** (optional), z. B. „Bäcker“ – bei „Individuell“ ist das der Name der Station
+  - **Details** (optional), z. B. Adresse, Raum oder Ansprechpartner – stehen im Ablauf, im Ausdruck und im Notiztext unter der Station
   - **Fest um:** eine feste Uhrzeit (mindestens eine Station braucht eine)
   - **Zeit bis hierhin:** Wegzeit (zu Fuß, mit Rad, Auto, Bus …) bzw. Abstand zur Station davor (bei der ersten: ab Los), beim Rückweg „Zeit für den Rückweg“
   - **zuvor ankommen:** so viele Minuten vor der Uhrzeit der Station dort sein, z. B. 15 Min. vor Beginn. Im Ablauf erscheint dann automatisch eine Zeile „Ankommen“
   - **Gründe fürs Früher-da-sein** (erscheinen, sobald „zuvor ankommen“ eingestellt ist, mehrere wählbar): z. B. Parkplatzsuche, Fußweg vom Parkplatz, Puffer, Treffpunkt, Anmeldung, Einlass, Einchecken, Sicherheitskontrolle, Ticket holen, Garderobe, Umziehen, Aufwärmen, Platz suchen oder Material aufbauen – dazu ein eigener Grund als Freitext. Sie stehen dann bei „Ankommen“ im Ablauf und im Notiztext
   - **Aufenthalt**
+  - **ca.** bei „Zeit bis hierhin“ und „Aufenthalt“: die Dauer ist nur geschätzt. Alle Zeiten, die sich daraus ergeben, stehen dann mit „ca.“ da – bis zur nächsten Station mit fester Uhrzeit
 - Stationen lassen sich mit ↑ und ↓ umsortieren und mit ✕ entfernen
 - **Puffer für Wege:** +5 bis +20 Min. oder +10 bis +50 % auf jede Wegzeit, z. B. für Stau, Parkplatzsuche oder Umsteigen
 - **Link zur Route** (optional), z. B. aus Google Maps oder Apple Karten über „Teilen“ kopiert. In der App erscheint dann der Button „Route öffnen“
@@ -124,6 +126,8 @@ Hinter dem `#` stehen alle Einstellungen. Zuerst ein Block aus Buchstaben und Za
 | `y` | Aufenthalt in Minuten | `y10` |
 | `e` | zuvor ankommen (Minuten vor der Uhrzeit der Station) | `e15` |
 | `o` | Gründe fürs Früher-da-sein als Summe: 1 Parkplatzsuche · 2 Fußweg vom Parkplatz · 3 Puffer · 4 Treffpunkt · 5 Anmeldung · 6 Einlass · 7 Einchecken · 8 Sicherheitskontrolle · 9 Ticket holen · 10 Garderobe · 11 Umziehen · 12 Aufwärmen · 13 Platz suchen · 14 Material aufbauen – jeder Grund n zählt 2^(n−1), z. B. Parkplatzsuche + Fußweg = 1 + 2 = 3 | `o3` |
+| `x` | ungefähr: 1 = Zeit bis hierhin, 2 = Aufenthalt, 3 = beides | `x2` |
+| `l` | Details vorhanden – sie stehen hinter den Beschreibungen (und ggf. den eigenen Gründen) | `l1` |
 | `t` | eigene Gründe vorhanden – sie stehen dann hinter den Beschreibungen der Stationen | `t1` |
 | `d` | Datum (jjjjmmtt) | `d20261203` |
 | `w` | Wiederholung: 1 täglich, 2 werktags, 3 wöchentlich, 4 monatlich, 5 jährlich | `w3` |
