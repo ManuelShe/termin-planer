@@ -62,6 +62,9 @@ h1{font:800 clamp(28px,4.6vw,44px)/1.05 "Red Hat Display",sans-serif;margin:0;te
 .cardhead{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;margin-bottom:6px}
 h2{font:600 22px/1.2 "Red Hat Display",sans-serif;margin:0}
 .summary{color:var(--muted);font-size:15px;margin:0 0 16px}
+.routebtn{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px;margin:-4px 0 16px;border-radius:12px;background:var(--soft);color:var(--ink);font-weight:700;text-decoration:none}
+.routebtn:hover{background:var(--line)}
+.routebtn svg{width:18px;height:18px;flex:none;color:var(--red)}
 .link{background:none;border:0;padding:0 4px;min-height:44px;color:var(--red);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 .warn{background:light-dark(#fff4cc,#3a3012);border-radius:12px;padding:10px 14px;font-size:15px;margin:0 0 14px}
 .hint{color:var(--muted);font-size:14px;margin:6px 0 0}
@@ -184,6 +187,7 @@ input[type=range]{width:100%;accent-color:var(--red);margin-top:10px;height:28px
   <section class="card" aria-labelledby="h-plan">
    <div class="cardhead"><h2 id="h-plan">Ablauf</h2><button type="button" class="link" id="openSet2">Ändern</button></div>
    <p class="summary" id="summary"></p>
+   <a class="routebtn hide" id="routeLink" href="#" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="19" r="2.5"/><circle cx="18" cy="5" r="2.5"/><path d="M8.5 19H16a3.5 3.5 0 0 0 0-7H8a3.5 3.5 0 0 1 0-7h7.5"/></svg>Route öffnen</a>
    <p class="warn hide" id="warn"></p>
    <div class="flow" id="flow">
     <div class="track" id="track"></div>
@@ -262,6 +266,9 @@ input[type=range]{width:100%;accent-color:var(--red);margin-top:10px;height:28px
     <button type="button" id="drivePlus" aria-label="Fahrzeit 5 Minuten mehr">+</button>
    </div>
    <input type="range" id="drive" min="5" max="240" step="5" value="30" aria-label="Fahrzeit in Minuten">
+   <label class="mini" for="route">Link zur Route <span class="opt">(optional)</span></label>
+   <input type="url" id="route" placeholder="z. B. aus Google Maps oder Apple Karten teilen" autocomplete="off" spellcheck="false" inputmode="url" style="width:100%">
+   <p class="hint">Den Link aus der Karten-App über „Teilen“ kopieren und hier einfügen.</p>
   </fieldset>
 
   <fieldset>
@@ -327,7 +334,7 @@ const APP_URL = LINK_URL
   || (/claude/i.test(location.hostname) ? ARTIFACT_URL
   : /^https?:$/.test(location.protocol) ? location.origin + location.pathname
   : '');
-const state = {prep:'15', prepCustom:45, drive:30, arrMode:'time', arr:'14:00', before:10, start:'', date:'', title:'', icons:false, withLink:true, stops:[]};
+const state = {prep:'15', prepCustom:45, drive:30, arrMode:'time', arr:'14:00', before:10, start:'', date:'', title:'', route:'', icons:false, withLink:true, stops:[]};
 let edited = false, steps = [], calView = null;
 
 try { Object.assign(state, JSON.parse(localStorage.getItem(KEY) || '{}')); } catch(e) {}
@@ -345,10 +352,11 @@ function encode(){
   for(const st of state.stops){ t.push('x' + st.drive, 'y' + st.stay); if(st.mode === 'time' && st.time) t.push('z' + hm(st.time)); }
   if(state.date) t.push('d' + state.date.replace(/-/g,''));
   if(state.icons) t.push('i1');
+  if(state.route) t.push('r1');
   const code = t.join('');
   const enc = x => encodeURIComponent(x.trim()).replace(/[.!'()*~_-]/g, c => '%' + c.charCodeAt(0).toString(16).toUpperCase());
   // danach durch Punkte getrennt: Titel, dann die Namen der Zwischenstopps
-  const extra = [state.title, ...state.stops.map(st => st.name)];
+  const extra = [state.title, ...(state.route ? [state.route] : []), ...state.stops.map(st => st.name)];
   return extra.some(x => x.trim()) ? code + '.' + extra.map(enc).join('.') : code;
 }
 function decode(text){
@@ -365,6 +373,7 @@ function decode(text){
     else if(k === 's' && /^([01]\d|2[0-3])[0-5]\d$/.test(v)) n.start = unhm(v);
     else if(k === 'd' && /^20\d\d(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])$/.test(v)) n.date = `${v.slice(0,4)}-${v.slice(4,6)}-${v.slice(6)}`;
     else if(k === 'i') n.icons = v === '1';
+    else if(k === 'r') n.hasRoute = v === '1';
     else if(k === 'x' && num >= 0 && num <= 600 && n.stops.length < 8) n.stops.push({...newStop(), drive: Math.round(num/5)*5});
     else if(k === 'y' && n.stops.length && num >= 0 && num <= 600) n.stops[n.stops.length-1].stay = num;
     else if(k === 'z' && n.stops.length && /^([01]\d|2[0-3])[0-5]\d$/.test(v)){ const st = n.stops[n.stops.length-1]; st.mode = 'time'; st.time = unhm(v); }
@@ -373,13 +382,17 @@ function decode(text){
   const tail = String(text).slice(m.index + m[0].length).match(/^\.([^\s#?]*)/);
   let names = [];
   let title = '';
-  if(tail){ const segs = tail[1].split('.').map(x => { try { return decodeURIComponent(x); } catch(e) { return ''; } }); title = segs[0] || ''; names = segs.slice(1); }
-  else { const tm = String(text).match(/^Termin:[ \u00a0]+(.+)$/m); if(tm) title = tm[1].trim(); }
+  if(tail){ const segs = tail[1].split('.').map(x => { try { return decodeURIComponent(x); } catch(e) { return ''; } }); title = segs[0] || ''; if(n.hasRoute) n.route = cleanRoute(segs.splice(1, 1)[0] || ''); names = segs.slice(1); }
+  else {
+    const tm = String(text).match(/^Termin:[ \u00a0]+(.+)$/m); if(tm) title = tm[1].trim();
+    const rm = String(text).match(/^Route:[ \u00a0]+(\S+)/m); if(rm) n.route = cleanRoute(rm[1]);
+  }
+  delete n.hasRoute;
   n.title = title.slice(0, 60);
   if(!names.some(Boolean)) names = [...String(text).matchAll(/Zwischenstopp(?:[ \u00a0]+([^:\n]+?))?:\s*\d/g)].map(x => (x[1] || '').trim());
   n.stops.forEach((st, i) => { if(names[i]) st.name = names[i]; });
   if(!('drive' in n) || !('arrMode' in n)) return false;
-  for(const [k, d] of [['start',''],['date',''],['icons',false]]) if(!(k in n)) n[k] = d;
+  for(const [k, d] of [['start',''],['date',''],['route',''],['icons',false]]) if(!(k in n)) n[k] = d;
   Object.assign(state, n);
   return true;
 }
@@ -392,6 +405,14 @@ const fmt = m => { const d = ((m % 1440) + 1440) % 1440; return pad(Math.floor(d
 const dayNote = m => m < 0 ? ' (Vortag)' : m >= 1440 ? ' (Folgetag)' : '';
 const dur = m => m >= 60 ? Math.floor(m/60) + ' Std.' + (m%60 ? ' ' + (m%60) + ' Min.' : '') : m + ' Min.';
 const clamp = (v,a,b) => Math.min(b, Math.max(a, v));
+/* Route-Link: erste Webadresse aus dem eingefügten Text (Teilen-Texte enthalten oft noch Wörter davor) */
+function cleanRoute(x){
+  x = String(x || '').trim();
+  const m = x.match(/https?:\/\/[^\s<>"]+/i);
+  if(m) return m[0].slice(0, 1500);
+  if(/^[\w-]+(\.[\w-]+)+(\/\S*)?$/.test(x)) return ('https://' + x).slice(0, 1500);
+  return '';
+}
 const iso = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
 const fromIso = s => { const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); };
 const WD = ['So','Mo','Di','Mi','Do','Fr','Sa'];
@@ -424,6 +445,7 @@ function dayWord(base){
 
 function syncUI(){
   $('title').value = state.title;
+  $('route').value = state.route;
   document.querySelector(`input[name=prep][value="${state.prep}"]`).checked = true;
   document.querySelector(`input[name=arrMode][value="${state.arrMode}"]`).checked = true;
   document.querySelector(`input[name=dateMode][value="${state.date ? 'date' : 'none'}"]`).checked = true;
@@ -495,6 +517,8 @@ function render(){
     state.arrMode === 'before' ? `Ankunft ${dur(state.before)} vor Beginn` : (arr !== null ? `Ankunft ${fmt(arr)} Uhr` : ''),
     start !== null ? `Beginn ${state.start} Uhr` : ''
   ].filter(Boolean).join(' · ');
+  $('routeLink').classList.toggle('hide', !state.route);
+  if(state.route) $('routeLink').href = state.route;
 
   if(arr === null){
     steps = [];
@@ -554,6 +578,7 @@ function render(){
     if(lines.length) lines.push('');
     lines.push(...steps.map(s => `${state.icons ? s.ic + ' ' : ''}${s.k}: ${fmt(s.m)} Uhr${dayNote(s.m)}${s.go ? ` (Fahrzeit ${dur(firstLeg)})` : ''}${s.stop ? ` (Weiterfahrt ${fmt(s.leave)} Uhr, Fahrzeit ${dur(s.next)})` : ''}`));
     const extra = [];
+    if(state.route) extra.push(`Route: ${state.route}`);
     if(state.withLink && APP_URL) extra.push(`Zeitplan öffnen: ${APP_URL}#${encode()}`);
     if(extra.length) lines.push('', ...extra);
     $('note').value = lines.join('\n');
@@ -634,6 +659,8 @@ $('calPrev').addEventListener('click', () => { calView.setMonth(calView.getMonth
 $('calNext').addEventListener('click', () => { calView.setMonth(calView.getMonth() + 1); renderCal(); });
 $('calToday').addEventListener('click', change(() => { state.date = iso(new Date()); calView = null; }));
 $('title').addEventListener('input', change(e => state.title = e.target.value));
+$('route').addEventListener('input', change(e => state.route = cleanRoute(e.target.value)));
+$('route').addEventListener('blur', () => { $('route').value = state.route; });
 $('note').addEventListener('input', () => { edited = true; });
 
 /* Zwischenstopps in den Einstellungen */

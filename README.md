@@ -18,6 +18,7 @@ Die App läuft komplett im Browser auf Handy, Tablet und Computer – ohne Serve
 - **Vorbereitungszeit:** Normal (15 Min.), Lang (30 Min.) oder individuell in 5‑Minuten-Schritten
 - **Zwischenstopps** (bis zu 8), jeweils mit Name, Fahrzeit bis dorthin und Aufenthalt – entweder als **Dauer** oder zu einer **festen Uhrzeit** (z. B. „Kind abholen um 15:20“)
 - **Fahrzeit** bis zum Ziel in 5‑Minuten-Schritten, vorausgewählt 30 Minuten
+- **Link zur Route** (optional), z. B. aus Google Maps oder Apple Karten über „Teilen“ kopiert. In der App erscheint dann der Button „Route öffnen“
 - **Ankommen:** zu einer festen Uhrzeit oder – wenn ein Beginn eingetragen ist – eine bestimmte Zeit vor Beginn (Schnellauswahl 10 / 15 / 30 / 60 Min.)
 - **Beginn der Veranstaltung** (optional)
 - Notiztext mit oder ohne Symbole, mit oder ohne Link
@@ -37,10 +38,11 @@ Zwischenstopp Kind abholen: 15:20 Uhr (Weiterfahrt 15:40 Uhr, Fahrzeit 20 Min.)
 Ankommen: 16:00 Uhr
 Beginn: 16:10 Uhr
 
-Zeitplan öffnen: https://<benutzername>.github.io/termin-planer/#ztp15f20a1600s1610x15y10x25y5z1520d20261203.Elternabend%207b.B%C3%A4cker.Kind%20abholen
+Route: https://maps.app.goo.gl/AbC123xyz
+Zeitplan öffnen: https://<benutzername>.github.io/termin-planer/#ztp15f20a1600s1610x15y10x25y5z1520d20261203r1.Elternabend%207b.https%3A%2F%2Fmaps%2Eapp%2Egoo%2Egl%2FAbC123xyz.B%C3%A4cker.Kind%20abholen
 ```
 
-Tippt man im Kalender auf den Link, öffnet sich die App mit dem kompletten Zeitplan – inklusive Titel, Datum und Zwischenstopps. Falls ein Kalender den Link nicht öffnet, kann man in den Einstellungen unter „Plan aus einem Link laden“ den Link oder den ganzen Notiztext einfügen.
+Tippt man im Kalender auf den Link, öffnet sich die App mit dem kompletten Zeitplan – inklusive Titel, Datum, Zwischenstopps und Route. Falls ein Kalender den Link nicht öffnet, kann man in den Einstellungen unter „Plan aus einem Link laden“ den Link oder den ganzen Notiztext einfügen.
 
 ## Auf GitHub Pages veröffentlichen
 
@@ -74,7 +76,7 @@ Die App öffnet sich dann ohne Browserleiste und funktioniert nach dem ersten Au
 
 ## Aufbau des Links
 
-Hinter dem `#` stehen alle Einstellungen. Zuerst ein Block aus Buchstaben und Zahlen, der mit `zt` beginnt, danach – durch Punkte getrennt – der Titel und die Namen der Zwischenstopps.
+Hinter dem `#` stehen alle Einstellungen. Zuerst ein Block aus Buchstaben und Zahlen, der mit `zt` beginnt, danach – durch Punkte getrennt – der Titel, ggf. der Route-Link und die Namen der Zwischenstopps.
 
 | Kürzel | Bedeutung | Beispiel |
 |---|---|---|
@@ -89,6 +91,7 @@ Hinter dem `#` stehen alle Einstellungen. Zuerst ein Block aus Buchstaben und Za
 | `z` | feste Uhrzeit am Zwischenstopp (hhmm) | `z1520` |
 | `d` | Datum (jjjjmmtt) | `d20261203` |
 | `i` | Symbole im Notiztext an | `i1` |
+| `r` | Route-Link vorhanden (steht hinter dem Titel) | `r1` |
 
 ## Dateien
 
@@ -106,4 +109,4 @@ Hinter dem `#` stehen alle Einstellungen. Zuerst ein Block aus Buchstaben und Za
 
 ## Datenschutz
 
-Die App sendet keine Daten an einen Server und lädt nichts von fremden Diensten – auch die Schriften (Red Hat Display und Red Hat Text, SIL Open Font License) liegen mit im Repository. Die letzten Einstellungen werden nur im Browser des jeweiligen Geräts gespeichert (`localStorage`). Was im Link steht (Titel, Zeiten, Namen der Zwischenstopps), landet in der Termin-Notiz und – beim Öffnen – im Browserverlauf.
+Die App sendet keine Daten an einen Server und lädt nichts von fremden Diensten – auch die Schriften (Red Hat Display und Red Hat Text, SIL Open Font License) liegen mit im Repository. Die letzten Einstellungen werden nur im Browser des jeweiligen Geräts gespeichert (`localStorage`). Was im Link steht (Titel, Zeiten, Route, Namen der Zwischenstopps), landet in der Termin-Notiz und – beim Öffnen – im Browserverlauf.
