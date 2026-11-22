@@ -17,6 +17,7 @@ Die App läuft komplett im Browser auf Handy, Tablet und Computer – ohne Serve
 **Teilen und Kalender**
 - **In den Kalender:** erstellt eine Kalenderdatei (.ics) mit Titel, Datum und dem Notiztext. Der Termin beginnt mit „Los“ und endet mit der letzten Station; Erinnerungen gibt es zum Fertigmachen, bei „Los“ und bei jedem „Weiter“. Auf dem Handy die Datei öffnen und „Hinzufügen“ wählen
 - **Teilen:** öffnet das Teilen-Menü des Handys (WhatsApp, Mail, Notizen …) mit dem Notiztext
+- **Nur Link teilen:** teilt nur den Link zum Zeitplan (wo kein Teilen-Menü da ist, wird er kopiert)
 - **Text kopieren** für die Notizen eines vorhandenen Termins
 
 **Einstellungen** (öffnen sich über das Symbol oben rechts als kompaktes Seitenpanel)

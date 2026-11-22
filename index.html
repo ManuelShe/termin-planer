@@ -257,6 +257,7 @@ details.more summary{cursor:pointer;font-weight:700;min-height:44px;display:flex
    <div class="copy">
     <button type="button" class="btn" id="icsBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4M12 13.5v4M10 15.5h4"/></svg>In den Kalender</button>
     <button type="button" class="btn dark" id="shareBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3.5M7.5 8 12 3.5 16.5 8"/><path d="M5 12v6.5A2 2 0 0 0 7 20.5h10a2 2 0 0 0 2-2V12"/></svg>Teilen</button>
+    <button type="button" class="btn dark" id="linkBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1"/><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1"/></svg>Nur Link teilen</button>
     <button type="button" class="btn ghost" id="copyBtn">Text kopieren</button>
     <span class="ok" id="copyMsg" aria-live="polite"></span>
    </div>
@@ -1120,6 +1121,19 @@ $('icsBtn').addEventListener('click', () => {
 });
 
 /* ---------- Teilen (Teilen-Menü des Handys) ---------- */
+/* Nur den Link zum Zeitplan teilen */
+$('linkBtn').classList.toggle('hide', !APP_URL);
+$('linkBtn').addEventListener('click', async () => {
+  const msg = $('copyMsg');
+  if(!lastPlan || !APP_URL){ msg.textContent = 'Noch kein Link zum Teilen.'; return; }
+  const url = `${APP_URL}#${encode()}`, title = lastPlan.ttl || 'Zeitplan';
+  if(navigator.share){
+    try { await navigator.share({title, url}); msg.textContent = ''; return; }
+    catch(e){ if(e.name === 'AbortError') return; }
+  }
+  try { await navigator.clipboard.writeText(url); msg.textContent = 'Link kopiert.'; }
+  catch(e){ msg.textContent = 'Link: ' + url; }
+});
 $('shareBtn').addEventListener('click', async () => {
   const text = $('note').value, msg = $('copyMsg');
   if(!text){ msg.textContent = 'Noch kein Text zum Teilen.'; return; }
