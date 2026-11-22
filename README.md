@@ -19,6 +19,7 @@ Die App läuft komplett im Browser auf Handy, Tablet und Computer – ohne Serve
 - **Teilen:** öffnet das Teilen-Menü des Handys (WhatsApp, Mail, Notizen …) mit dem Notiztext
 - **Nur Link teilen:** teilt nur den Link zum Zeitplan (wo kein Teilen-Menü da ist, wird er kopiert). Bei einer lokal geöffneten Datei gibt es keinen Link
 - **Text kopieren** für die Notizen eines vorhandenen Termins
+- **Drucken** (Drucker-Symbol oben rechts neben den Einstellungen): druckt Kopf mit Zeiten, den Ablauf mit senkrechtem Balken und Symbolen sowie den Aufteilungsbalken – ohne Notiztext und Countdown
 
 **Einstellungen** (öffnen sich über das Symbol oben rechts als kompaktes Seitenpanel)
 - Oben im Panel stehen immer die voraussichtlichen Zeiten (Fertig machen, Los, letzte Station), jede Station zeigt ihre berechnete Uhrzeit – so sieht man beim Planen sofort, was sich ändert
@@ -36,9 +37,12 @@ Die App läuft komplett im Browser auf Handy, Tablet und Computer – ohne Serve
     | Zwischenstopp | kurz etwas erledigen | kleiner Punkt |
     | Termin | Ziel mit Uhrzeit und Dauer | Zielflagge – mit „zuvor ankommen“ Kalender (die Flagge steht dann bei „Ankommen“) |
     | Beginn | Beginn einer Veranstaltung | Zielflagge – mit „zuvor ankommen“ Play-Zeichen |
+    | Treffen | mit jemandem verabredet | zwei Personen |
     | Abholen | jemanden abholen | Person |
     | Bringen | jemanden irgendwo hinbringen | Person mit Pfeil |
     | Haltestelle | Bus oder Bahn – die feste Uhrzeit ist die Abfahrt | Bus |
+    | Abflug | Flug – die feste Uhrzeit ist der Abflug, vorbelegt mit 2 Std. vorher da sein (Einchecken, Sicherheitskontrolle) | Flugzeug |
+    | Ankunft | Ankunft von Bus, Bahn oder Flug zu fester Uhrzeit. Direkt nach „Haltestelle“ oder „Abflug“ ergibt sich die Fahr- bzw. Flugzeit automatisch aus beiden Uhrzeiten | Pfeil nach unten |
     | Pause | Rast auf langen Wegen (im Balken eigene Farbe) | Tasse |
     | Rückweg | Heimweg als letzte Station | Haus |
     | Individuell | alles andere, Name über die Beschreibung | Punkt |
@@ -47,6 +51,7 @@ Die App läuft komplett im Browser auf Handy, Tablet und Computer – ohne Serve
   - **Fest um:** eine feste Uhrzeit (mindestens eine Station braucht eine)
   - **Zeit bis hierhin:** Wegzeit (zu Fuß, mit Rad, Auto, Bus …) bzw. Abstand zur Station davor (bei der ersten: ab Los), beim Rückweg „Zeit für den Rückweg“
   - **zuvor ankommen:** so viele Minuten vor der Uhrzeit der Station dort sein, z. B. 15 Min. vor Beginn. Im Ablauf erscheint dann automatisch eine Zeile „Ankommen“
+  - **Gründe fürs Früher-da-sein** (erscheinen, sobald „zuvor ankommen“ eingestellt ist, mehrere wählbar): z. B. Parkplatzsuche, Fußweg vom Parkplatz, Puffer, Treffpunkt, Anmeldung, Einlass, Einchecken, Sicherheitskontrolle, Ticket holen, Garderobe, Umziehen, Aufwärmen, Platz suchen oder Material aufbauen – dazu ein eigener Grund als Freitext. Sie stehen dann bei „Ankommen“ im Ablauf und im Notiztext
   - **Aufenthalt**
 - Stationen lassen sich mit ↑ und ↓ umsortieren und mit ✕ entfernen
 - **Puffer für Wege:** +5 bis +20 Min. oder +10 bis +50 % auf jede Wegzeit, z. B. für Stau, Parkplatzsuche oder Umsteigen
@@ -113,11 +118,13 @@ Hinter dem `#` stehen alle Einstellungen. Zuerst ein Block aus Buchstaben und Za
 |---|---|---|
 | `p` | Vorbereitung Keine/Normal/Lang (0, 15 oder 30 Min.) | `p15` |
 | `c` | Vorbereitung individuell in Minuten | `c45` |
-| `b` | neue Station: 2 Beginn, 3 Zwischenstopp, 4 Individuell, 5 Rückweg, 6 Termin, 7 Abholen, 8 Haltestelle, 9 Pause, 10 Bringen (0 und 1 aus älteren Links werden zu Termin) | `b6` |
+| `b` | neue Station: 2 Beginn, 3 Zwischenstopp, 4 Individuell, 5 Rückweg, 6 Termin, 7 Abholen, 8 Haltestelle, 9 Pause, 10 Bringen, 11 Treffen, 12 Abflug, 13 Ankunft (0 und 1 aus älteren Links werden zu Termin) | `b6` |
 | `u` | feste Uhrzeit der Station (hhmm) | `u1400` |
 | `n` | Minuten nach der vorherigen Station (Wegzeit) | `n30` |
 | `y` | Aufenthalt in Minuten | `y10` |
 | `e` | zuvor ankommen (Minuten vor der Uhrzeit der Station) | `e15` |
+| `o` | Gründe fürs Früher-da-sein als Summe: 1 Parkplatzsuche · 2 Fußweg vom Parkplatz · 3 Puffer · 4 Treffpunkt · 5 Anmeldung · 6 Einlass · 7 Einchecken · 8 Sicherheitskontrolle · 9 Ticket holen · 10 Garderobe · 11 Umziehen · 12 Aufwärmen · 13 Platz suchen · 14 Material aufbauen – jeder Grund n zählt 2^(n−1), z. B. Parkplatzsuche + Fußweg = 1 + 2 = 3 | `o3` |
+| `t` | eigene Gründe vorhanden – sie stehen dann hinter den Beschreibungen der Stationen | `t1` |
 | `d` | Datum (jjjjmmtt) | `d20261203` |
 | `w` | Wiederholung: 1 täglich, 2 werktags, 3 wöchentlich, 4 monatlich, 5 jährlich | `w3` |
 | `k` | Wochentage bei wöchentlich (Mo = 1, Di = 2, Mi = 4 … So = 64, addiert) | `k6` |
