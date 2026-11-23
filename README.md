@@ -1,13 +1,14 @@
 # Zeitplaner
 
-Eine kleine Webapp für Termine: Aus der gewünschten Ankunftszeit rechnet sie aus, **wann man sich fertig machen** und **wann man losgehen bzw. losfahren** muss – zu Fuß, mit dem Rad, Auto oder Bus – auch mit Zwischenstopps und weiteren Stationen unterwegs. Dazu erzeugt sie einen Text, den man in die Notizen des Kalendertermins kopiert. Ein Link in diesem Text öffnet später genau diesen Zeitplan wieder in der App.
+Eine kleine Webapp für Termine: Aus der gewünschten Ankunftszeit rechnet sie aus, **wann man mit der Vorbereitung anfangen** und **wann man losgehen bzw. losfahren** muss – zu Fuß, mit dem Rad, Auto oder Bus – auch mit Zwischenstopps und weiteren Stationen unterwegs. Dazu erzeugt sie einen Text, den man in die Notizen des Kalendertermins kopiert. Ein Link in diesem Text öffnet später genau diesen Zeitplan wieder in der App.
 
 Die App läuft komplett im Browser auf Handy, Tablet und Computer – ohne Server, ohne Konto, ohne Installation.
 
 ## Funktionen
 
 **Anzeige**
-- Kopfzeile mit „Fertig machen um“ und „Los um“, jeweils mit Countdown („noch 1 Std. 5 Min.“)
+- Kopfzeile mit „Vorbereiten um“ und „Los um“, jeweils mit Countdown („noch 1 Std. 5 Min.“)
+- Oben rechts drei Symbole: **Drucker** sowie in einer gemeinsamen Taste **Einstellungen** und **Kleiderbügel** – der Bügel blendet alle Vorbereitungen aus bzw. ein (wird im Link gespeichert). Sind alle Vorbereitungen vorbei, blendet der Ablauf sie automatisch aus („Vorbereitung erledigt ✓“); ein Tipp auf den Bügel zeigt sie kurz wieder
 - Nach Stationen mit Aufenthalt oder Puffer fügt die App automatisch „Weiter“ bzw. „Weiter spätestens“ mit Uhrzeit ein – im Ablauf in derselben Zeile wie die Station („bis 17:20“), im Notiztext als eigene Zeile
 - Ablauf aller Schritte mit **senkrechtem Fortschrittsbalken**, der sich mit der Zeit füllt; ein Punkt zeigt, wo man gerade steht
 - Bei jedem Schritt steht, wie lange es noch dauert („in 25 Min.“) bzw. wie lange er her ist; der nächste Schritt ist hervorgehoben
@@ -15,48 +16,52 @@ Die App läuft komplett im Browser auf Handy, Tablet und Computer – ohne Serve
 - Warnung, wenn man zu spät ankommen würde oder ein Zwischenstopp zu knapp ist
 
 **Teilen und Kalender**
-- **In den Kalender:** erstellt eine Kalenderdatei (.ics) mit Titel, Datum und dem Notiztext. Der Termin beginnt mit „Los“ und endet mit der letzten Station; Erinnerungen gibt es zum Fertigmachen, bei „Los“ und bei jedem „Weiter“. Auf dem Handy die Datei öffnen und „Hinzufügen“ wählen
+- **In den Kalender:** erstellt eine Kalenderdatei (.ics) mit Titel, Datum und dem Notiztext. Der Termin beginnt mit „Los“ und endet mit der letzten Station; Erinnerungen gibt es zur Vorbereitung, bei „Los“ und bei jedem „Weiter“. Auf dem Handy die Datei öffnen und „Hinzufügen“ wählen
 - **Teilen:** öffnet das Teilen-Menü des Handys (WhatsApp, Mail, Notizen …) mit dem Notiztext
 - **Nur Link teilen:** teilt nur den Link zum Zeitplan (wo kein Teilen-Menü da ist, wird er kopiert). Bei einer lokal geöffneten Datei gibt es keinen Link
 - **Text kopieren** für die Notizen eines vorhandenen Termins
 - **Drucken** (Drucker-Symbol oben rechts neben den Einstellungen): druckt Kopf mit Zeiten, den Ablauf mit senkrechtem Balken und Symbolen sowie den Aufteilungsbalken – ohne Notiztext und Countdown
 
 **Einstellungen** (öffnen sich über das Symbol oben rechts als kompaktes Seitenpanel)
-- Oben im Panel stehen immer die voraussichtlichen Zeiten (Fertig machen, Los, letzte Station), jede Station zeigt ihre berechnete Uhrzeit – so sieht man beim Planen sofort, was sich ändert
-- **Neu** legt einen leeren Zeitplan an (mit „Rückgängig“)
+- Oben im Panel stehen immer die voraussichtlichen Zeiten (Vorbereiten, Los, letzte Station), jede Station zeigt ihre berechnete Uhrzeit – so sieht man beim Planen sofort, was sich ändert
+- **Neu** legt einen frischen Zeitplan an – mit einer Vorbereitung (15 Min.) und einem Termin (mit „Rückgängig“)
 - **Vorlagen:** den aktuellen Plan unter einem Namen speichern (z. B. „Schule“) und später mit einem Tipp wieder laden – mit Stationen, Vorbereitung, Puffer, Route und Wiederholung, aber ohne Datum. Gleicher Name überschreibt die Vorlage, ✕ löscht sie. Vorlagen liegen nur im Browser des jeweiligen Geräts
 - **Titel des Termins** (optional), z. B. „Zahnarzt“
 - **Datum** (optional) über einen Kalender. Ohne Datum gilt der Plan für heute – oder für morgen, wenn er heute schon vorbei ist
 - **Wiederholung** (optional): täglich, werktags (Mo–Fr), wöchentlich an ausgewählten Tagen, monatlich oder jährlich – ab dem gewählten Datum bzw. ab heute. Die App zeigt dann immer den nächsten Termin, im Kalender entsteht ein Serientermin
-- **Vorbereitungszeit:** Keine, Normal (15 Min.), Lang (30 Min.) oder individuell in 5‑Minuten-Schritten. Ohne Vorbereitungszeit entfällt „Fertig machen“
 - **Stationen** (bis zu 12), alle vom gleichen Typ. Für jede Station stellt man ein:
   - **Bezeichnung** – jede Kategorie hat ihr eigenes Symbol im Fortschrittsbalken:
 
     | Kategorie | Wofür | Symbol |
     |---|---|---|
+    | Vorbereitung | zu Hause fertig werden, z. B. anziehen, Tasche packen – nur „benötigte Zeit“, mit Vorschlägen für die Beschreibung. Die Beschreibung ersetzt „Vorbereiten“; Uhrzeit klein und grau | kleiner Punkt |
     | Zwischenstopp | kurz etwas erledigen | kleiner Punkt |
     | Termin | Ziel mit Uhrzeit und Dauer | Zielflagge – mit „zuvor ankommen“ Kalender (die Flagge steht dann bei „Ankommen“) |
     | Beginn | Beginn einer Veranstaltung | Zielflagge – mit „zuvor ankommen“ Play-Zeichen |
     | Treffen | mit jemandem verabredet | zwei Personen |
     | Abholen | jemanden abholen | Person |
     | Bringen | jemanden irgendwo hinbringen | Person mit Pfeil |
-    | Haltestelle | Bus oder Bahn – die feste Uhrzeit ist die Abfahrt | Bus |
-    | Abflug | Flug – die feste Uhrzeit ist der Abflug, vorbelegt mit 2 Std. vorher da sein (Einchecken, Sicherheitskontrolle) | Flugzeug |
-    | Ankunft | Ankunft von Bus, Bahn oder Flug zu fester Uhrzeit. Direkt nach „Haltestelle“ oder „Abflug“ ergibt sich die Fahr- bzw. Flugzeit automatisch aus beiden Uhrzeiten | Pfeil nach unten |
+    | Haltestelle | Bus oder Bahn – die feste Uhrzeit ist die Abfahrt; optional „Ankunft um“. Dann zeigt die Station in den Einstellungen Fahrzeit, Ankunft, Weg zum nächsten Punkt und den Puffer bis zur nächsten festen Uhrzeit (Puffer = was über das eingestellte „vorher da sein“ hinaus übrig bleibt). Schnellwahl „Verspätung“ direkt an der Station, auch zugeklappt: Abfahrt und – mit Ankunftszeit – Ankunft getrennt („wie Abfahrt“, „pünktlich“ oder +1 bis +120 Min.). Im Ablauf stehen „Abfahrt“ über und „Ankunft“ unter der Uhrzeit. Nach der Ankunft geht es direkt weiter: flexible Stationen schließen an, bei einem Termin ergibt sich „zuvor ankommen“ aus der Ankunft | Bus |
+    | Abflug | Flug – die feste Uhrzeit ist der Abflug, vorbelegt mit 2 Std. vorher da sein (Einchecken, Sicherheitskontrolle). Schnellwahl „Verspätung“ für den Abflug | Flugzeug |
+    | Ankunft | Ankunft von Bus, Bahn oder Flug zu fester Uhrzeit. Direkt nach „Haltestelle“ oder „Abflug“ ergibt sich die Fahr- bzw. Flugzeit automatisch aus beiden Uhrzeiten. Schnellwahl „Verspätung“ für die Ankunft (direkt nach Abflug/Haltestelle zunächst „wie Abflug“) | Pfeil nach unten |
     | Pause | Rast auf langen Wegen (im Balken eigene Farbe) | Tasse |
-    | Rückweg | Heimweg als letzte Station | Haus |
+    | Rückweg | Heimweg als letzte Station – eine Beschreibung (z. B. „Oma“) ersetzt „Zu Hause“ | Haus |
     | Individuell | alles andere, Name über die Beschreibung | Punkt |
 
   - **Beschreibung** (optional), z. B. „Bäcker“ – bei „Individuell“ ist das der Name der Station
   - **Details** (optional), z. B. Adresse, Raum oder Ansprechpartner – stehen im Ablauf, im Ausdruck und im Notiztext unter der Station
   - **Fest um:** eine feste Uhrzeit (mindestens eine Station braucht eine)
   - **Zeit bis hierhin:** Wegzeit (zu Fuß, mit Rad, Auto, Bus …) bzw. Abstand zur Station davor (bei der ersten: ab Los), beim Rückweg „Zeit für den Rückweg“
+  - **Puffer für den Weg** (außer bei Vorbereitungen): +5 bis +30 Min. oder +10 bis +50 % auf die Wegzeit zu dieser Station, z. B. für Stau, Parkplatzsuche oder Umsteigen. Prozent-Puffer werden auf volle 5 Min. aufgerundet
   - **zuvor ankommen:** so viele Minuten vor der Uhrzeit der Station dort sein, z. B. 15 Min. vor Beginn. Im Ablauf erscheint dann automatisch eine Zeile „Ankommen“
   - **Gründe fürs Früher-da-sein** (erscheinen, sobald „zuvor ankommen“ eingestellt ist, mehrere wählbar): z. B. Parkplatzsuche, Fußweg vom Parkplatz, Puffer, Treffpunkt, Anmeldung, Einlass, Einchecken, Sicherheitskontrolle, Ticket holen, Garderobe, Umziehen, Aufwärmen, Platz suchen oder Material aufbauen – dazu ein eigener Grund als Freitext. Sie stehen dann bei „Ankommen“ im Ablauf und im Notiztext
   - **Aufenthalt**
   - **ca.** bei „Zeit bis hierhin“ und „Aufenthalt“: die Dauer ist nur geschätzt. Alle Zeiten, die sich daraus ergeben, stehen dann mit „ca.“ da – bis zur nächsten Station mit fester Uhrzeit
+- Stationen stehen zugeklappt und kompakt untereinander (Uhrzeit, Name, Kurzinfo); ein Tipp klappt eine Station zum Bearbeiten auf. Zwischen den Stationen stehen Abfahrts-, Ankunfts- und Wegzeiten, die sich beim Ändern sofort anpassen
+- Mit **+** zwischen zwei Stationen lässt sich dort eine neue einfügen (ganz oben eine Vorbereitung)
+- **Verspätungen** (Haltestelle, Abflug, Ankunft): Im Ablauf werden die betroffenen Uhrzeiten durchgestrichen und durch die neuen in **Rot** ersetzt, die Verspätung steht als „+10 Min.“ neben dem Namen. Alles vor der Abfahrt bleibt wie geplant; flexible Stationen danach verschieben sich, feste Uhrzeiten bleiben. Reicht die Zeit nicht mehr, warnt die App („Durch die Verspätung … zu spät für …“)
+- **Farben der Uhrzeiten:** feste Uhrzeiten gelb markiert (wie mit Textmarker; im Dunkelmodus gelbe Schrift), verschobene (verspätete) Uhrzeiten rot, berechnete schwarz
 - Stationen lassen sich mit ↑ und ↓ umsortieren und mit ✕ entfernen
-- **Puffer für Wege:** +5 bis +20 Min. oder +10 bis +50 % auf jede Wegzeit, z. B. für Stau, Parkplatzsuche oder Umsteigen
 - **Link zur Route** (optional), z. B. aus Google Maps oder Apple Karten über „Teilen“ kopiert. In der App erscheint dann der Button „Route öffnen“
 - Notiztext mit oder ohne Symbole, mit oder ohne Link
 
@@ -68,16 +73,16 @@ Die App rechnet von den Stationen mit fester Uhrzeit aus rückwärts bzw. vorwä
 Termin: Elternabend 7b
 Datum: Donnerstag, 03.12.2026
 
-Fertig machen: 14:15 Uhr
+Vorbereiten: 14:15 Uhr (15 Min.)
 Los: 14:30 Uhr (Weg 15 Min.)
 Zwischenstopp Bäcker: 14:45 Uhr (Aufenthalt 10 Min.)
 Weiter: 14:55 Uhr (Weg 25 Min.)
-Ankommen: 15:20 Uhr
+Termin: 15:20 Uhr
 Beginn: 15:30 Uhr
 
 Route: https://maps.app.goo.gl/AbC123xyz
 
-Zeitplan öffnen: https://<benutzername>.github.io/termin-planer/#ztp15b3n15y10b1n25b2u1530n10d20261203r1.Elternabend%207b.https%3A%2F%2Fmaps%2Eapp%2Egoo%2Egl%2FAbC123xyz.B%C3%A4cker
+Zeitplan öffnen: https://<benutzername>.github.io/termin-planer/#ztb14y15b3n15y10b6n25b2u1530n10d20261203r1.Elternabend%207b.https%3A%2F%2Fmaps%2Eapp%2Egoo%2Egl%2FAbC123xyz..B%C3%A4cker
 ```
 
 Tippt man im Kalender auf den Link, öffnet sich die App mit dem kompletten Zeitplan – inklusive Titel, Datum, Stationen und Route. Falls ein Kalender den Link nicht öffnet, kann man in den Einstellungen unter „Plan aus einem Link laden“ den Link oder den ganzen Notiztext einfügen. Links aus älteren Versionen der App funktionieren weiterhin.
@@ -118,14 +123,17 @@ Hinter dem `#` stehen alle Einstellungen. Zuerst ein Block aus Buchstaben und Za
 
 | Kürzel | Bedeutung | Beispiel |
 |---|---|---|
-| `p` | Vorbereitung Keine/Normal/Lang (0, 15 oder 30 Min.) | `p15` |
-| `c` | Vorbereitung individuell in Minuten | `c45` |
-| `b` | neue Station: 2 Beginn, 3 Zwischenstopp, 4 Individuell, 5 Rückweg, 6 Termin, 7 Abholen, 8 Haltestelle, 9 Pause, 10 Bringen, 11 Treffen, 12 Abflug, 13 Ankunft (0 und 1 aus älteren Links werden zu Termin) | `b6` |
+| `m` | `m0` = Vorbereitungen ausgeblendet | `m0` |
+| `p` / `c` | nur in älteren Links: Vorbereitungszeit – wird beim Öffnen zur Station „Vorbereitung“ | `p15` |
+| `b` | neue Station: 2 Beginn, 3 Zwischenstopp, 4 Individuell, 5 Rückweg, 6 Termin, 7 Abholen, 8 Haltestelle, 9 Pause, 10 Bringen, 11 Treffen, 12 Abflug, 13 Ankunft, 14 Vorbereitung (0 und 1 aus älteren Links werden zu Termin) | `b6` |
 | `u` | feste Uhrzeit der Station (hhmm) | `u1400` |
 | `n` | Minuten nach der vorherigen Station (Wegzeit) | `n30` |
 | `y` | Aufenthalt in Minuten | `y10` |
 | `e` | zuvor ankommen (Minuten vor der Uhrzeit der Station) | `e15` |
 | `o` | Gründe fürs Früher-da-sein als Summe: 1 Parkplatzsuche · 2 Fußweg vom Parkplatz · 3 Puffer · 4 Treffpunkt · 5 Anmeldung · 6 Einlass · 7 Einchecken · 8 Sicherheitskontrolle · 9 Ticket holen · 10 Garderobe · 11 Umziehen · 12 Aufwärmen · 13 Platz suchen · 14 Material aufbauen – jeder Grund n zählt 2^(n−1), z. B. Parkplatzsuche + Fußweg = 1 + 2 = 3 | `o3` |
+| `z` | Haltestelle: Ankunft nach der Fahrt (hhmm) | `z0805` |
+| `a` | Haltestelle/Abflug: Verspätung der Abfahrt in Minuten | `a10` |
+| `v` | Haltestelle/Ankunft: Verspätung der Ankunft in Minuten (`v0` = pünktlich; fehlt = wie die Abfahrt) | `v15` |
 | `x` | ungefähr: 1 = Zeit bis hierhin, 2 = Aufenthalt, 3 = beides | `x2` |
 | `l` | Details vorhanden – sie stehen hinter den Beschreibungen (und ggf. den eigenen Gründen) | `l1` |
 | `t` | eigene Gründe vorhanden – sie stehen dann hinter den Beschreibungen der Stationen | `t1` |
@@ -134,7 +142,8 @@ Hinter dem `#` stehen alle Einstellungen. Zuerst ein Block aus Buchstaben und Za
 | `k` | Wochentage bei wöchentlich (Mo = 1, Di = 2, Mi = 4 … So = 64, addiert) | `k6` |
 | `i` | Symbole im Notiztext an | `i1` |
 | `r` | Route-Link vorhanden (steht hinter dem Titel) | `r1` |
-| `g` / `h` | Puffer je Weg in Minuten / in Prozent | `g10`, `h20` |
+| `f` / `s` | Puffer für den Weg zur Station in Minuten / in Prozent | `f10`, `s20` |
+| `g` / `h` | nur in älteren Links: Puffer für alle Wege – wird beim Öffnen auf die Stationen verteilt | `g10` |
 
 ## Dateien
 

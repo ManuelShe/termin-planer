@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Zeitplaner</title>
-<meta name="description" content="Zeitplan für Termine: wann fertig machen, wann los, Stationen unterwegs – mit Text für die Termin-Notizen.">
+<meta name="description" content="Zeitplan für Termine: wann vorbereiten, wann los, Stationen unterwegs – mit Text für die Termin-Notizen.">
 <meta name="theme-color" content="#e5483b">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
@@ -28,7 +28,7 @@
 :root{color-scheme:light dark;
  --bg:light-dark(#fbfaf8,#15161b);--ink:light-dark(#1d1f26,#f1efe9);--muted:light-dark(#5d606b,#a9abb4);
  --line:light-dark(#e4e1db,#2c2e36);--card:light-dark(#ffffff,#1d1f26);
- --red:#e5483b;--redDeep:light-dark(#c9372b,#b7342a);--sun:#ffd23f;--soft:light-dark(#f3f1ec,#26282f)}
+ --red:#e5483b;--fix:light-dark(#1d1f26,#ffd23f);--fixMark:light-dark(#ffd23f,transparent);--fixBg:light-dark(#ffe27a,#3d3412);--fixLine:light-dark(#f0cf5a,#6b5a1c);--redDeep:light-dark(#c9372b,#b7342a);--sun:#ffd23f;--soft:light-dark(#f3f1ec,#26282f)}
 :root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
 *{box-sizing:border-box;min-width:0}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Red Hat Text",system-ui,sans-serif;overflow-x:clip}
@@ -45,10 +45,21 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 h1{font:800 clamp(28px,4.6vw,44px)/1.05 "Red Hat Display",sans-serif;margin:0;text-wrap:balance}
 .top .ttl{margin:10px 0 0;font:600 clamp(20px,2.6vw,26px)/1.2 "Red Hat Display",sans-serif;overflow-wrap:anywhere}
 .top .when{margin:8px 0 0;font-weight:700;opacity:.95}
-.hbtns{grid-area:btn;align-self:start;display:flex;gap:8px}
-.setbtn{display:grid;place-items:center;width:48px;height:48px;padding:0;border-radius:50%;border:1.5px solid rgba(255,255,255,.7);background:rgba(255,255,255,.14);color:#fff;cursor:pointer}
+.setbtn .slash{display:none}
+.setbtn[aria-pressed=false] .slash{display:inline}
+.setbtn[aria-pressed=false]{background:rgba(0,0,0,.16);border-style:dashed}
+/* Einstellungen und Vorbereitung teilen sich eine Pille */
+.pill{display:flex;border:1.5px solid rgba(255,255,255,.7);border-radius:999px;background:rgba(255,255,255,.14);overflow:hidden}
+.pill .setbtn{border:0;border-radius:0;background:none;width:42px}
+.pill .setbtn:first-child{padding-left:4px}
+.pill .setbtn:last-child{padding-right:4px}
+.pill .setbtn+.setbtn:not(.hide){border-left:1.5px solid rgba(255,255,255,.4)}
+.pill .setbtn:hover{background:rgba(255,255,255,.14)}
+.pill .setbtn[aria-pressed=false]{background:rgba(0,0,0,.18)}
+.hbtns{grid-area:btn;align-self:start;display:flex;gap:6px}
+.setbtn{display:grid;place-items:center;width:44px;height:44px;padding:0;border-radius:50%;border:1.5px solid rgba(255,255,255,.7);background:rgba(255,255,255,.14);color:#fff;cursor:pointer}
 .setbtn:hover{background:rgba(255,255,255,.26)}
-.setbtn svg{width:22px;height:22px}
+.setbtn svg{width:21px;height:21px}
 .times{display:flex;flex-wrap:wrap;align-items:end;gap:8px clamp(20px,4vw,44px)}
 .dep{text-align:right}
 .dep small{display:block;font-weight:700;font-size:15px}
@@ -92,10 +103,24 @@ h2{font:600 22px/1.2 "Red Hat Display",sans-serif;margin:0}
 .plan time{font:800 30px/1 "Red Hat Display",sans-serif;font-variant-numeric:tabular-nums;white-space:nowrap;text-align:right}
 .plan .k{font-weight:700;display:block;overflow-wrap:break-word;hyphens:auto}
 .plan .d{display:block;color:var(--muted);font-size:14px}
-.tc{display:flex;flex-direction:column;align-items:flex-end}
+.tc{display:flex;flex-direction:column;align-items:stretch}
+/* Punkt im senkrechten Balken: im Uhrzeit-Element, damit er immer genau auf Höhe der Uhrzeit sitzt
+   (Uhrzeit beginnt am linken Rand der Zeile, die Balkenmitte liegt 23 px links davon) */
+.plan time{display:block;position:relative}
+.pdot{position:absolute;z-index:1;top:50%;left:-31px;width:16px;height:16px;transform:translateY(-50%);border-radius:50%;background:var(--card);border:3px solid var(--line)}
+.pdot.small{left:-29px;width:12px;height:12px}
+.pdot.ico{left:-36px;width:26px;height:26px;border-width:2.5px;display:grid;place-items:center;color:var(--ink)}
+.pdot.ico svg{width:15px;height:15px}
+.pdot.done{background:var(--red);border-color:var(--red)}
+.pdot.ico.done{color:#fff}
 .t2{margin-top:5px;max-width:100%;font-size:14px;line-height:1.25;font-weight:700;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
 .t2 b{white-space:nowrap}
-.plan li.fixed time{color:var(--red)}
+.was{display:block;font:700 14px/1.1 "Red Hat Display",sans-serif;color:var(--muted);text-align:right;text-decoration-thickness:2px}
+.plan li time.moved,.plan li.fixed time.moved,.plan .t2 b.moved{color:var(--red)}
+.t2 s{font-weight:500;color:var(--muted);text-decoration-thickness:2px}
+.lateb{display:inline-block;margin-left:6px;padding:0 7px;border-radius:999px;background:var(--red);color:#fff;font-size:12px;font-weight:700;vertical-align:2px}
+.tlab{display:block;margin-bottom:3px;font-size:13px;line-height:1.1;font-weight:700;color:var(--muted);text-align:right}
+.plan li.fixed time{color:var(--fix);text-decoration:underline .42em var(--fixMark);text-underline-offset:-.3em;text-decoration-skip-ink:none}
 /* Aufteilungsbalken unter dem Ablauf */
 .split{margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}
 .sbar{display:flex;height:16px;border-radius:8px;overflow:hidden;background:var(--line);gap:2px}
@@ -137,7 +162,7 @@ dialog.sheet[open]{animation:slide .25s ease}
 .sheetrow .btns{display:flex;gap:8px}
 .preview{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:8px;font-size:14px;color:var(--muted)}
 .preview b{color:var(--ink);font-variant-numeric:tabular-nums}
-.preview .fx b{color:var(--red)}
+.preview .fx b{color:var(--fix);text-decoration:underline .42em var(--fixMark);text-underline-offset:-.3em;text-decoration-skip-ink:none}
 .undo{display:flex;align-items:center;gap:10px;margin-top:8px;padding:6px 6px 6px 12px;border-radius:10px;background:var(--soft);font-size:14px}
 .undo button{margin-left:auto}
 .sheetbody{padding:16px}
@@ -177,11 +202,38 @@ dialog.sheet[open]{animation:slide .25s ease}
 /* Stationen */
 .stations{display:flex;flex-direction:column;gap:0}
 .gap{display:flex;align-items:center;gap:8px;padding:4px 0 4px 18px;font-size:13px;color:var(--muted);border-left:2px dashed var(--line);margin-left:22px}
-.st{border:1.5px solid var(--line);border-radius:12px;padding:10px;background:var(--bg)}
-.st.fixed{border-color:light-dark(#e9a59f,#7a3530)}
+.st{border:1.5px solid var(--line);border-radius:12px;padding:6px 8px;background:var(--bg)}
+.stsum{display:flex;align-items:center;gap:8px;width:100%;min-height:44px;padding:0;border:0;background:none;text-align:left;cursor:pointer;font:inherit;color:inherit}
+.stmain{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.25}
+.stname{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stsub{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chev{flex:none;width:24px;text-align:center;font-size:22px;color:var(--muted);transition:transform .2s ease}
+.st.open .chev{transform:rotate(90deg)}
+.st.open{background:var(--card);box-shadow:0 2px 10px rgba(0,0,0,.06)}
+.stbody{margin-top:6px;padding:8px 2px 4px;border-top:1px solid var(--line)}
+.gap .gtxt{flex:1;min-width:0}
+.gap[hidden]{display:none}
+/* Verspätung: schon in der zugeklappten Haltestelle */
+.delay{display:flex;align-items:flex-start;gap:8px;margin:2px 0 2px 4px;font-size:13px;font-weight:700;color:var(--muted)}
+.delay .dlt{display:flex;align-items:center;gap:5px;min-height:34px;flex:none}
+.delay .dls{display:flex;flex-wrap:wrap;gap:4px 10px;min-width:0}
+.delay svg{width:16px;height:16px;flex:none}
+.delay .dl{display:flex;align-items:center;gap:5px}
+.delay .dl[hidden]{display:none}
+.delay select{min-height:34px;padding:2px 6px;border:1.5px solid var(--line);border-radius:999px;background:var(--card);color:var(--ink);font:700 14px "Red Hat Text",sans-serif}
+.delay .dl.on,.delay .dl.on select{color:var(--red);border-color:var(--red)}
+/* Zeiten ab der geöffneten Station */
+.tinfo{grid-column:1/-1;margin:2px 0 4px;padding:8px 10px;border-radius:10px;background:var(--soft);font-size:14px;line-height:1.45;color:var(--ink)}
+.tinfo b{font-variant-numeric:tabular-nums}
+.tinfo .good{color:light-dark(#1f7a3d,#7fd39a);font-weight:700}
+.tinfo .bad{color:var(--red);font-weight:700}
+.ins{flex:none;width:32px;height:32px;margin-right:4px;border:1.5px dashed var(--line);border-radius:50%;background:var(--card);color:var(--muted);font:700 18px/1 "Red Hat Display",sans-serif;cursor:pointer}
+.ins:hover{border-color:var(--red);color:var(--red)}
+@media(prefers-reduced-motion:reduce){.chev{transition:none}}
+.st.fixed{border-color:var(--fixLine)}
 .st1{display:flex;align-items:center;gap:6px}
 .sttime{flex:none;min-width:4.4em;text-align:center;font:800 18px/1 "Red Hat Display",sans-serif;font-variant-numeric:tabular-nums;padding:8px 6px;border-radius:8px;background:var(--soft)}
-.st.fixed .sttime{color:var(--red)}
+.st.fixed .sttime{color:var(--fix);background:var(--fixBg)}
 .st1 select{flex:1;min-height:40px;padding:4px 4px 4px 8px;border:1.5px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);font-weight:700}
 .ib{flex:none;width:32px;height:40px;border:0;border-radius:10px;background:none;cursor:pointer;color:var(--muted);font-size:18px}
 .ib:hover{background:var(--soft);color:var(--ink)}
@@ -225,7 +277,6 @@ details.more summary{cursor:pointer;font-weight:700;min-height:44px;display:flex
 .wdays button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 @media(max-width:400px){.sttime{min-width:3.4em;font-size:16px;padding:8px 4px}.st1{gap:4px}.st1 select{font-size:15px}}
 .printonly{display:none}
-.pdot{display:none}
 .iconbtn{display:grid;place-items:center;width:44px;height:44px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);cursor:pointer}
 .iconbtn:hover{border-color:var(--ink)}
 .iconbtn svg{width:22px;height:22px}
@@ -249,15 +300,13 @@ details.more summary{cursor:pointer;font-weight:700;min-height:44px;display:flex
   /* senkrechter Balken und Punkte beim Drucken direkt an den Zeilen (unabhängig vom Seitenlayout) */
   #track,#dots{display:none!important}
   .plan li::before{content:"";position:absolute;left:-27px;top:0;bottom:-1px;border-left:8px solid #dcd8d0}
-  .plan li:first-child::before{top:50%}
-  .plan li:last-child::before{bottom:50%}
+  .plan li{--tc:23px}.plan li.ready{--tc:20px}
+  .plan li:first-child::before{top:var(--tc)}
+  .plan li:last-child::before{bottom:auto;height:var(--tc)}
   .plan li:only-child::before{display:none}
-  .pdot{display:block;position:absolute;z-index:1;top:50%;left:-31px;width:16px;height:16px;transform:translateY(-50%);border-radius:50%;background:#fff;border:3px solid #dcd8d0}
-  .pdot.small{left:-29px;width:12px;height:12px}
-  .pdot.ico{left:-36px;width:26px;height:26px;border-width:2.5px;display:grid;place-items:center;color:#1d1f26}
-  .pdot.ico svg{width:15px;height:15px}
+  .pdot,.pdot.done{background:#fff;border-color:#dcd8d0}.pdot.ico,.pdot.ico.done{color:#1d1f26}
   .split{break-inside:avoid}
-  .plan li::before,.pdot,.sbar i,.sleg span::before,.dot,.plan li.fixed time{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .plan li::before,.pdot,.sbar i,.sleg span::before,.dot,.plan li.fixed time,.plan time.moved{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
 </style>
 </head>
@@ -271,12 +320,15 @@ details.more summary{cursor:pointer;font-weight:700;min-height:44px;display:flex
   </div>
   <div class="hbtns">
   <button type="button" class="setbtn" id="printBtn" aria-label="Ablauf drucken" title="Ablauf drucken"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 8V3.5h10V8"/><rect x="3.5" y="8" width="17" height="8.5" rx="2"/><path d="M7 13.5h10v7H7z"/><path d="M17 11h.01"/></svg></button>
+  <div class="pill">
   <button type="button" class="setbtn" id="openSet" aria-haspopup="dialog" aria-label="Einstellungen" title="Einstellungen">
    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>
    </button>
+  <button type="button" class="setbtn" id="prepBtn" aria-pressed="true" aria-label="Vorbereitung ausblenden" title="Vorbereitung ausblenden"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 7.2a2.2 2.2 0 1 1 2.2-2.2c0 1.1-.9 1.5-1.6 1.9-.4.2-.6.5-.6.9v.6"/><path d="M12 8.4 3.3 15.2a1.3 1.3 0 0 0 .8 2.3h15.8a1.3 1.3 0 0 0 .8-2.3L12 8.4"/><path class="slash" d="M3.5 3.5l17 17"/></svg></button>
+  </div>
   </div>
   <div class="times" aria-live="polite">
-   <div class="dep ready" id="readyBox"><small>Fertig machen um<span id="caReady"></span></small><b id="bigReady">--:--</b><span class="cd" id="cdReady">–</span></div>
+   <div class="dep ready" id="readyBox"><small>Vorbereiten um<span id="caReady"></span></small><b id="bigReady">--:--</b><span class="cd" id="cdReady">–</span></div>
    <div class="dep"><small>Los um<span id="caDep"></span></small><b id="bigDep">--:--</b><span class="cd" id="cdDep">–</span></div>
   </div>
  </div>
@@ -377,20 +429,6 @@ details.more summary{cursor:pointer;font-weight:700;min-height:44px;display:flex
    <p class="hint hide" id="repHint"></p>
   </fieldset>
 
-  <fieldset class="sec">
-   <legend>Vorbereitungszeit</legend>
-   <div class="seg">
-    <label><input type="radio" name="prep" value="0"><span>Keine</span></label>
-    <label><input type="radio" name="prep" value="15" checked><span>Normal · 15 Min.</span></label>
-    <label><input type="radio" name="prep" value="30"><span>Lang · 30 Min.</span></label>
-    <label><input type="radio" name="prep" value="custom"><span>Individuell</span></label>
-   </div>
-   <div class="step hide" id="prepCustomRow">
-    <button type="button" id="prepMinus" aria-label="Vorbereitungszeit 5 Minuten weniger">−</button>
-    <output id="prepOut">45 Min.</output>
-    <button type="button" id="prepPlus" aria-label="Vorbereitungszeit 5 Minuten mehr">+</button>
-   </div>
-  </fieldset>
 
   <div class="sec">
    <span class="lt">Stationen</span>
@@ -399,15 +437,6 @@ details.more summary{cursor:pointer;font-weight:700;min-height:44px;display:flex
    <p class="hint">Mindestens eine Station braucht eine feste Uhrzeit – alles andere rechnet die App davon aus. „Zeit bis hierhin“ ist die Wegzeit (zu Fuß, mit Rad, Auto, Bus …) bzw. der Abstand zur Station davor (bei der ersten Station ab „Los“). Für den Heimweg als letzte Station „Rückweg“ wählen. Bei „Haltestelle“ ist die feste Uhrzeit die Abfahrt von Bus oder Bahn.</p>
   </div>
 
-  <div class="sec">
-   <label class="lt" for="buffer">Puffer für Wege</label>
-   <select class="field" id="buffer">
-    <option value="">Kein Puffer</option>
-    <option value="m5">+5 Min. je Weg</option><option value="m10">+10 Min. je Weg</option><option value="m15">+15 Min. je Weg</option><option value="m20">+20 Min. je Weg</option>
-    <option value="p10">+10 % der Wegzeit</option><option value="p20">+20 % der Wegzeit</option><option value="p30">+30 % der Wegzeit</option><option value="p50">+50 % der Wegzeit</option>
-   </select>
-   <p class="hint">Für Stau, Parkplatzsuche oder Umsteigen – wird auf jede Wegzeit aufgeschlagen.</p>
-  </div>
 
   <div class="sec">
    <label class="lt" for="route">Link zur Route <span class="opt">(optional)</span></label>
@@ -445,21 +474,22 @@ const APP_URL = LINK_URL
   : '');
 
 /* Stationstypen (Reihenfolge = Nummer im Link) */
-const TYPES = ['dest','arrive','start','stop','custom','back','termin','pickup','transit','pause','dropoff','meet','flight','arrival'];   // Nummern im Link – nie umsortieren
-const MENU = ['stop','termin','start','meet','pickup','dropoff','transit','flight','arrival','pause','back','custom'];   // Reihenfolge im Auswahlmenü (Ziel/Ankommen gibt es nicht mehr → Termin)
+const TYPES = ['dest','arrive','start','stop','custom','back','termin','pickup','transit','pause','dropoff','meet','flight','arrival','prep'];   // Nummern im Link – nie umsortieren
+const MENU = ['prep','stop','termin','start','meet','pickup','dropoff','transit','flight','arrival','pause','back','custom'];   // Reihenfolge im Auswahlmenü (Ziel/Ankommen gibt es nicht mehr → Termin)
 // Kategorien mit fester Abfahrt (Bus/Bahn, Flugzeug): die Uhrzeit ist die Abfahrt, danach geht es sofort weiter
 const DEP = t => t === 'transit' || t === 'flight';
 const depWord = t => t === 'flight' ? 'Abflug' : 'Abfahrt';
-const TLABEL = {dest:'Termin', arrive:'Termin', termin:'Termin', start:'Beginn', stop:'Zwischenstopp', pickup:'Abholen', dropoff:'Bringen', meet:'Treffen', transit:'Haltestelle', flight:'Abflug', arrival:'Ankunft', pause:'Pause', custom:'Individuell', back:'Rückweg'};
-const TICON = {dest:'🏁', arrive:'🏁', termin:'🏁', start:'▶️', stop:'📌', pickup:'🙋', dropoff:'👋', meet:'🤝', transit:'🚏', flight:'✈️', arrival:'🛬', pause:'☕', custom:'🔹', back:'🏠'};
+const TLABEL = {prep:'Vorbereitung', dest:'Termin', arrive:'Termin', termin:'Termin', start:'Beginn', stop:'Zwischenstopp', pickup:'Abholen', dropoff:'Bringen', meet:'Treffen', transit:'Haltestelle', flight:'Abflug', arrival:'Ankunft', pause:'Pause', custom:'Individuell', back:'Rückweg'};
+const TICON = {prep:'⏰', dest:'🏁', arrive:'🏁', termin:'🏁', start:'▶️', stop:'📌', pickup:'🙋', dropoff:'👋', meet:'🤝', transit:'🚏', flight:'✈️', arrival:'🛬', pause:'☕', custom:'🔹', back:'🏠'};
 const TDOT = {termin:'flag', start:'flag', back:'home', pickup:'person', dropoff:'drop', meet:'meet', transit:'bus', flight:'plane', arrival:'land', pause:'cup'};   // Symbol im Kreis des Fortschrittsbalkens
 // Mit „zuvor ankommen“ bekommt die Zeile „Ankommen“ die Flagge, der Termin selbst ein Kalender-, der Beginn ein Play-Symbol
 const dotFor = s => s.early && s.type === 'termin' ? 'cal' : s.early && s.type === 'start' ? 'play' : (TDOT[s.type] || '');
-const TPH = {termin:'Beschreibung (optional), z. B. Zahnarzt', start:'Beschreibung (optional), z. B. Elternabend', stop:'Beschreibung (optional), z. B. Bäcker',
+const TPH = {prep:'Beschreibung (optional), z. B. Anziehen – ersetzt „Vorbereiten“', termin:'Beschreibung (optional), z. B. Zahnarzt', start:'Beschreibung (optional), z. B. Elternabend', stop:'Beschreibung (optional), z. B. Bäcker',
   pickup:'Beschreibung (optional), z. B. Kind von der Musikschule', dropoff:'Beschreibung (optional), z. B. Kind zum Training', meet:'Beschreibung (optional), z. B. mit Anna im Café', transit:'Beschreibung (optional), z. B. Linie 512 Richtung Hbf', flight:'Beschreibung (optional), z. B. LH 1234 nach Rom', arrival:'Beschreibung (optional), z. B. Rom Fiumicino oder Köln Hbf', pause:'Beschreibung (optional), z. B. Raststätte',
-  back:'Beschreibung (optional), z. B. Wohnung', custom:'Bezeichnung, z. B. Treffpunkt'};
+  back:'Bezeichnung (optional), z. B. Wohnung – ersetzt „Zu Hause“', custom:'Bezeichnung, z. B. Treffpunkt'};
 /* Startwerte je Kategorie – nur für Felder, die noch leer sind */
 function typeDefaults(s){
+  if(s.type === 'prep'){ s.after = 0; s.early = 0; s.why = 0; s.whyx = ''; s.afterCa = false; if(!s.stay) s.stay = 15; return; }
   if(s.type === 'back'){ s.early = 0; s.stay = 0; return; }
   if(s.type === 'termin'){ if(!s.early) s.early = 10; }
   if(s.type === 'stop' && !s.stay) s.stay = 10;
@@ -501,15 +531,21 @@ function cleanRoute(x){
   if(/^[\w-]+(\.[\w-]+)+(\/\S*)?$/.test(x)) return ('https://' + x).slice(0, 1500);
   return '';
 }
-const station = (o = {}) => ({type:'stop', desc:'', fixed:false, time:'', after:0, before:0, stay:0, early:0, why:0, whyx:'', info:'', afterCa:false, stayCa:false, ...o});
+const station = (o = {}) => ({type:'stop', desc:'', fixed:false, time:'', after:0, before:0, stay:0, early:0, why:0, whyx:'', info:'', afterCa:false, stayCa:false, buf:'', arr2:'', delay:0, adelay:'', ...o});
+/* Puffer für den Weg zu einer Station: '' | m5 (Minuten) | p10 (Prozent) */
+const BUFS = [['','kein'],['m5','+5 Min.'],['m10','+10 Min.'],['m15','+15 Min.'],['m20','+20 Min.'],['m30','+30 Min.'],['p10','+10 %'],['p20','+20 %'],['p30','+30 %'],['p50','+50 %']];
+const bufText = b => (BUFS.find(x => x[0] === b) || ['',''])[1];
 /* Gründe für „zuvor ankommen“ (Nummer = Position + 1, im Link als j…) – nur hinten ergänzen */
 const WHY = ['Parkplatzsuche','Fußweg vom Parkplatz','Puffer','Treffpunkt','Anmeldung','Einlass','Einchecken','Sicherheitskontrolle','Ticket holen','Garderobe','Umziehen','Aufwärmen','Platz suchen','Material aufbauen'];
 // s.why ist eine Bitmaske: Grund Nr. n ↔ Bit n-1 (mehrere Gründe möglich)
 const whyList = s => s.early ? [...(s.why ? WHY.filter((w, j) => s.why & (1 << j)) : []), ...(s.whyx && s.whyx.trim() ? [s.whyx.trim()] : [])] : [];
 const whyText = s => whyList(s).join(', ');
+/* Vorschläge für die Beschreibung einer Vorbereitung */
+const PREP_IDEAS = ['Aufstehen','Fertig machen','Anziehen','Duschen','Frühstücken','Kaffee','Tasche packen','Proviant einpacken','Unterlagen ausdrucken','Geschenk einpacken','Kinder fertig machen','Auto freikratzen','Haare machen','Fahrrad vorbereiten'];
+const ideaList = s => (s.desc || '').split(',').map(x => x.trim()).filter(Boolean);
 const nextHour = () => { const d = new Date(); return pad((d.getHours() + 2) % 24) + ':00'; };
-const freshPlan = () => ({prep:'15', prepCustom:45, date:'', title:'', route:'', buffer:'', rep:'', repDays:0,
-  stations:[station({type:'termin', fixed:true, time:nextHour(), after:30})]});
+const freshPlan = () => ({date:'', title:'', route:'', rep:'', repDays:0, showPrep:true,
+  stations:[station({type:'prep', stay:15}), station({type:'termin', fixed:true, time:nextHour(), after:30})]});
 
 /* Alte Einstellungen (vor den Stationen) umwandeln */
 function migrate(L){
@@ -535,11 +571,24 @@ function normalize(){
   const S = state.stations;
   S.forEach((s, k) => { if(s.before){ if(S[k+1]) S[k+1].after = Math.max(S[k+1].after || 0, s.before); s.before = 0; } });
   S.forEach(s => { if(s.type === 'dest' || s.type === 'arrive') s.type = 'termin'; });   // Ziel/Ankommen → Termin
-  if(typeof state.buffer !== 'string') state.buffer = '';
+  // frühere Einstellung „Puffer für Wege“ (für alle) → bei jeder Station mit Weg
+  if(state.buffer){ S.forEach(s => { if(s.type !== 'prep' && !s.buf && !(s.type === 'start' && !s.early)) s.buf = state.buffer; }); }
+  delete state.buffer;
+  S.forEach(s => { if(typeof s.buf !== 'string' || (s.buf && !/^[mp]\d+$/.test(s.buf))) s.buf = ''; });
+  // frühere Einstellung „Vorbereitungszeit“ → Station „Vorbereitung“ am Anfang
+  if('prep' in state || 'prepCustom' in state){
+    const m = state.prep === 'custom' ? +state.prepCustom || 0 : +state.prep || 0;
+    if(m > 0 && !(S[0] && S[0].type === 'prep')) S.unshift(station({type:'prep', stay: Math.min(600, m)}));
+    delete state.prep; delete state.prepCustom;
+  }
+  S.forEach(s => { if(s.type === 'prep'){ s.after = 0; s.early = 0; s.afterCa = false; } });
+  if(typeof state.showPrep !== 'boolean') state.showPrep = true;
 }
 normalize();
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e) {} };
-let lastPlan = null, edited = false, steps = [], calView = null, calOpen = false, undoState = null, undoTimer = null;
+let prepEndAt = 0, prepPeek = false, prepHidden = false;
+const prepOver = () => !!prepEndAt && Date.now() >= prepEndAt;
+let openIdx = -1, lastPlan = null, edited = false, steps = [], calView = null, calOpen = false, undoState = null, undoTimer = null;
 
 /* ---------- Link: alle Einstellungen hinter dem # ----------
    z. B. #ztp15b1u1400n30b2u1410d20261203r1.Titel.Route.Beschreibung1.Beschreibung2 */
@@ -547,7 +596,8 @@ const hm = t => t.replace(':','');
 const unhm = s => s.slice(0,2) + ':' + s.slice(2);
 const HHMM = /^([01]\d|2[0-3])[0-5]\d$/;
 function encode(){
-  const t = ['zt', state.prep === 'custom' ? 'c' + state.prepCustom : 'p' + state.prep];
+  const t = ['zt'];
+  if(state.showPrep === false) t.push('m0');
   for(const s of state.stations){
     t.push('b' + TYPES.indexOf(s.type));
     if(s.fixed && toMin(s.time) !== null) t.push('u' + hm(s.time));
@@ -557,6 +607,10 @@ function encode(){
     if(s.early) t.push('e' + s.early);
     if(s.early && s.why) t.push('o' + s.why);
     if(s.afterCa || s.stayCa) t.push('x' + ((s.afterCa ? 1 : 0) | (s.stayCa ? 2 : 0)));
+    if(s.buf) t.push((s.buf[0] === 'm' ? 'f' : 's') + s.buf.slice(1));   // Puffer: f = Minuten, s = Prozent
+    if(s.type === 'transit' && toMin(s.arr2) !== null) t.push('z' + hm(s.arr2));   // Ankunft nach der Fahrt
+    if(DEP(s.type) && s.delay) t.push('a' + s.delay);                               // Verspätung Abfahrt/Abflug (Min.)
+    if((s.type === 'transit' || s.type === 'arrival') && s.adelay !== '' && s.adelay != null) t.push('v' + s.adelay);   // Verspätung Ankunft (Min.)
   }
   if(state.date) t.push('d' + state.date.replace(/-/g,''));
   const RC = {d:1, wd:2, w:3, m:4, y:5};
@@ -565,8 +619,6 @@ function encode(){
   if(state.route) t.push('r1');
   if(state.stations.some(s => s.early && s.whyx && s.whyx.trim())) t.push('t1');
   if(state.stations.some(s => s.info && s.info.trim())) t.push('l1');
-  if(/^m\d+$/.test(state.buffer)) t.push('g' + state.buffer.slice(1));
-  if(/^p\d+$/.test(state.buffer)) t.push('h' + state.buffer.slice(1));
   const code = t.join('');
   const enc = x => encodeURIComponent(String(x).trim()).replace(/[.!'()*~_-]/g, c => '%' + c.charCodeAt(0).toString(16).toUpperCase());
   // eigene Gründe: hinter den Beschreibungen, angezeigt durch t1 (dann stehen alle Beschreibungen vollständig davor)
@@ -585,7 +637,8 @@ function decode(text){
   const n = {date:'', title:'', route:'', icons:false, buffer:'', rep:'', repDays:0};
   let hasRoute = false, hasOwnWhy = false, hasInfo = false, S = [];
   const common = (k, v, num) => {
-    if(k === 'p' && (v === '0' || v === '15' || v === '30')) n.prep = v;
+    if(k === 'p' && num >= 0 && num <= 600) n.prep = v;   // ältere Links: Vorbereitungszeit
+    else if(k === 'm') n.showPrep = v !== '0';
     else if(k === 'c' && num >= 0 && num <= 600){ n.prep = 'custom'; n.prepCustom = num; }
     else if(k === 'w' && num >= 1 && num <= 5) n.rep = ['', 'd', 'wd', 'w', 'm', 'y'][num];
     else if(k === 'k' && num >= 1 && num <= 127) n.repDays = num;
@@ -613,6 +666,11 @@ function decode(text){
       else if(k === 'j' && num >= 1 && num <= WHY.length) last.why = 1 << (num - 1);   // ältere Links: ein einzelner Grund
       else if(k === 'o' && num > 0 && num < (1 << WHY.length)) last.why = num;
       else if(k === 'x' && num >= 1 && num <= 3){ last.afterCa = !!(num & 1); last.stayCa = !!(num & 2); }
+      else if(k === 'f' && num > 0 && num <= 120) last.buf = 'm' + num;
+      else if(k === 's' && num > 0 && num <= 200) last.buf = 'p' + num;
+      else if(k === 'z' && HHMM.test(v)) last.arr2 = unhm(v);
+      else if(k === 'a' && num > 0 && num <= 240) last.delay = num;
+      else if(k === 'v' && num <= 240) last.adelay = num;
     }
   } else {
     // ältere Links (vor den Stationen)
@@ -647,11 +705,10 @@ function decode(text){
 if(decode(location.hash.slice(1))) normalize();
 
 /* ---------- Berechnung ---------- */
-const goal = s => s.early ? (DEP(s.type) ? (s.type === 'flight' ? 'Flughafen' : label(s)) : 'Ankommen') : s.type === 'back' ? 'zu Hause' : label(s);   // wohin man fährt: bei „zuvor ankommen“ zum Ankommen
-const label = s => s.type === 'custom' ? (s.desc.trim() || 'Station') : s.type === 'back' ? 'Zu Hause' + (s.desc.trim() ? ' (' + s.desc.trim() + ')' : '') : TLABEL[s.type] + (s.desc.trim() ? ' ' + s.desc.trim() : '');
+const goal = s => s.early ? (DEP(s.type) ? (s.type === 'flight' ? 'Flughafen' : label(s)) : 'Ankommen') : s.type === 'back' ? (s.desc.trim() || 'zu Hause') : label(s);   // wohin man fährt: bei „zuvor ankommen“ zum Ankommen
+const label = s => s.type === 'custom' ? (s.desc.trim() || 'Station') : s.type === 'back' ? (s.desc.trim() || 'Zu Hause') : s.type === 'prep' ? (s.desc.trim() || 'Vorbereiten') : TLABEL[s.type] + (s.desc.trim() ? ' ' + s.desc.trim() : '');
 function compute(){
   const S = state.stations, n = S.length;
-  const prep = state.prep === 'custom' ? clamp(Math.round(+state.prepCustom || 0), 0, 600) : +state.prep;
   const base = S.map((s, k) => Math.max(s.after || 0, k ? (S[k-1].before || 0) : 0));
   // „Ankunft“ direkt nach Abflug/Haltestelle, beide mit Uhrzeit und ohne eigene Zeit bis hierhin:
   // die Fahr-/Flugzeit ergibt sich aus den beiden Uhrzeiten
@@ -662,14 +719,22 @@ function compute(){
     base[k] = ((b - a - (S[k-1].stay || 0)) % 1440 + 1440) % 1440;
     return true;
   });
-  // Puffer auf Wege
-  const bm = /^m(\d+)$/.exec(state.buffer), bp = /^p(\d+)$/.exec(state.buffer);
-  // (kein Puffer auf die reine Wartezeit vor „Beginn“; Prozent-Puffer auf volle 5 Min. aufgerundet)
-  const buf = base.map((g, k) => !g || ride[k] || (S[k].type === 'start' && !S[k].early) ? 0 : bm ? +bm[1] : bp ? Math.ceil(g * +bp[1] / 500) * 5 : 0);
+  // Haltestelle mit Abfahrt und Ankunft: die Fahrzeit kommt vor den Weg zur nächsten Station
+  const rideT = S.map(s => {
+    if(s.type !== 'transit' || !s.fixed || toMin(s.time) === null || toMin(s.arr2) === null) return 0;
+    return ((toMin(s.arr2) - toMin(s.time)) % 1440 + 1440) % 1440;
+  });
+  // Puffer je Station auf den Weg dorthin (Prozent auf volle 5 Min. aufgerundet) – nicht auf die Busfahrt
+  const buf = base.map((g, k) => {
+    const b = /^([mp])(\d+)$/.exec(S[k].buf || '');
+    if(!g || ride[k] || !b || S[k].type === 'prep') return 0;
+    return b[1] === 'm' ? +b[2] : Math.ceil(g * +b[2] / 500) * 5;
+  });
+  for(let k = 1; k < n; k++) base[k] += rideT[k-1];
   const gap = base.map((g, k) => g + buf[k]);
   const fixed = S.map(s => s.fixed ? toMin(s.time) : null);
   let L = -1; fixed.forEach((f, k) => { if(f !== null) L = k; });
-  if(L < 0) return {err: n ? 'Bitte bei mindestens einer Station eine feste Uhrzeit eintragen.' : 'Bitte eine Station hinzufügen.', prep};
+  if(L < 0) return {err: n ? 'Bitte bei mindestens einer Station eine feste Uhrzeit eintragen.' : 'Bitte eine Station hinzufügen.', prep: 0};
   // arr = Uhrzeit der Station, early = so viele Minuten vorher dort ankommen
   const early = S.map(s => s.early || 0);
   const arr = Array(n), leave = Array(n), slack = Array(n).fill(null);
@@ -690,10 +755,61 @@ function compute(){
     arrA[k] = leaveA[k-1] || !!S[k].afterCa;
     if(fixed[k] !== null){ slack[k-1] = fixed[k] - arr[k]; slackA[k-1] = arrA[k]; arr[k] = fixed[k]; arrA[k] = false; }
   }
-  leave[n-1] = arr[n-1] + S[n-1].stay;
+  leave[n-1] = arr[n-1] + S[n-1].stay + rideT[n-1];
   leaveA[n-1] = arrA[n-1] || !!S[n-1].stayCa;
-  const depart = arr[0] - early[0] - gap[0], departA = arrA[0] || !!S[0].afterCa;
-  return {prep, gap, buf, ride, arr, leave, slack, early, depart, ready: depart - prep, arrA, leaveA, slackA, departA};
+  // Haltestelle mit Ankunft: alle folgenden flexiblen Stationen schließen direkt an die Ankunft an
+  // (man geht nach dem Aussteigen gleich weiter). Bei der nächsten festen Uhrzeit bleibt diese erhalten –
+  // „zuvor ankommen“ ergibt sich dann aus der tatsächlichen Ankunft.
+  const goneOn = Array(n).fill(false);   // Station liegt direkt nach einer Ankunft (vorwärts gerechnet)
+  // Verspätung (nur Haltestelle mit Abfahrtszeit): Abfahrt und Ankunft verschieben sich, danach geht es entsprechend später weiter
+  // Abfahrt/Abflug: delay · Ankunft: adelay ('' = wie die Abfahrt davor bzw. keine)
+  const own = v => v === '' || v == null ? null : Math.max(0, +v || 0);
+  const dDep = S.map((s, k) => DEP(s.type) && fixed[k] !== null ? Math.max(0, +s.delay || 0) : 0);
+  const adel = S.map((s, k) => {
+    if(fixed[k] === null) return 0;
+    if(s.type === 'transit') return rideT[k] ? own(s.adelay) ?? dDep[k] : dDep[k];
+    if(s.type === 'arrival') return own(s.adelay) ?? (ride[k] ? dDep[k-1] : 0);
+    return 0;
+  });
+  const delay = S.map((s, k) => s.type === 'arrival' ? adel[k] : dDep[k]);   // Verschiebung der Uhrzeit der Station selbst
+  // ab hier geht es später weiter (Abflug: die folgende „Ankunft“ verschiebt sich selbst)
+  const sh = S.map((s, k) => s.type === 'flight' ? (ride[k+1] ? 0 : dDep[k]) : s.type === 'transit' ? (rideT[k] ? adel[k] : dDep[k]) : s.type === 'arrival' ? adel[k] : 0);
+  const keep = () => ({arr: arr.slice(), leave: leave.slice(), early: early.slice(), slack: slack.slice(), arrA: arrA.slice(), leaveA: leaveA.slice()});
+  const put = o => { for(const key of Object.keys(o)) o[key].forEach((v, i) => { ({arr, leave, early, slack, arrA, leaveA})[key][i] = v; }); };
+  function chain(useDelay){
+    for(let k = 0; k < n; k++){
+      const d = useDelay ? sh[k] : 0;
+      if(!rideT[k] && !d) continue;
+      leave[k] += d;                             // Ankunftsseite verschiebt sich; bis zur Haltestelle bleibt alles wie geplant
+      let prevLeave = arr[k] + d + S[k].stay, prevA = arrA[k];
+      slack[k] = null;
+      for(let j = k + 1; j < n; j++){
+        const loc = prevLeave + gap[j], locA = prevA || !!S[j].afterCa;
+        if(fixed[j] !== null){
+          early[j] = arr[j] - loc;               // tatsächlich so viel früher da (negativ = zu spät)
+          if(early[j] < 0){ slack[j-1] = early[j]; early[j] = 0; } else if(j - 1 !== k) slack[j-1] = null;
+          goneOn[j] = true;
+          break;
+        }
+        arr[j] = loc + early[j]; arrA[j] = locA;
+        leave[j] = arr[j] + S[j].stay + rideT[j]; leaveA[j] = arrA[j] || !!S[j].stayCa;
+        if(j - 1 !== k) slack[j-1] = null;
+        goneOn[j] = true;
+        prevLeave = arr[j] + S[j].stay; prevA = leaveA[j];
+        if(rideT[j]) break;                      // nächste Haltestelle rechnet selbst weiter
+      }
+    }
+  }
+  const base0 = keep();
+  chain(false); const plan = keep();             // geplante Zeiten (ohne Verspätung)
+  if(sh.some(Boolean)){ put(base0); chain(true); }
+  // Vorbereitungen am Anfang: „Los“ ist das Ende der letzten Vorbereitung
+  let lead = 0; while(lead < n && S[lead].type === 'prep') lead++;
+  const start = arr[0] - early[0] - gap[0], startA = arrA[0] || !!S[0].afterCa;
+  const depart = lead ? (lead < n ? arr[lead] - early[lead] - gap[lead] : leave[lead-1]) : start;
+  const departA = lead ? (lead < n ? arrA[lead] || !!S[lead].afterCa : leaveA[lead-1]) : startA;
+  const prep = lead ? depart - arr[0] : 0;
+  return {prep, lead, gap, buf, ride, rideT, goneOn, delay, adel, plan, arr, leave, slack, early, depart, ready: lead ? arr[0] : depart, readyA: lead ? arrA[0] : departA, arrA, leaveA, slackA, departA};
 }
 
 /* Tag, auf den sich der Plan bezieht */
@@ -752,10 +868,16 @@ const minOpts = v => (MINS.includes(v) ? MINS : [...MINS, v].sort((a,b) => a-b))
 function renderStations(){
   const S = state.stations;
   $('stations').innerHTML = S.map((s, i) => `
-   ${i ? '' : '<div class="gap" id="gap0"></div>'}
-   <div class="st${s.fixed ? ' fixed' : ''}" data-i="${i}">
-    <div class="st1">
+   ${i ? '' : `<div class="gap" id="gap0"><span class="gtxt"></span><button type="button" class="ins" data-ins="0" aria-label="Station am Anfang einfügen" title="Station hier einfügen">+</button></div>`}
+   <div class="st${s.fixed ? ' fixed' : ''}${i === openIdx ? ' open' : ''}" data-i="${i}">
+    <button type="button" class="stsum" data-act="toggle" aria-expanded="${i === openIdx}">
      <span class="sttime" title="Voraussichtliche Uhrzeit">--:--</span>
+     <span class="stmain"><b class="stname"></b><span class="stsub"></span></span>
+     <span class="chev" aria-hidden="true">›</span>
+    </button>
+    ${delayRow(s, i)}
+    <div class="stbody"${i === openIdx ? '' : ' hidden'}>
+    <div class="st1">
      <select data-f="type" aria-label="Bezeichnung von Station ${i+1}">${MENU.map(t => `<option value="${t}"${t === s.type ? ' selected' : ''}>${TLABEL[t]}</option>`).join('')}</select>
      <button type="button" class="ib" data-act="up" aria-label="Station nach oben" ${i ? '' : 'disabled'}>↑</button>
      <button type="button" class="ib" data-act="down" aria-label="Station nach unten" ${i < S.length - 1 ? '' : 'disabled'}>↓</button>
@@ -765,33 +887,100 @@ function renderStations(){
     <input type="text" class="field desc info" data-f="info" value="${esc(s.info || '')}" placeholder="Details (optional), z. B. Adresse, Raum, Ansprechpartner" maxlength="120" aria-label="Details zu Station ${i+1}">
     <div class="st2">
      <div class="fxrow"><label class="fx"><input type="checkbox" data-f="fixed"${s.fixed ? ' checked' : ''}> ${DEP(s.type) ? depWord(s.type) : 'Fest um'}</label><input type="time" data-f="time" step="300" value="${esc(s.time)}"${s.fixed ? '' : ' disabled'} aria-label="Feste Uhrzeit von Station ${i+1}"></div>
+     ${s.type === 'transit' ? `<div class="fxrow"><span class="fx" style="padding-left:28px">Ankunft um</span><input type="time" data-f="arr2" step="300" value="${esc(s.arr2 || '')}" aria-label="Ankunftszeit nach der Fahrt (optional)" title="optional: wann Bus oder Bahn am Ziel ankommt"></div><p class="tinfo" data-tinfo></p>` : ''}
+     ${s.type === 'prep' ? `<div class="sel"><div class="lab2"><span>benötigte Zeit</span><label class="ca"><input type="checkbox" data-f="stayCa"${s.stayCa ? ' checked' : ''}>ca.</label></div><select data-f="stay" aria-label="benötigte Zeit">${minOpts(s.stay)}</select></div>
+     <div class="whys"><span>Vorschläge <span class="opt">(mehrere möglich – oder selbst oben eintragen)</span></span><div class="whychips" role="group" aria-label="Vorschläge für die Beschreibung">${PREP_IDEAS.map(w => `<button type="button" data-idea="${esc(w)}" aria-pressed="${ideaList(s).includes(w)}">${w}</button>`).join('')}</div></div>` : `
      <div class="sel"><div class="lab2"><span>${s.type === 'back' ? 'Zeit für den Rückweg' : 'Zeit bis hierhin'}</span><label class="ca"><input type="checkbox" data-f="afterCa"${s.afterCa ? ' checked' : ''}>ca.</label></div><select data-f="after" aria-label="${s.type === 'back' ? 'Zeit für den Rückweg' : 'Zeit bis hierhin'}">${minOpts(s.after)}</select></div>
+     <label title="Für Stau, Parkplatzsuche oder Umsteigen">Puffer für den Weg<select data-f="buf">${BUFS.map(([v, t]) => `<option value="${v}"${(s.buf || '') === v ? ' selected' : ''}>${t}</option>`).join('')}</select></label>
      ${s.type === 'back' ? '' : `${s.type === 'arrival' ? '' : `<label>${DEP(s.type) ? 'vorher da sein' : 'zuvor ankommen'}<select data-f="early">${minOpts(s.early)}</select></label>`}
      ${DEP(s.type) ? '' : `<div class="sel"><div class="lab2"><span>${s.type === 'pause' ? 'Pause' : 'Aufenthalt'}</span><label class="ca"><input type="checkbox" data-f="stayCa"${s.stayCa ? ' checked' : ''}>ca.</label></div><select data-f="stay" aria-label="${s.type === 'pause' ? 'Pause' : 'Aufenthalt'}">${minOpts(s.stay)}</select></div>`}
-     ${s.early ? `<div class="whys"><span>Gründe fürs Früher-da-sein <span class="opt">(mehrere möglich)</span></span><div class="whychips" role="group" aria-label="Gründe fürs Früher-da-sein">${WHY.map((w, j) => `<button type="button" data-why="${j}" aria-pressed="${!!(s.why & (1 << j))}">${w}</button>`).join('')}</div><input type="text" class="field whyx" data-f="whyx" value="${esc(s.whyx || '')}" placeholder="Eigener Grund, z. B. Schlüssel abholen" maxlength="40" aria-label="Eigener Grund"></div>` : ''}`}
+     ${s.early ? `<div class="whys"><span>Gründe fürs Früher-da-sein <span class="opt">(mehrere möglich)</span></span><div class="whychips" role="group" aria-label="Gründe fürs Früher-da-sein">${WHY.map((w, j) => `<button type="button" data-why="${j}" aria-pressed="${!!(s.why & (1 << j))}">${w}</button>`).join('')}</div><input type="text" class="field whyx" data-f="whyx" value="${esc(s.whyx || '')}" placeholder="Eigener Grund, z. B. Schlüssel abholen" maxlength="40" aria-label="Eigener Grund"></div>` : ''}`}`}
+    </div>
     </div>
    </div>
-   <div class="gap" data-g="${i+1}"${i === S.length - 1 ? ' hidden' : ''}></div>`).join('');
+   <div class="gap" data-g="${i+1}"${i === S.length - 1 ? ' hidden' : ''}><span class="gtxt"></span><button type="button" class="ins" data-ins="${i+1}" aria-label="Station nach Station ${i+1} einfügen" title="Station hier einfügen">+</button></div>`).join('');
   $('addSt').classList.toggle('hide', S.length >= 12);
+}
+/* Haltestelle: Fahrtdauer, Ankunft und wie viel Luft bis zur nächsten festen Uhrzeit bleibt */
+function transitInfo(c, i){
+  const S = state.stations, s = S[i];
+  if(!s.fixed || toMin(s.time) === null) return 'Abfahrt eintragen, dann rechnet die App die Fahrt.';
+  if(!c.rideT[i]) return 'Optional: Ankunft eintragen – dann siehst du Fahrzeit und Puffer bis zum nächsten Punkt.' + (c.delay[i] ? ` <span class="bad">Abfahrt jetzt ${fmt(c.arr[i] + c.delay[i])} (+${dur(c.delay[i])})</span>` : '');
+  const dl = c.adel[i] || 0, an = c.arr[i] + dl + c.rideT[i], out = [`<b>${dur(c.rideT[i])}</b> Fahrt`, `Ankunft ${dl ? `<s>${fmt(an - dl)}</s> ` : ''}<b>${fmt(an)}</b>${dl ? ` <span class="bad">(+${dur(dl)})</span>` : ''}`];
+  const nx = S[i+1];
+  if(nx){
+    const walk = c.gap[i+1] - c.rideT[i], there = an + walk;
+    out.push(`${walk ? dur(walk) + ' Weg bis ' : 'direkt bei '}${esc(label(nx))}${walk ? ` → <b>${fmt(there)}</b>` : ''}`);
+    let j = i + 1; while(j < S.length && !(S[j].fixed && toMin(S[j].time) !== null)) j++;
+    if(j < S.length){
+      const lateBy = c.slack[j-1] !== null && c.slack[j-1] < 0 ? -c.slack[j-1] : 0;
+      const want = S[j].early || 0, spare = c.early[j] - want;   // Puffer = Zeit vor Ort minus gewünschtes Früher-da-sein
+      out.push(lateBy ? `<span class="bad">${dur(lateBy)} zu spät für ${esc(label(S[j]))} (${S[j].time})</span>`
+        : spare < 0 ? `<span class="bad">nur ${dur(c.early[j])} statt ${dur(want)} vor ${esc(label(S[j]))} (${S[j].time})</span>`
+        : `<span class="good">${spare ? dur(spare) : 'kein'} Puffer</span> bis ${esc(label(S[j]))} (${S[j].time}${want ? `, ${dur(want)} früher da` : ''})`);
+    }
+  }
+  return out.join(' · ');
+}
+
+
+/* Verspätungs-Schnellwahl (auch bei zugeklappter Station sichtbar): Haltestelle, Abflug, Ankunft */
+const DELAYS = [1,2,3,5,7,10,15,20,25,30,40,45,60,90,120];
+const ICO_LATE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9.5 2.5h5"/></svg>';
+function delayRow(s, i){
+  if(!['transit','flight','arrival'].includes(s.type) || !s.fixed) return '';
+  const S = state.stations, prev = S[i-1];
+  const list = v => DELAYS.concat(v > 0 && !DELAYS.includes(v) ? [v] : []).sort((a, b) => a - b);
+  const sel = (f, first, cur, word, extra) => `<label class="dl${cur !== '' && cur !== 0 ? ' on' : ''}"${extra || ''}>${word}<select data-f="${f}" aria-label="${word}: Verspätung von Station ${i+1}">${first}${list(+cur || 0).map(m => `<option value="${m}"${cur !== '' && +cur === m ? ' selected' : ''}>+${m} Min.</option>`).join('')}</select></label>`;
+  const out = [];
+  if(DEP(s.type)) out.push(sel('delay', `<option value="0"${!+s.delay ? ' selected' : ''}>pünktlich</option>`, +s.delay || 0, depWord(s.type)));
+  const ad = s.adelay === '' || s.adelay == null ? '' : +s.adelay;
+  const after = s.type === 'transit' ? 'Abfahrt' : prev && DEP(prev.type) && prev.fixed ? depWord(prev.type) : '';
+  if(s.type !== 'flight'){
+    const first = after ? `<option value=""${ad === '' ? ' selected' : ''}>wie ${after}</option><option value="0"${ad === 0 ? ' selected' : ''}>pünktlich</option>`
+                        : `<option value=""${ad === '' || ad === 0 ? ' selected' : ''}>pünktlich</option>`;
+    out.push(sel('adelay', first, ad, 'Ankunft', s.type === 'transit' ? ' data-arr2' : ''));
+  }
+  return `<div class="delay"><span class="dlt">${ICO_LATE}Verspätung</span><span class="dls">${out.join('')}</span></div>`;
+}
+
+/* Kurzinfo für zugeklappte Stationen */
+function stSub(s){
+  if(s.type === 'prep') return `${ca(s.stayCa, dur(s.stay))} Vorbereitung`;
+  const p = [];
+  if(DEP(s.type) && s.fixed && s.delay) p.push(`${depWord(s.type)} +${dur(s.delay)}`);
+  if((s.type === 'transit' || s.type === 'arrival') && s.fixed && s.adelay !== '' && s.adelay != null) p.push(`Ankunft ${+s.adelay ? '+' + dur(+s.adelay) : 'pünktlich'}`);
+  if(s.fixed && toMin(s.time) !== null) p.push(`${DEP(s.type) ? depWord(s.type) : s.type === 'arrival' ? 'Ankunft' : 'fest'} ${s.time}${s.type === 'transit' && toMin(s.arr2) !== null ? ` – an ${s.arr2}` : ''}`);
+  if(s.after) p.push(`${ca(s.afterCa, dur(s.after))} ${s.type === 'back' ? 'Rückweg' : 'Weg'}${s.buf ? ` (${bufText(s.buf)} Puffer)` : ''}`);
+  if(s.early) p.push(`${dur(s.early)} früher da`);
+  if(s.stay) p.push(`${ca(s.stayCa, dur(s.stay))} ${s.type === 'pause' ? 'Pause' : 'Aufenthalt'}`);
+  return p.join(' · ') || TLABEL[s.type];
 }
 function updatePreview(c){
   const cards = [...document.querySelectorAll('#stations .st')];
   if(c.err){
     $('preview').innerHTML = `<span>${esc(c.err)}</span>`;
-    cards.forEach(el => el.querySelector('.sttime').textContent = '--:--');
+    cards.forEach((el, i) => { el.querySelector('.sttime').textContent = '--:--'; el.querySelector('.stname').textContent = label(state.stations[i]); el.querySelector('.stsub').textContent = stSub(state.stations[i]); });
     return;
   }
   const ln = c.arr.length - 1;
-  $('preview').innerHTML = `${c.prep ? `<span>Fertig machen <b>${ca(c.departA, fmt(c.ready))}</b></span>` : ''}<span>Los <b>${ca(c.departA, fmt(c.depart))}</b></span><span${state.stations[ln].fixed ? ' class="fx"' : ''}>${esc(label(state.stations[ln]))} <b>${ca(c.arrA[ln], fmt(c.arr[ln]))}</b></span>`;
+  $('preview').innerHTML = `${c.prep ? `<span>Vorbereiten <b>${ca(c.readyA, fmt(c.ready))}</b></span>` : ''}<span>Los <b>${ca(c.departA, fmt(c.depart))}</b></span><span${state.stations[ln].fixed ? ' class="fx"' : ''}>${esc(label(state.stations[ln]))} <b>${ca(c.arrA[ln], fmt(c.arr[ln]))}</b></span>`;
   cards.forEach((el, i) => {
     el.querySelector('.sttime').textContent = (c.arrA[i] ? '≈' : '') + fmt(c.arr[i]);
+    el.querySelector('.stname').textContent = label(state.stations[i]);
+    el.querySelector('.stsub').textContent = stSub(state.stations[i]);
+    const ti = el.querySelector('[data-tinfo]'); if(ti) ti.innerHTML = transitInfo(c, i);
+    const a2 = el.querySelector('[data-arr2]'); if(a2) a2.hidden = !c.rideT[i];
     el.classList.toggle('fixed', !!state.stations[i].fixed);
   });
-  const g0 = $('gap0'); if(g0) g0.textContent = `Los ${ca(c.departA, fmt(c.depart))} · ${c.gap[0] ? ca(state.stations[0].afterCa, dur(c.gap[0])) + ' Weg' + (c.buf[0] ? ` (inkl. ${dur(c.buf[0])} Puffer)` : '') : 'kein Abstand'}`;
+  const g0 = $('gap0') && $('gap0').querySelector('.gtxt'); if(g0) g0.textContent = c.lead ? `Start ${ca(c.readyA, fmt(c.ready))} mit der Vorbereitung` : `Los ${ca(c.departA, fmt(c.depart))} · ${c.gap[0] ? ca(state.stations[0].afterCa, dur(c.gap[0])) + ' Weg' + (c.buf[0] ? ` (inkl. ${dur(c.buf[0])} Puffer)` : '') : 'kein Abstand'}`;
   document.querySelectorAll('#stations .gap[data-g]').forEach(g => {
     const k = +g.dataset.g; if(k >= state.stations.length) return;
     const s = c.slack[k-1];
-    g.textContent = `weiter ${ca(c.leaveA[k-1], fmt(c.leave[k-1]))} · ${c.ride[k] ? dur(c.gap[k]) + ' unterwegs (aus Abfahrt und Ankunft)' : c.gap[k] ? ca(state.stations[k].afterCa, dur(c.gap[k])) + (c.buf[k] ? ` (inkl. ${dur(c.buf[k])} Puffer)` : '') : 'kein Abstand'}${s > 0 ? ` · ${dur(s)} Puffer` : s < 0 ? ` · ${dur(-s)} zu knapp!` : ''}`;
+    g = g.querySelector('.gtxt');
+    if(c.lead && k === c.lead){ g.textContent = `Los ${ca(c.departA, fmt(c.depart))} · ${c.gap[k] ? ca(state.stations[k].afterCa, dur(c.gap[k])) + ' Weg' + (c.buf[k] ? ` (inkl. ${dur(c.buf[k])} Puffer)` : '') : 'kein Weg'}`; return; }
+    if(c.rideT[k-1]){ const w = c.gap[k] - c.rideT[k-1]; const d = c.delay[k-1], da = c.adel[k-1]; g.textContent = `Abfahrt ${fmt(c.arr[k-1] + d)}${d ? ` (+${d} Min.)` : ''} · ${dur(c.rideT[k-1])} Fahrt · Ankunft ${fmt(c.arr[k-1] + da + c.rideT[k-1])}${da ? ` (+${da} Min.)` : ''}${w ? ` · ${ca(state.stations[k].afterCa, dur(w))} Weg` : ''}`; return; }
+    g.textContent = `${state.stations[k-1].type === 'prep' ? 'danach' : 'weiter'} ${ca(c.leaveA[k-1], fmt(c.leave[k-1] + (state.stations[k-1].type === 'flight' && c.ride[k] ? c.delay[k-1] : 0)))} · ${c.ride[k] ? dur(c.gap[k]) + ' unterwegs (aus Abfahrt und Ankunft)' : c.gap[k] ? ca(state.stations[k].afterCa, dur(c.gap[k])) + (c.buf[k] ? ` (inkl. ${dur(c.buf[k])} Puffer)` : '') : 'kein Abstand'}${s > 0 ? ` · ${dur(s)} Puffer` : s < 0 ? ` · ${dur(-s)} zu knapp!` : ''}`;
   });
 }
 
@@ -829,8 +1018,6 @@ function syncUI(){
   if(typeof renderTpls === 'function') renderTpls();
   $('title').value = state.title;
   $('route').value = state.route;
-  $('buffer').value = state.buffer;
-  document.querySelector(`input[name=prep][value="${state.prep}"]`).checked = true;
   $('icons').checked = state.icons;
   $('withLink').checked = state.withLink;
   $('withLinkRow').classList.toggle('hide', !APP_URL);
@@ -854,9 +1041,8 @@ const DOT_ICONS = {
   flag: '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 1v10.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M3.2 1.5h7.3v5H3.2z" fill="none" stroke="currentColor" stroke-width="1"/><path d="M3.2 1.5h1.8v1.7H3.2zM6.8 1.5h1.8v1.7H6.8zM5 3.2h1.8v1.6H5zM8.6 3.2h1.9v1.6H8.6zM3.2 4.8h1.8v1.7H3.2zM6.8 4.8h1.8v1.7H6.8z" fill="currentColor"/></svg>'
 };
 function render(){
+  if(typeof syncPrepBtn === 'function') syncPrepBtn();
   const c = compute();
-  $('prepCustomRow').classList.toggle('hide', state.prep !== 'custom');
-  $('prepOut').textContent = dur(clamp(Math.round(+state.prepCustom || 0), 0, 600));
   updatePreview(c);
 
   const ttl = state.title.trim();
@@ -869,7 +1055,7 @@ function render(){
   const S = state.stations;
   const warn = [];
   if(c.err) warn.push(c.err);
-  else c.slack.forEach((s, k) => { if(s !== null && s < 0) warn.push(`${label(S[k])}: ${dur(-s)} zu knapp.`); });
+  else c.slack.forEach((s, k) => { if(s !== null && s < 0){ const late = c.delay.slice(0, k + 1).concat(c.adel.slice(0, k + 1)).some(Boolean) && !(c.plan.slack[k] < 0); warn.push(late && S[k+1] ? `Durch die Verspätung ${dur(-s)} zu spät für ${label(S[k+1])}${S[k+1].time ? ` (${S[k+1].time})` : ''}.` : `${label(S[k])}: ${dur(-s)} zu knapp.`); } });
   $('warn').textContent = warn.length ? 'Achtung: ' + warn.join(' ') : '';
   $('warn').classList.toggle('hide', !warn.length);
 
@@ -884,38 +1070,66 @@ function render(){
 
   const drive = c.gap.reduce((a, b) => a + b, 0);
   const bufSum = c.buf.reduce((a, b) => a + b, 0);
-  $('summary').textContent = [c.prep ? `${dur(c.prep)} Vorbereitung` : '', `${dur(drive)} unterwegs${bufSum ? ` (inkl. ${dur(bufSum)} Puffer)` : ''}`, S.length === 1 ? '1 Station' : `${S.length} Stationen`].filter(Boolean).join(' · ');
+  const showP = state.showPrep !== false;
+  $('summary').textContent = [c.prep && showP ? `${dur(c.prep)} Vorbereitung` : '', `${dur(drive)} unterwegs${bufSum ? ` (inkl. ${dur(bufSum)} Puffer)` : ''}`, (n => n === 1 ? '1 Station' : `${n} Stationen`)(S.filter(x => x.type !== 'prep').length)].filter(Boolean).join(' · ');
 
   const last = S.length - 1;
   const {d: base, auto} = baseDay(c.arr[last]);
-  steps = [
-    ...(c.prep ? [{k:'Fertig machen', m:c.ready, ca:c.departA, ready:true, d:`${dur(c.prep)} Vorbereitung`, ic:'⏰', note:''}] : []),
-    {k:'Los', m:c.depart, ca:c.departA, d: S[0].type === 'back' ? `${ca(S[0].afterCa, dur(c.gap[0]))} Weg nach Hause` : `${ca(S[0].afterCa, dur(c.gap[0]))} bis ${goal(S[0])}`, ic:'➡️', go:true, dotIcon:'go', note:` (Weg ${ca(S[0].afterCa, dur(c.gap[0]))})`}
-  ];
+  const L0 = c.lead;   // Vorbereitungen am Anfang (vor „Los“)
+  const losStep = () => {
+    const f = S[L0];
+    if(!f) return null;
+    return {k:'Los', m:c.depart, ca:c.departA, d: f.type === 'back' ? `${ca(f.afterCa, dur(c.gap[L0]))} Weg nach Hause` : `${ca(f.afterCa, dur(c.gap[L0]))} bis ${goal(f)}`, ic:'➡️', go:true, dotIcon:'go', note:` (Weg ${ca(f.afterCa, dur(c.gap[L0]))})`};
+  };
+  steps = [];
+  if(!L0) steps.push(losStep());
+  let firstPrep = true;
   S.forEach((s, k) => {
+    if(s.type === 'prep'){
+      // Vorbereitung: eigene Zeile, kleine graue Uhrzeit, Beschreibung ersetzt „Vorbereiten“
+      if(showP){
+        steps.push({k: label(s), m: c.arr[k], ca: c.arrA[k], prepStep:true, ready: firstPrep && k < L0, pEnd: c.arr[k] + s.stay, info: (s.info || '').trim(),
+          d: `${ca(s.stayCa, dur(s.stay))}${k >= L0 && k < last ? ` · bis ${ca(c.leaveA[k], fmt(c.leave[k]))}` : ''}`, ic:'⏰', fixed: s.fixed && toMin(s.time) !== null,
+          note: ` (${ca(s.stayCa, dur(s.stay))})`});
+        firstPrep = false;
+      }
+      if(k === L0 - 1){ const ls = losStep(); if(ls) steps.push(ls); }
+      return;
+    }
     const parts = [], noteParts = [];
-    const gapNext = k < last ? c.gap[k+1] : 0;
+    const rideK = c.rideT[k], gapNext = k < last ? c.gap[k+1] - rideK : 0;   // Weg nach dem Aussteigen
     // eigene Zeile „Weiter“, wenn man dort Zeit verbringt und danach noch unterwegs ist
     // (nicht bei der Haltestelle: dort fährt der Bus zur festen Uhrzeit ab)
     const depStep = k < last && gapNext > 0 && !DEP(s.type) && (s.stay > 0 || c.slack[k] > 0);
-    if(s.fixed) parts.push(DEP(s.type) ? depWord(s.type) : s.type === 'arrival' ? 'Ankunft' : 'feste Uhrzeit');
+    if(s.fixed && !DEP(s.type)) parts.push(s.type === 'arrival' ? 'Ankunft' : 'feste Uhrzeit');   // Abfahrt/Abflug steht schon über der Uhrzeit
     if(DEP(s.type)) noteParts.push(depWord(s.type));
+    const dd = c.delay[k], da = rideK ? c.adel[k] : dd;
+    if(dd || da){
+      const t = dd === da ? `${dur(dd)} Verspätung` : [`${depWord(s.type)} ${dd ? '+' + dur(dd) : 'pünktlich'}`, `Ankunft ${da ? '+' + dur(da) : 'pünktlich'}`].join(', ');
+      parts.unshift(t); noteParts.push(`${dd === da ? t : 'Verspätung: ' + t}, geplant ${fmt(c.arr[k])} Uhr`);
+    }
+    if(rideK){ parts.push(`Fahrt ${dur(rideK)}`); noteParts.push(`Ankunft ${fmt(c.arr[k] + c.adel[k] + rideK)} Uhr`); }
     if(s.stay){ parts.push(`${ca(s.stayCa, dur(s.stay))} Aufenthalt`); noteParts.push(`Aufenthalt ${ca(s.stayCa, dur(s.stay))}`); }
     if(c.slack[k] > 0) parts.push(`${ca(c.slackA[k], dur(c.slack[k]))} Puffer`);
     if(k === last && s.stay){ parts.push(`bis ${ca(c.leaveA[k], fmt(c.leave[k]))}`); noteParts.push(`bis ${ca(c.leaveA[k], fmt(c.leave[k]))} Uhr`); }
     const nextCa = k < last && S[k+1].afterCa;
     const toNext = k < last ? (S[k+1].type === 'back' ? `${ca(nextCa, dur(gapNext))} Weg nach Hause` : `${ca(nextCa, dur(gapNext))} bis ${goal(S[k+1])}`) : '';
-    if(k < last && !depStep && gapNext) parts.push(toNext);
-    if(s.early){
+    if(k < last && !depStep && gapNext && !rideK) parts.push(toNext);
+    const eff = c.early[k];   // tatsächlich früher da (nach Bus/Bahn ergibt es sich aus der Ankunft)
+    if(eff > 0 && (s.early || c.goneOn[k])){
       const tr = DEP(s.type), fl = s.type === 'flight', what = tr ? depWord(s.type) : label(s);
       const why = whyText(s);
-      steps.push({k: fl ? 'Am Flughafen' : tr ? 'An der Haltestelle' : 'Ankommen', m: c.arr[k] - s.early, ca: c.arrA[k], d: `${dur(s.early)} vor ${what}${why ? ' · ' + why : ''}`, ic: fl ? '🛄' : tr ? '🚏' : '📍', dotIcon: tr ? '' : 'flag', note: ` (${dur(s.early)} vor ${what}${why ? ' – ' + why : ''})`});
+      steps.push({k: fl ? 'Am Flughafen' : tr ? 'An der Haltestelle' : 'Ankommen', m: c.arr[k] - eff, was: c.plan.arr[k] - c.plan.early[k], ca: c.arrA[k], d: `${dur(eff)} vor ${what}${why ? ' · ' + why : ''}`, ic: fl ? '🛄' : tr ? '🚏' : '📍', dotIcon: tr ? '' : 'flag', note: ` (${dur(eff)} vor ${what}${why ? ' – ' + why : ''})`});
     }
-    steps.push({k: label(s), m: c.arr[k], ca: c.arrA[k], info: (s.info || '').trim(), d: parts.join(' · '), ic: s.type === 'termin' && s.early ? '📅' : TICON[s.type], stop: s.type === 'stop' || s.type === 'custom', fixed: s.fixed && toMin(s.time) !== null, dotIcon: dotFor(s), note: noteParts.length ? ` (${noteParts.join(', ')})` : ''});
+    steps.push({k: label(s), m: c.arr[k] + c.delay[k], was: c.delay[k] ? c.arr[k] : c.plan.arr[k], late: c.delay[k] || (rideK ? c.adel[k] : 0), ca: c.arrA[k], depLab: DEP(s.type) && s.fixed ? depWord(s.type) : '', info: (s.info || '').trim(), d: parts.join(' · '), ic: s.type === 'termin' && s.early ? '📅' : TICON[s.type], stop: s.type === 'stop' || s.type === 'custom', fixed: s.fixed && toMin(s.time) !== null, dotIcon: dotFor(s), note: noteParts.length ? ` (${noteParts.join(', ')})` : ''});
+    if(rideK){
+      // Ankunft von Bus/Bahn: zweite Uhrzeit in der Zeile der Haltestelle („an …“)
+      steps.push({k:'Ankunft', m: c.arr[k] + c.adel[k] + rideK, was: c.arr[k] + rideK, ca: c.arrA[k], d: k < last && gapNext ? toNext : '', ic:'🛬', merge:true, rideArr:true, noNote:true});
+    }
     if(depStep){
       const latest = c.slack[k] > 0;
       const home = S[k+1].type === 'back';
-      steps.push({k: (home ? 'Rückweg' : 'Weiter') + (latest ? ' spätestens' : ''), m: c.leave[k], ca: c.leaveA[k], d: toNext, ic:'➡️', dotIcon:'go', merge:true, latest, note: ` (Weg ${ca(nextCa, dur(gapNext))})`});
+      steps.push({k: (home ? 'Rückweg' : 'Weiter') + (latest ? ' spätestens' : ''), m: c.leave[k], was: c.plan.leave[k], ca: c.leaveA[k], d: toNext, ic:'➡️', dotIcon:'go', merge:true, latest, note: ` (Weg ${ca(nextCa, dur(gapNext))})`});
     }
   });
   steps.forEach(s => s.at = at(base, s.m));
@@ -924,26 +1138,36 @@ function render(){
   for(const s of all){
     if(s.merge && view.length){
       const p = view[view.length-1];
-      Object.assign(p, {m2: s.m, at2: s.at, latest: s.latest, ca2: s.ca});
-      p.d = [p.d, `${s.k.startsWith('Rückweg') ? 'Rückweg' : 'weiter'} ${s.latest ? 'spätestens ' : 'um '}${ca(s.ca, fmt(s.m))}`, s.d].filter(Boolean).join(' · ');
+      Object.assign(p, {m2: s.m, was2: s.was, at2: s.at, latest: s.latest, ca2: s.ca, rideArr: !!s.rideArr});
+      p.d = [p.d, s.rideArr ? '' : `${s.k.startsWith('Rückweg') ? 'Rückweg' : 'weiter'} ${s.latest ? 'spätestens ' : 'um '}${ca(s.ca, fmt(s.m))}`, s.d].filter(Boolean).join(' · ');
     } else view.push({...s});
   }
   steps = view;
+  // alle Vorbereitungen vorbei → im Ablauf ausblenden (Knopf zeigt sie bei Bedarf wieder)
+  const pe = all.filter(s => s.prepStep);
+  prepEndAt = pe.length ? Math.max(...pe.map(s => +at(base, s.pEnd))) : 0;
+  if(!prepOver()) prepPeek = false;
+  prepHidden = prepOver() && !prepPeek;
+  if(prepHidden){
+    steps = steps.filter(s => !s.prepStep);
+    $('summary').textContent = $('summary').textContent.replace(/^[^·]*Vorbereitung/, 'Vorbereitung erledigt ✓');
+  }
+  syncPrepBtn();
   renderSplit(c, S);
   lastPlan = {all, base, c, ttl};
 
   const big = m => { const [h, mi] = fmt(m).split(':'); return `${h}<span>:</span>${mi}`; };
   $('bigDep').innerHTML = big(c.depart);
   $('bigReady').innerHTML = big(c.ready);
-  $('caReady').textContent = $('caDep').textContent = c.departA ? ' ca.' : '';
+  $('caReady').textContent = c.readyA ? ' ca.' : '';
+  $('caDep').textContent = c.departA ? ' ca.' : '';
   const word = dayWord(base);
   $('whenLine').textContent = state.rep ? `${repText()[0].toUpperCase() + repText().slice(1)} · nächster Termin: ${word ? word + ', ' : ''}${dLong(base)}`
     : state.date ? (word ? `${word}, ` : '') + dLong(base) : `${word || dLong(base)}${auto && word === 'Morgen' ? ' (heute ist es schon vorbei)' : ''}`;
   // beim Drucken immer das volle Datum zeigen (aus „Heute“ wird „Heute, Montag, 23.11.2026“)
   $('printDate').textContent = !state.rep && !state.date && word ? `, ${dLong(base)}` : '';
 
-  $('plan').innerHTML = steps.map((s, i) => `<li class="${s.fixed ? 'fixed' : ''}${s.ready ? 'ready' : ''}" data-i="${i}">${s.dotIcon ? `<span class="pdot ico">${DOT_ICONS[s.dotIcon]}</span>` : `<span class="pdot${s.stop ? ' small' : ''}"></span>`}<span class="tc"><time>${s.ca ? '<span class="ca-s">ca.</span>' : ''}${fmt(s.m)}</time>${s.m2 !== undefined ? `<span class="t2">bis${s.latest ? ' max' : ''}${s.ca2 ? ' ca.' : ''} <b>${fmt(s.m2)}</b></span>` : ''}</span><div><span class="k">${esc(s.k)}${dayNote(s.m)}</span>${s.d ? `<span class="d">${esc(s.d)}</span>` : ''}${s.info ? `<span class="in">${esc(s.info)}</span>` : ''}</div><span class="cd"></span></li>`).join('');
-  $('dots').innerHTML = steps.map(s => s.dotIcon ? `<span class="dot ico">${DOT_ICONS[s.dotIcon]}</span>` : `<span class="dot${s.stop ? ' small' : ''}"></span>`).join('');
+  $('plan').innerHTML = steps.map((s, i) => `<li class="${s.fixed ? 'fixed' : ''}${s.prepStep ? ' ready' : ''}" data-i="${i}"><span class="tc">${s.depLab ? `<span class="tlab">${s.depLab}</span>` : ''}${s.was !== undefined && s.was !== s.m ? `<s class="was">${fmt(s.was)}</s>` : ''}<time${s.was !== undefined && s.was !== s.m ? ' class="moved"' : ''}>${s.dotIcon ? `<span class="pdot ico">${DOT_ICONS[s.dotIcon]}</span>` : `<span class="pdot${s.stop ? ' small' : ''}"></span>`}${s.ca ? '<span class="ca-s">ca.</span>' : ''}${fmt(s.m)}</time>${s.m2 !== undefined ? `<span class="t2">${s.rideArr ? 'Ankunft' : 'bis'}${s.latest ? ' max' : ''}${s.ca2 ? ' ca.' : ''} ${s.was2 !== undefined && s.was2 !== s.m2 ? `<s>${fmt(s.was2)}</s> <b class="moved">` : '<b>'}${fmt(s.m2)}</b></span>` : ''}</span><div><span class="k">${esc(s.k)}${dayNote(s.m)}${s.late ? `<span class="lateb">+${s.late} Min.</span>` : ''}</span>${s.d ? `<span class="d">${esc(s.d)}</span>` : ''}${s.info ? `<span class="in">${esc(s.info)}</span>` : ''}</div><span class="cd"></span></li>`).join('');
 
   if(!edited){
     const lines = [];
@@ -952,6 +1176,7 @@ function render(){
     if(state.rep) lines.push(`Wiederholung: ${repText()}`);
     if(lines.length) lines.push('');
     for(const s of all){
+      if(s.noNote) continue;
       lines.push(`${state.icons ? s.ic + ' ' : ''}${s.k}: ${ca(s.ca, fmt(s.m))} Uhr${dayNote(s.m)}${s.note}`);
       if(s.info) lines.push(`   ${s.info}`);
     }
@@ -967,9 +1192,11 @@ function render(){
 /* Aufteilung in zeitlicher Reihenfolge: Vorbereitung, Weg, Zeit vor Ort (zuvor ankommen / Puffer), Aufenthalt */
 function renderSplit(c, S){
   const seg = [], add = (cls, min, what) => { if(min > 0) seg.push({cls, min, what}); };
-  add('c-prep', c.prep, 'Vorbereitung');
+  const showP = state.showPrep !== false;
   S.forEach((s, k) => {
-    const prevEnd = k ? c.arr[k-1] + S[k-1].stay : c.depart;
+    if(s.type === 'prep' && k < c.lead){ if(showP) add('c-prep', s.stay, label(s)); return; }   // Vorbereitung zu Hause
+    const prevEnd = k === c.lead ? (k ? c.depart : c.arr[0] - (c.early[0] || 0) - c.gap[0]) : c.arr[k-1] + S[k-1].stay;
+    if(s.type === 'prep'){ add('c-wait', c.arr[k] - c.gap[k] - prevEnd, `Zeit vor Ort (${label(S[k-1])})`); add('c-drive', c.gap[k], `Weg bis ${label(s)}`); if(showP) add('c-prep', s.stay, label(s)); return; }
     const arrive = c.arr[k] - (c.early[k] || 0), travelStart = arrive - c.gap[k];
     // nach einer Haltestelle fährt man sofort los – die übrige Zeit liegt dann am Ziel
     const afterTransit = k && DEP(S[k-1].type);
@@ -992,6 +1219,7 @@ function renderSplit(c, S){
 /* Countdown und Fortschrittsbalken – läuft jede halbe Minute */
 function tick(){
   const now = Date.now();
+  if(steps.length && prepHidden !== (prepOver() && !prepPeek)){ render(); return; }   // Vorbereitung gerade vorbei
   const items = [...document.querySelectorAll('#plan li')];
   if(!steps.length || !items.length){
     $('cdReady').textContent = '–'; $('cdDep').textContent = '–';
@@ -1001,7 +1229,7 @@ function tick(){
   const head = (s, verb) => { const ms = s.at - now; return ms > 30000 ? `noch ${rel(ms)}` : ms > -60000 ? `jetzt ${verb}!` : 'vorbei'; };
   const rs = steps.find(s => s.ready), gs = steps.find(s => s.go);
   $('readyBox').classList.toggle('hide', !rs);
-  if(rs) $('cdReady').textContent = head(rs, 'fertig machen');
+  if(rs) $('cdReady').textContent = head(rs, 'vorbereiten');
   $('cdDep').textContent = head(gs, 'los');
 
   let nextSet = false;
@@ -1012,11 +1240,12 @@ function tick(){
     li.classList.toggle('next', isNext);
     const ms = (now < s.at ? s.at : end) - now;
     li.querySelector('.cd').textContent = s.at2 && now >= s.at && now < s.at2
-      ? (s.at2 - now > 30000 ? `weiter ${s.latest ? 'spätestens ' : ''}in ${rel(s.at2 - now)}` : (s.latest ? 'spätestens jetzt weiter' : 'jetzt weiter'))
+      ? (s.rideArr ? (s.at2 - now > 30000 ? `Ankunft in ${rel(s.at2 - now)}` : 'gleich da')
+        : s.at2 - now > 30000 ? `weiter ${s.latest ? 'spätestens ' : ''}in ${rel(s.at2 - now)}` : (s.latest ? 'spätestens jetzt weiter' : 'jetzt weiter'))
       : ms > 30000 ? `in ${rel(ms)}` : ms > -60000 ? 'jetzt' : `vor ${rel(ms)}`;
   });
 
-  const ys = items.map(li => li.offsetTop + li.offsetHeight / 2);
+  const ys = items.map(li => { const t = li.querySelector('time'); return li.offsetTop + t.offsetTop + t.offsetHeight / 2; });
   const top = ys[0], bottom = ys[ys.length-1];
   $('track').style.top = $('fill').style.top = top + 'px';
   $('track').style.height = (bottom - top) + 'px';
@@ -1028,7 +1257,7 @@ function tick(){
     if(now >= a && now < b){ y = ys[i] + (ys[i+1] - ys[i]) * ((now - a) / Math.max(1, b - a)); break; }
   }
   $('fill').style.height = (y - top) + 'px';
-  [...$('dots').children].forEach((dot, i) => { dot.style.top = ys[i] + 'px'; dot.classList.toggle('done', now >= steps[i].at); });
+  items.forEach((li, i) => li.querySelector('.pdot').classList.toggle('done', now >= steps[i].at));
   const running = now >= steps[0].at && now < steps[steps.length-1].at;
   $('nowdot').classList.toggle('hide', !running);
   $('nowdot').style.top = y + 'px';
@@ -1052,11 +1281,7 @@ $('repDays').addEventListener('click', e => {
   if(!m) return;   // mindestens ein Tag
   state.repDays = m; syncDate(); update();
 });
-$('buffer').addEventListener('change', e => { state.buffer = e.target.value; update(); });
 $('route').addEventListener('blur', () => { $('route').value = state.route; });
-document.querySelectorAll('input[name=prep]').forEach(r => r.addEventListener('change', e => { state.prep = e.target.value; update(); }));
-$('prepMinus').addEventListener('click', () => { state.prepCustom = clamp(Math.round((+state.prepCustom || 0) / 5) * 5 - 5, 0, 600); update(); });
-$('prepPlus').addEventListener('click', () => { state.prepCustom = clamp(Math.round((+state.prepCustom || 0) / 5) * 5 + 5, 0, 600); update(); });
 $('icons').addEventListener('change', e => { state.icons = e.target.checked; update(); });
 $('withLink').addEventListener('change', e => { state.withLink = e.target.checked; update(); });
 
@@ -1076,10 +1301,32 @@ const stOf = el => { const c = el.closest('.st'); return c ? {i: +c.dataset.i, s
 $('addSt').addEventListener('click', () => {
   const S = state.stations;
   S.push(S.length ? station({type:'stop', after:15, stay:10}) : station({type:'termin', fixed:true, time:nextHour(), after:30}));
+  openIdx = S.length - 1;
   renderStations(); update();
   const cards = $('stations').querySelectorAll('.st'); cards[cards.length-1].scrollIntoView({block:'nearest'});
 });
 $('stations').addEventListener('click', e => {
+  // Station dazwischen einfügen (am Anfang: Vorbereitung, sonst Zwischenstopp)
+  const ins = e.target.closest('button[data-ins]');
+  if(ins){
+    const at = +ins.dataset.ins, nw = station({type: at === 0 ? 'prep' : 'stop'});
+    if(at > 0) nw.after = 15;
+    typeDefaults(nw);
+    state.stations.splice(at, 0, nw);
+    openIdx = at; renderStations(); update();
+    const card = $('stations').querySelector(`.st[data-i="${at}"]`); if(card) card.scrollIntoView({block:'nearest'});
+    return;
+  }
+  const ib = e.target.closest('button[data-idea]');
+  if(ib){
+    const o = stOf(ib); if(!o) return;
+    const w = ib.dataset.idea, list = ideaList(o.s), i = list.indexOf(w);
+    if(i >= 0) list.splice(i, 1); else list.push(w);
+    o.s.desc = list.join(', ').slice(0, 40);
+    o.el.querySelector('.desc').value = o.s.desc;
+    o.el.querySelectorAll('button[data-idea]').forEach(b => b.setAttribute('aria-pressed', ideaList(o.s).includes(b.dataset.idea)));
+    update(); return;
+  }
   const wb = e.target.closest('button[data-why]');
   if(wb){
     const o = stOf(wb); if(!o) return;
@@ -1090,15 +1337,18 @@ $('stations').addEventListener('click', e => {
   const b = e.target.closest('button[data-act]'); if(!b) return;
   const o = stOf(b); if(!o) return;
   const S = state.stations;
-  if(b.dataset.act === 'rm' && S.length > 1) S.splice(o.i, 1);
-  else if(b.dataset.act === 'up' && o.i > 0) [S[o.i-1], S[o.i]] = [S[o.i], S[o.i-1]];
-  else if(b.dataset.act === 'down' && o.i < S.length - 1) [S[o.i+1], S[o.i]] = [S[o.i], S[o.i+1]];
+  if(b.dataset.act === 'toggle'){ openIdx = openIdx === o.i ? -1 : o.i; renderStations(); update(); return; }
+  if(b.dataset.act === 'rm' && S.length > 1){ S.splice(o.i, 1); openIdx = -1; }
+  else if(b.dataset.act === 'up' && o.i > 0){ [S[o.i-1], S[o.i]] = [S[o.i], S[o.i-1]]; openIdx = o.i - 1; }
+  else if(b.dataset.act === 'down' && o.i < S.length - 1){ [S[o.i+1], S[o.i]] = [S[o.i], S[o.i+1]]; openIdx = o.i + 1; }
   renderStations(); update();
 });
 $('stations').addEventListener('change', e => {
   const o = stOf(e.target); const f = e.target.dataset.f; if(!o || !f) return;
   if(f === 'type'){ o.s.type = e.target.value; typeDefaults(o.s); if(o.s.fixed && !o.s.time) o.s.time = o.el.querySelector('.sttime').textContent.replace('--:--', '') || nextHour(); renderStations(); }
   else if(f === 'afterCa' || f === 'stayCa') o.s[f] = e.target.checked;
+  else if(f === 'buf') o.s.buf = e.target.value;
+  else if(f === 'delay' || f === 'adelay'){ o.s[f] = f === 'delay' ? +e.target.value : e.target.value === '' ? '' : +e.target.value; e.target.closest('.dl').classList.toggle('on', !!+e.target.value); }
   else if(f === 'fixed'){
     o.s.fixed = e.target.checked;
     const t = o.el.querySelector('input[data-f=time]'); t.disabled = !o.s.fixed;
@@ -1112,24 +1362,25 @@ $('stations').addEventListener('change', e => {
 });
 $('stations').addEventListener('input', e => {
   const o = stOf(e.target); const f = e.target.dataset.f; if(!o) return;
-  if(f === 'desc'){ o.s.desc = e.target.value; update(); }
+  if(f === 'desc'){ o.s.desc = e.target.value; o.el.querySelectorAll('button[data-idea]').forEach(b => b.setAttribute('aria-pressed', ideaList(o.s).includes(b.dataset.idea))); update(); }
   else if(f === 'whyx'){ o.s.whyx = e.target.value; update(); }
   else if(f === 'info'){ o.s.info = e.target.value; update(); }
   else if(f === 'time'){ o.s.time = e.target.value; update(); }
+  else if(f === 'arr2'){ o.s.arr2 = e.target.value; update(); }
 });
 
 $('note').addEventListener('input', () => { edited = true; });
 
 /* Einstellungen öffnen/schließen, Neu */
 const sheet = $('sheet');
-const openSet = () => { calView = null; calOpen = false; syncUI(); render(); if(sheet.showModal) sheet.showModal(); else sheet.setAttribute('open',''); sheet.scrollTop = 0; };
+const openSet = () => { calView = null; calOpen = false; openIdx = -1; syncUI(); render(); if(sheet.showModal) sheet.showModal(); else sheet.setAttribute('open',''); sheet.scrollTop = 0; };
 const closeSet = () => { if(sheet.close) sheet.close(); else sheet.removeAttribute('open'); };
 $('openSet').addEventListener('click', openSet);
 $('closeSet').addEventListener('click', closeSet);
 sheet.addEventListener('click', e => { if(e.target === sheet) closeSet(); });
 /* ---------- Vorlagen (nur in diesem Browser gespeichert) ---------- */
 const TPL_KEY = 'zeitplan-vorlagen';
-const TPL_FIELDS = ['prep','prepCustom','title','route','buffer','rep','repDays','stations'];   // ohne Datum
+const TPL_FIELDS = ['title','route','rep','repDays','showPrep','stations'];   // ohne Datum
 const loadTpls = () => { try { const t = JSON.parse(localStorage.getItem(TPL_KEY) || '[]'); return Array.isArray(t) ? t : []; } catch(e) { return []; } };
 const saveTpls = t => { try { localStorage.setItem(TPL_KEY, JSON.stringify(t)); return true; } catch(e) { return false; } };
 function renderTpls(){
@@ -1163,6 +1414,8 @@ $('tplList').addEventListener('click', e => {
   }
   undoState = JSON.stringify(state);
   TPL_FIELDS.forEach(f => { if(f in x.data) state[f] = JSON.parse(JSON.stringify(x.data[f])); });
+  if('prep' in x.data){ state.prep = x.data.prep; state.prepCustom = x.data.prepCustom; }
+  if(x.data.buffer) state.buffer = x.data.buffer;   // ältere Vorlagen: Puffer für alle Wege
   state.stations = (state.stations || []).map(s => station(s));
   normalize(); edited = false; calOpen = false; tplMsg('');
   if(location.hash) history.replaceState(null, '', location.pathname + location.search);
@@ -1224,9 +1477,9 @@ function icsText(){
       w:'FREQ=WEEKLY;BYDAY=' + BD.filter((x, i) => (state.repDays || wbit(start)) & (1 << i)).join(',')}[state.rep];
     lines.push('RRULE:' + rule);
   }
-  if(readyStep) lines.push(...alarm(-Math.round((losStep.at - readyStep.at) / 60000), 'Fertig machen'));
+  if(readyStep) lines.push(...alarm(-Math.round((losStep.at - readyStep.at) / 60000), readyStep.k));
   lines.push(...alarm(0, 'Los!'));
-  for(const s of all) if(s.merge) lines.push(...alarm(Math.round((s.at - losStep.at) / 60000), s.k));
+  for(const s of all) if(s.merge && !s.rideArr) lines.push(...alarm(Math.round((s.at - losStep.at) / 60000), s.k));
   lines.push('END:VEVENT','END:VCALENDAR');
   return lines.map(fold).join('\r\n') + '\r\n';
 }
@@ -1263,6 +1516,20 @@ $('shareBtn').addEventListener('click', async () => {
     try { await navigator.share({title: lastPlan && lastPlan.ttl ? lastPlan.ttl : 'Zeitplaner', text}); msg.textContent = ''; }
     catch(e){ if(e.name !== 'AbortError') msg.textContent = 'Teilen hat nicht geklappt – bitte „Text kopieren“ nutzen.'; }
   } else $('copyBtn').click();
+});
+
+/* Vorbereitungen ein-/ausblenden (wird im Link gespeichert) */
+function syncPrepBtn(){
+  const on = state.showPrep !== false && !prepHidden, b = $('prepBtn');
+  b.setAttribute('aria-pressed', on);
+  b.title = b.ariaLabel = on ? 'Vorbereitung ausblenden' : 'Vorbereitung einblenden';
+  b.setAttribute('aria-label', b.title);
+  b.classList.toggle('hide', !state.stations.some(s => s.type === 'prep'));
+}
+$('prepBtn').addEventListener('click', () => {
+  if(state.showPrep !== false && prepOver()) prepPeek = !prepPeek;   // erledigte Vorbereitungen nur kurz wieder zeigen
+  else state.showPrep = state.showPrep === false;
+  syncPrepBtn(); update();
 });
 
 /* Drucken: nur der Ablauf (Notiztext wird ausgeblendet) */
