@@ -36,8 +36,8 @@ Die App läuft komplett im Browser auf Handy, Tablet und Computer – ohne Serve
     |---|---|---|
     | Vorbereitung | zu Hause fertig werden, z. B. anziehen, Tasche packen – nur „benötigte Zeit“, mit Vorschlägen für die Beschreibung. Die Beschreibung ersetzt „Vorbereiten“; Uhrzeit klein und grau | kleiner Punkt |
     | Zwischenstopp | kurz etwas erledigen | kleiner Punkt |
-    | Termin | Ziel mit Uhrzeit und Dauer | Zielflagge – mit „zuvor ankommen“ Kalender (die Flagge steht dann bei „Ankommen“) |
-    | Beginn | Beginn einer Veranstaltung | Zielflagge – mit „zuvor ankommen“ Play-Zeichen |
+    | Termin | Ziel mit Uhrzeit und Dauer | Zielflagge – steht davor eine Zeile „Ankommen“ (durch „zuvor ankommen“ oder nach Bus/Bahn), Kalender und die Flagge bei „Ankommen“ |
+    | Beginn | Beginn einer Veranstaltung | immer Play-Zeichen (die Flagge steht bei „Ankommen“) |
     | Treffen | mit jemandem verabredet | zwei Personen |
     | Abholen | jemanden abholen | Person |
     | Bringen | jemanden irgendwo hinbringen | Person mit Pfeil |
@@ -60,7 +60,7 @@ Die App läuft komplett im Browser auf Handy, Tablet und Computer – ohne Serve
 - Stationen stehen zugeklappt und kompakt untereinander (Uhrzeit, Name, Kurzinfo); ein Tipp klappt eine Station zum Bearbeiten auf. Zwischen den Stationen stehen Abfahrts-, Ankunfts- und Wegzeiten, die sich beim Ändern sofort anpassen
 - Mit **+** zwischen zwei Stationen lässt sich dort eine neue einfügen (ganz oben eine Vorbereitung)
 - **Verspätungen** (Haltestelle, Abflug, Ankunft): Im Ablauf werden die betroffenen Uhrzeiten durchgestrichen und durch die neuen in **Rot** ersetzt, die Verspätung steht als „+10 Min.“ neben dem Namen. Alles vor der Abfahrt bleibt wie geplant; flexible Stationen danach verschieben sich, feste Uhrzeiten bleiben. Reicht die Zeit nicht mehr, warnt die App („Durch die Verspätung … zu spät für …“)
-- **Farben der Uhrzeiten:** feste Uhrzeiten gelb markiert (wie mit Textmarker; im Dunkelmodus gelbe Schrift), verschobene (verspätete) Uhrzeiten rot, berechnete schwarz
+- **Farben der Uhrzeiten:** feste Uhrzeiten in einem gelben, abgerundeten Kasten, verschobene (verspätete) Uhrzeiten rot, berechnete schwarz
 - Stationen lassen sich mit ↑ und ↓ umsortieren und mit ✕ entfernen
 - **Link zur Route** (optional), z. B. aus Google Maps oder Apple Karten über „Teilen“ kopiert. In der App erscheint dann der Button „Route öffnen“
 - Notiztext mit oder ohne Symbole, mit oder ohne Link

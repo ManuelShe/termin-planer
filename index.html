@@ -28,7 +28,7 @@
 :root{color-scheme:light dark;
  --bg:light-dark(#fbfaf8,#15161b);--ink:light-dark(#1d1f26,#f1efe9);--muted:light-dark(#5d606b,#a9abb4);
  --line:light-dark(#e4e1db,#2c2e36);--card:light-dark(#ffffff,#1d1f26);
- --red:#e5483b;--fix:light-dark(#1d1f26,#ffd23f);--fixMark:light-dark(#ffd23f,transparent);--fixBg:light-dark(#ffe27a,#3d3412);--fixLine:light-dark(#f0cf5a,#6b5a1c);--redDeep:light-dark(#c9372b,#b7342a);--sun:#ffd23f;--soft:light-dark(#f3f1ec,#26282f)}
+ --red:#e5483b;--fix:#1d1f26;--fixMark:#ffd23f;--fixBg:#ffd23f;--fixLine:light-dark(#f0cf5a,#6b5a1c);--redDeep:light-dark(#c9372b,#b7342a);--sun:#ffd23f;--soft:light-dark(#f3f1ec,#26282f)}
 :root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
 *{box-sizing:border-box;min-width:0}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Red Hat Text",system-ui,sans-serif;overflow-x:clip}
@@ -117,10 +117,13 @@ h2{font:600 22px/1.2 "Red Hat Display",sans-serif;margin:0}
 .t2 b{white-space:nowrap}
 .was{display:block;font:700 14px/1.1 "Red Hat Display",sans-serif;color:var(--muted);text-align:right;text-decoration-thickness:2px}
 .plan li time.moved,.plan li.fixed time.moved,.plan .t2 b.moved{color:var(--red)}
-.t2 s{font-weight:500;color:var(--muted);text-decoration-thickness:2px}
+.t2 s{margin-right:4px;font-weight:500;color:var(--muted);text-decoration-thickness:2px}
 .lateb{display:inline-block;margin-left:6px;padding:0 7px;border-radius:999px;background:var(--red);color:#fff;font-size:12px;font-weight:700;vertical-align:2px}
 .tlab{display:block;margin-bottom:3px;font-size:13px;line-height:1.1;font-weight:700;color:var(--muted);text-align:right}
-.plan li.fixed time{color:var(--fix);text-decoration:underline .42em var(--fixMark);text-underline-offset:-.3em;text-decoration-skip-ink:none}
+.plan li.fixed time{color:var(--fix)}
+.plan li.fixed time{margin:4px 0}
+.plan li.fixed time .tv{display:inline-block;padding:3px 6px;margin-right:-6px;border-radius:9px;background:var(--fixMark)}
+.plan li.fixed .was{margin-bottom:2px}
 /* Aufteilungsbalken unter dem Ablauf */
 .split{margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}
 .sbar{display:flex;height:16px;border-radius:8px;overflow:hidden;background:var(--line);gap:2px}
@@ -162,7 +165,7 @@ dialog.sheet[open]{animation:slide .25s ease}
 .sheetrow .btns{display:flex;gap:8px}
 .preview{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:8px;font-size:14px;color:var(--muted)}
 .preview b{color:var(--ink);font-variant-numeric:tabular-nums}
-.preview .fx b{color:var(--fix);text-decoration:underline .42em var(--fixMark);text-underline-offset:-.3em;text-decoration-skip-ink:none}
+.preview .fx b{color:var(--fix);padding:1px 5px;border-radius:6px;background:var(--fixMark)}
 .undo{display:flex;align-items:center;gap:10px;margin-top:8px;padding:6px 6px 6px 12px;border-radius:10px;background:var(--soft);font-size:14px}
 .undo button{margin-left:auto}
 .sheetbody{padding:16px}
@@ -306,7 +309,7 @@ details.more summary{cursor:pointer;font-weight:700;min-height:44px;display:flex
   .plan li:only-child::before{display:none}
   .pdot,.pdot.done{background:#fff;border-color:#dcd8d0}.pdot.ico,.pdot.ico.done{color:#1d1f26}
   .split{break-inside:avoid}
-  .plan li::before,.pdot,.sbar i,.sleg span::before,.dot,.plan li.fixed time,.plan time.moved{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .plan li::before,.pdot,.sbar i,.sleg span::before,.dot,.plan li.fixed time,.plan li.fixed time .tv,.plan time.moved,.lateb{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
 </style>
 </head>
@@ -481,9 +484,9 @@ const DEP = t => t === 'transit' || t === 'flight';
 const depWord = t => t === 'flight' ? 'Abflug' : 'Abfahrt';
 const TLABEL = {prep:'Vorbereitung', dest:'Termin', arrive:'Termin', termin:'Termin', start:'Beginn', stop:'Zwischenstopp', pickup:'Abholen', dropoff:'Bringen', meet:'Treffen', transit:'Haltestelle', flight:'Abflug', arrival:'Ankunft', pause:'Pause', custom:'Individuell', back:'Rückweg'};
 const TICON = {prep:'⏰', dest:'🏁', arrive:'🏁', termin:'🏁', start:'▶️', stop:'📌', pickup:'🙋', dropoff:'👋', meet:'🤝', transit:'🚏', flight:'✈️', arrival:'🛬', pause:'☕', custom:'🔹', back:'🏠'};
-const TDOT = {termin:'flag', start:'flag', back:'home', pickup:'person', dropoff:'drop', meet:'meet', transit:'bus', flight:'plane', arrival:'land', pause:'cup'};   // Symbol im Kreis des Fortschrittsbalkens
-// Mit „zuvor ankommen“ bekommt die Zeile „Ankommen“ die Flagge, der Termin selbst ein Kalender-, der Beginn ein Play-Symbol
-const dotFor = s => s.early && s.type === 'termin' ? 'cal' : s.early && s.type === 'start' ? 'play' : (TDOT[s.type] || '');
+const TDOT = {termin:'flag', start:'play', back:'home', pickup:'person', dropoff:'drop', meet:'meet', transit:'bus', flight:'plane', arrival:'land', pause:'cup'};   // Symbol im Kreis des Fortschrittsbalkens
+// Mit einer Zeile „Ankommen“ davor bekommt diese die Flagge und der Termin selbst ein Kalender-Symbol; der Beginn hat immer das Play-Symbol
+const dotFor = (s, arrRow) => arrRow && (s.type === 'termin' || s.type === 'dest' || s.type === 'arrive') ? 'cal' : (TDOT[s.type] || (s.type === 'dest' || s.type === 'arrive' ? 'flag' : ''));
 const TPH = {prep:'Beschreibung (optional), z. B. Anziehen – ersetzt „Vorbereiten“', termin:'Beschreibung (optional), z. B. Zahnarzt', start:'Beschreibung (optional), z. B. Elternabend', stop:'Beschreibung (optional), z. B. Bäcker',
   pickup:'Beschreibung (optional), z. B. Kind von der Musikschule', dropoff:'Beschreibung (optional), z. B. Kind zum Training', meet:'Beschreibung (optional), z. B. mit Anna im Café', transit:'Beschreibung (optional), z. B. Linie 512 Richtung Hbf', flight:'Beschreibung (optional), z. B. LH 1234 nach Rom', arrival:'Beschreibung (optional), z. B. Rom Fiumicino oder Köln Hbf', pause:'Beschreibung (optional), z. B. Raststätte',
   back:'Bezeichnung (optional), z. B. Wohnung – ersetzt „Zu Hause“', custom:'Bezeichnung, z. B. Treffpunkt'};
@@ -1116,12 +1119,13 @@ function render(){
     const toNext = k < last ? (S[k+1].type === 'back' ? `${ca(nextCa, dur(gapNext))} Weg nach Hause` : `${ca(nextCa, dur(gapNext))} bis ${goal(S[k+1])}`) : '';
     if(k < last && !depStep && gapNext && !rideK) parts.push(toNext);
     const eff = c.early[k];   // tatsächlich früher da (nach Bus/Bahn ergibt es sich aus der Ankunft)
-    if(eff > 0 && (s.early || c.goneOn[k])){
+    const arrRow = eff > 0 && (s.early || c.goneOn[k]);
+    if(arrRow){
       const tr = DEP(s.type), fl = s.type === 'flight', what = tr ? depWord(s.type) : label(s);
       const why = whyText(s);
       steps.push({k: fl ? 'Am Flughafen' : tr ? 'An der Haltestelle' : 'Ankommen', m: c.arr[k] - eff, was: c.plan.arr[k] - c.plan.early[k], ca: c.arrA[k], d: `${dur(eff)} vor ${what}${why ? ' · ' + why : ''}`, ic: fl ? '🛄' : tr ? '🚏' : '📍', dotIcon: tr ? '' : 'flag', note: ` (${dur(eff)} vor ${what}${why ? ' – ' + why : ''})`});
     }
-    steps.push({k: label(s), m: c.arr[k] + c.delay[k], was: c.delay[k] ? c.arr[k] : c.plan.arr[k], late: c.delay[k] || (rideK ? c.adel[k] : 0), ca: c.arrA[k], depLab: DEP(s.type) && s.fixed ? depWord(s.type) : '', info: (s.info || '').trim(), d: parts.join(' · '), ic: s.type === 'termin' && s.early ? '📅' : TICON[s.type], stop: s.type === 'stop' || s.type === 'custom', fixed: s.fixed && toMin(s.time) !== null, dotIcon: dotFor(s), note: noteParts.length ? ` (${noteParts.join(', ')})` : ''});
+    steps.push({k: label(s), m: c.arr[k] + c.delay[k], was: c.delay[k] ? c.arr[k] : c.plan.arr[k], late: c.delay[k] || (rideK ? c.adel[k] : 0), ca: c.arrA[k], depLab: DEP(s.type) && s.fixed ? depWord(s.type) : '', info: (s.info || '').trim(), d: parts.join(' · '), ic: s.type === 'termin' && arrRow ? '📅' : TICON[s.type], stop: s.type === 'stop' || s.type === 'custom', fixed: s.fixed && toMin(s.time) !== null, dotIcon: dotFor(s, arrRow), note: noteParts.length ? ` (${noteParts.join(', ')})` : ''});
     if(rideK){
       // Ankunft von Bus/Bahn: zweite Uhrzeit in der Zeile der Haltestelle („an …“)
       steps.push({k:'Ankunft', m: c.arr[k] + c.adel[k] + rideK, was: c.arr[k] + rideK, ca: c.arrA[k], d: k < last && gapNext ? toNext : '', ic:'🛬', merge:true, rideArr:true, noNote:true});
@@ -1167,7 +1171,7 @@ function render(){
   // beim Drucken immer das volle Datum zeigen (aus „Heute“ wird „Heute, Montag, 23.11.2026“)
   $('printDate').textContent = !state.rep && !state.date && word ? `, ${dLong(base)}` : '';
 
-  $('plan').innerHTML = steps.map((s, i) => `<li class="${s.fixed ? 'fixed' : ''}${s.prepStep ? ' ready' : ''}" data-i="${i}"><span class="tc">${s.depLab ? `<span class="tlab">${s.depLab}</span>` : ''}${s.was !== undefined && s.was !== s.m ? `<s class="was">${fmt(s.was)}</s>` : ''}<time${s.was !== undefined && s.was !== s.m ? ' class="moved"' : ''}>${s.dotIcon ? `<span class="pdot ico">${DOT_ICONS[s.dotIcon]}</span>` : `<span class="pdot${s.stop ? ' small' : ''}"></span>`}${s.ca ? '<span class="ca-s">ca.</span>' : ''}${fmt(s.m)}</time>${s.m2 !== undefined ? `<span class="t2">${s.rideArr ? 'Ankunft' : 'bis'}${s.latest ? ' max' : ''}${s.ca2 ? ' ca.' : ''} ${s.was2 !== undefined && s.was2 !== s.m2 ? `<s>${fmt(s.was2)}</s> <b class="moved">` : '<b>'}${fmt(s.m2)}</b></span>` : ''}</span><div><span class="k">${esc(s.k)}${dayNote(s.m)}${s.late ? `<span class="lateb">+${s.late} Min.</span>` : ''}</span>${s.d ? `<span class="d">${esc(s.d)}</span>` : ''}${s.info ? `<span class="in">${esc(s.info)}</span>` : ''}</div><span class="cd"></span></li>`).join('');
+  $('plan').innerHTML = steps.map((s, i) => `<li class="${s.fixed ? 'fixed' : ''}${s.prepStep ? ' ready' : ''}" data-i="${i}"><span class="tc">${s.depLab ? `<span class="tlab">${s.depLab}</span>` : ''}${s.was !== undefined && s.was !== s.m ? `<s class="was">${fmt(s.was)}</s>` : ''}<time${s.was !== undefined && s.was !== s.m ? ' class="moved"' : ''}>${s.dotIcon ? `<span class="pdot ico" data-ic="${s.dotIcon}">${DOT_ICONS[s.dotIcon]}</span>` : `<span class="pdot${s.stop ? ' small' : ''}"></span>`}${s.ca ? '<span class="ca-s">ca.</span>' : ''}<span class="tv">${fmt(s.m)}</span></time>${s.m2 !== undefined ? `<span class="t2">${s.rideArr ? 'Ankunft' : 'bis'}${s.latest ? ' max' : ''}${s.ca2 ? ' ca.' : ''} ${s.was2 !== undefined && s.was2 !== s.m2 ? `<s>${fmt(s.was2)}</s> <b class="moved">` : '<b>'}${fmt(s.m2)}</b></span>` : ''}</span><div><span class="k">${esc(s.k)}${dayNote(s.m)}${s.late ? `<span class="lateb">+${s.late} Min.</span>` : ''}</span>${s.d ? `<span class="d">${esc(s.d)}</span>` : ''}${s.info ? `<span class="in">${esc(s.info)}</span>` : ''}</div><span class="cd"></span></li>`).join('');
 
   if(!edited){
     const lines = [];
