@@ -8,7 +8,7 @@ Die App läuft komplett im Browser auf Handy, Tablet und Computer – ohne Serve
 
 **Anzeige**
 - Kopfzeile mit „Vorbereiten um“ und „Los um“, jeweils mit Countdown („noch 1 Std. 5 Min.“)
-- Oben rechts drei Symbole: **Drucker** sowie in einer gemeinsamen Taste **Einstellungen** und **Kleiderbügel** – der Bügel blendet alle Vorbereitungen aus bzw. ein (wird im Link gespeichert). Sind alle Vorbereitungen vorbei, blendet der Ablauf sie automatisch aus („Vorbereitung erledigt ✓“); ein Tipp auf den Bügel zeigt sie kurz wieder
+- Oben rechts eine gemeinsame Taste mit **Einstellungen**, **Ortsmarke** (Unterwegs-Modus, siehe unten) und **Kleiderbügel** – der Bügel blendet alle Vorbereitungen aus bzw. ein (wird im Link gespeichert). Sind alle Vorbereitungen vorbei, blendet der Ablauf sie automatisch aus („Vorbereitung erledigt ✓“); ein Tipp auf den Bügel zeigt sie kurz wieder
 - Nach Stationen mit Aufenthalt oder Puffer fügt die App automatisch „Weiter“ bzw. „Weiter spätestens“ mit Uhrzeit ein – im Ablauf in derselben Zeile wie die Station („bis 17:20“), im Notiztext als eigene Zeile
 - Ablauf aller Schritte mit **senkrechtem Fortschrittsbalken**, der sich mit der Zeit füllt; ein Punkt zeigt, wo man gerade steht
 - Bei jedem Schritt steht, wie lange es noch dauert („in 25 Min.“) bzw. wie lange er her ist; der nächste Schritt ist hervorgehoben
@@ -20,7 +20,7 @@ Die App läuft komplett im Browser auf Handy, Tablet und Computer – ohne Serve
 - **Teilen:** öffnet das Teilen-Menü des Handys (WhatsApp, Mail, Notizen …) mit einer Kurzinfo zum Termin und dem Link (siehe „Link teilen mit Kurzinfo“)
 - **Nur Link teilen:** teilt wirklich nur den Link zum Zeitplan, ohne Text (wo kein Teilen-Menü da ist, wird er kopiert). Bei einer lokal geöffneten Datei gibt es keinen Link
 - **Text kopieren** für die Notizen eines vorhandenen Termins
-- **Drucken** (Drucker-Symbol oben rechts neben den Einstellungen): druckt Kopf mit Zeiten, den Ablauf mit senkrechtem Balken und Symbolen sowie den Aufteilungsbalken – ohne Notiztext und Countdown
+- **Drucken** (Drucker-Symbol beim Ablauf, neben Glocke und „Display anlassen“): druckt Kopf mit Zeiten, den Ablauf mit senkrechtem Balken und Symbolen sowie den Aufteilungsbalken – ohne Notiztext und Countdown
 
 **Einstellungen** (öffnen sich über das Symbol oben rechts als kompaktes Seitenpanel)
 - Oben im Panel stehen immer die voraussichtlichen Zeiten (Vorbereiten, Los, letzte Station), jede Station zeigt ihre berechnete Uhrzeit – so sieht man beim Planen sofort, was sich ändert
@@ -65,7 +65,14 @@ Die App läuft komplett im Browser auf Handy, Tablet und Computer – ohne Serve
 - Mit **+** zwischen zwei Stationen lässt sich dort eine neue einfügen (ganz oben eine Vorbereitung)
 - **Verspätungen – drei Schnellwahlen:** (1) **zwischen zwei Stationen** (⏱ im Zwischenraum, in den Einstellungen): „so viele Minuten später unterwegs“ – Stau, später losgekommen, Bus/Bahn kommt später an. Ab da rücken flexible Zeiten nach hinten, feste Uhrzeiten bleiben (dort wird der Puffer kleiner, reicht er nicht, warnt die App). (2) **später losgekommen** – im Zwischenraum nach dem automatischen „Los“ gibt es zwei Knöpfe: ⏱ **Los** (später losgekommen) und ⏱ **an** (unterwegs aufgehalten, später angekommen); überall sonst genügt ein Knopf: Die Los-Zeit oben und im Ablauf wird ersetzt, alles danach rückt nach hinten. (3) **an Haltestelle/Abflug** („Verspätung: Abfahrt/Abflug“, auch zugeklappt): Bus, Bahn oder Flug fährt später ab. „Los“ und alles davor bleiben wie geplant. Im Ablauf werden die betroffenen Uhrzeiten durchgestrichen und durch die neuen in **Rot** ersetzt, dazu „+10 Min.“ neben dem Namen
 - **Drucken auf iPhone/iPad als Web-App:** Apple erlaubt in Home-Bildschirm-Web-Apps kein Drucken (der Druck-Dialog öffnet sich dort nicht). Die App zeigt stattdessen einen Hinweis: „Teilen“ schickt den Ablauf als Bild (A4) ins Teilen-Menü, dort „Drucken“ wählen; alternativ Link kopieren und in Safari öffnen
+- **Ohne feste Uhrzeit:** Hat keine Station eine feste Uhrzeit, rechnet die App von der letzten Station rückwärts. Statt Uhrzeiten steht dann überall, wie viel vorher (z. B. „0:45“ mit „vorher“ darunter = 45 Min. vor der letzten Station; im Notiztext „0:45 vorher“). Die letzte Station steht ohne Zeit direkt an der Linie. Countdown und Kalenderdatei gibt es dann nicht
+- **„ca.“ bei fester Uhrzeit:** Neben „Fest um“ lässt sich „ca.“ anhaken (z. B. Ende eines Spiels). Die Uhrzeit und die Zeiten, die davon abhängen, erscheinen dann mit „ca.“ (Link-Kürzel `x`, Bit 8)
+- **Erwartete Ankunft:** Passt eine feste Uhrzeit nicht mehr (Verspätung oder zu knapp geplant), steht unter der gelben Uhrzeit in Rot „erwartet 18:10“ und beim Namen ein rotes Kästchen „10 Min. zu spät“, ebenso im Hinweis oben. Ohne feste Uhrzeit verschiebt eine Verspätung die letzte Station; dort steht „Verspätung erwartet: voraussichtlich … später da“
+- **Verspätungen im Notiztext:** eine eigene Zeile „Verspätung: …“ nennt, wo sie entsteht (z. B. „20 Min. später los“, „unterwegs zu Bäcker +10 Min.“, „Abfahrt Bus +5 Min.“) und was daraus folgt („Termin 9 Min. zu spät (erwartete Ankunft 18:09 Uhr)“); verschobene Zeilen nennen zusätzlich die geplante Zeit
 - **Aufteilungsbalken:** Ist die Vorbereitung ausgeblendet (per Knopf oder automatisch, weil sie vorbei ist), fehlt sie auch im Balken und in der Gesamtzeit
+- **Unterwegs-Modus** (Ortsmarke oben): Im Ablauf erscheinen Knöpfe „Bin los“ bzw. „Bin da“. Antippen vergleicht die aktuelle Uhrzeit mit der geplanten und trägt die Abweichung automatisch als Verspätung ein („später los“ bzw. Verspätung auf dem Weg zu dieser Station) – mit „Rückgängig“. Früher da verringert eine eingetragene Verspätung. Nur mit fester Uhrzeit und am Tag des Termins
+- **Erinnerungen** (Glocke beim Ablauf): Benachrichtigung zum Vorbereiten, 5 Min. vor „Los“ und zu „Los“. Funktioniert, solange die App geöffnet ist (am besten zusammen mit „Display anlassen“); auf iPhone/iPad nur als Web-App vom Home-Bildschirm (ab iOS 16.4). Zuverlässige Erinnerungen auch bei geschlossener App gibt es über „In den Kalender“
+- **Station gelöscht?** Unten erscheint kurz „Rückgängig“
 - **„Display anlassen“** (neben „Ablauf“): Das Display geht nicht aus, solange der Zeitplan offen ist; nochmal tippen schaltet es wieder ab. Der Knopf erscheint nur, wenn der Browser das kann (z. B. Chrome, Edge, Safari ab iOS 16.4)
 - **Link teilen mit Kurzinfo** (Knopf „Teilen“): Vor dem Link steht automatisch, worum es geht – Titel, Termin mit Datum und Uhrzeit, „Los um …“ (ggf. „vorbereiten ab …“) und die Stationen unterwegs. WhatsApp zeigt diesen Text über der Link-Vorschau. Die Vorschau-Karte selbst (Titel, Beschreibung, Bild aus den `og:`-Angaben in `index.html`) ist für alle Links gleich, weil WhatsApp die Seite ohne den #-Teil und ohne JavaScript abruft. Tipp: Bei `og:image` die volle Adresse eintragen, z. B. `https://<benutzername>.github.io/termin-planer/icon-512.png` – manche Apps zeigen das Bild sonst nicht
 - **Farben der Uhrzeiten:** feste Uhrzeiten in einem gelben, abgerundeten Kasten, verschobene (verspätete) Uhrzeiten rot, berechnete schwarz
@@ -142,7 +149,7 @@ Hinter dem `#` stehen alle Einstellungen. Zuerst ein Block aus Buchstaben und Za
 | `z` | Haltestelle: Ankunft nach der Fahrt (hhmm) | `z0805` |
 | `a` | Haltestelle/Abflug: Verspätung der Abfahrt in Minuten | `a10` |
 | `v` | Verspätung auf dem Weg zu dieser Station in Minuten (nach Haltestelle/Abflug: spätere Ankunft); vor der ersten Station: so viele Minuten später losgekommen | `v10` |
-| `x` | Bits (addiert): 1 = Zeit bis hierhin ca., 2 = Aufenthalt ca., 4 = Aufenthalt „Ende fest“ | `x4` |
+| `x` | Bits (addiert): 1 = Zeit bis hierhin ca., 2 = Aufenthalt ca., 4 = Aufenthalt „Ende fest“, 8 = feste Uhrzeit ca. | `x4` |
 | `l` | Details vorhanden – sie stehen hinter den Beschreibungen (und ggf. den eigenen Gründen) | `l1` |
 | `t` | eigene Gründe vorhanden – sie stehen dann hinter den Beschreibungen der Stationen | `t1` |
 | `d` | Datum (jjjjmmtt) | `d20261203` |
