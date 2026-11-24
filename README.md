@@ -18,7 +18,8 @@ Die App läuft komplett im Browser auf Handy, Tablet und Computer – ohne Serve
 **Teilen und Kalender**
 - **In den Kalender:** erstellt eine Kalenderdatei (.ics) mit Titel, Datum und dem Notiztext. Der Termin beginnt mit „Los“ und endet mit der letzten Station; Erinnerungen gibt es zur Vorbereitung, bei „Los“ und bei jedem „Weiter“. Auf dem Handy die Datei öffnen und „Hinzufügen“ wählen
 - **Teilen:** öffnet das Teilen-Menü des Handys (WhatsApp, Mail, Notizen …) mit einer Kurzinfo zum Termin und dem Link (siehe „Link teilen mit Kurzinfo“)
-- **Nur Link teilen:** teilt wirklich nur den Link zum Zeitplan, ohne Text (wo kein Teilen-Menü da ist, wird er kopiert). Bei einer lokal geöffneten Datei gibt es keinen Link
+- **Nur Link teilen:** teilt wirklich nur den Link zum Zeitplan, ohne Text
+- **QR-Code:** zeigt den Link zum Zeitplan als großen QR-Code – zum Scannen mit einem anderen Handy (wo kein Teilen-Menü da ist, wird er kopiert). Bei einer lokal geöffneten Datei gibt es keinen Link
 - **Text kopieren** für die Notizen eines vorhandenen Termins
 - **Drucken** (Drucker-Symbol beim Ablauf, neben Glocke und „Display anlassen“): druckt Kopf mit Zeiten, den Ablauf mit senkrechtem Balken und Symbolen sowie den Aufteilungsbalken – ohne Notiztext und Countdown
 
