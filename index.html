@@ -168,6 +168,12 @@ textarea{width:100%;min-height:220px;resize:vertical;font:16px/1.6 "Red Hat Text
 /* Einstellungen: ein einziger Scrollbereich, Kopf bleibt oben stehen */
 dialog.sheet{margin:0 0 0 auto;height:100%;max-height:none;width:min(500px,100vw);max-width:100vw;border:0;padding:0;background:var(--card);color:var(--ink);box-shadow:-12px 0 40px rgba(0,0,0,.18);overflow-y:auto;overscroll-behavior:contain}
 dialog.sheet::backdrop{background:rgba(20,20,26,.42)}
+dialog.popup{width:min(440px,calc(100vw - 32px));border:0;border-radius:18px;padding:22px;background:var(--card);color:var(--ink);box-shadow:0 12px 40px rgba(0,0,0,.3)}
+dialog.popup::backdrop{background:rgba(20,20,26,.42)}
+dialog.popup h2{margin-bottom:8px}
+dialog.popup p,dialog.popup ol{margin:0 0 10px;line-height:1.45}
+dialog.popup ol{padding-left:22px}
+dialog.popup .btn{display:inline-flex;align-items:center;text-decoration:none}
 dialog.sheet[open]{animation:slide .25s ease}
 @keyframes slide{from{transform:translateX(40px);opacity:.4}}
 @media(prefers-reduced-motion:reduce){dialog.sheet[open]{animation:none}.fill{transition:none}}
@@ -397,6 +403,23 @@ details.more summary{cursor:pointer;font-weight:700;min-height:44px;display:flex
   </section>
  </div>
 </main>
+
+<!-- Hinweis: In Home-Bildschirm-Web-Apps auf iPhone/iPad kann Apple nicht drucken -->
+<dialog class="popup" id="iosPrint" aria-labelledby="h-iosprint">
+ <h2 id="h-iosprint">Drucken in Safari</h2>
+ <p>Als App vom Home-Bildschirm kann das iPad/iPhone leider nicht drucken – das ist eine Einschränkung von Apple. In Safari geht es.</p>
+ <ol>
+  <li>Tippe auf <b>In Safari öffnen</b>.</li>
+  <li>Dort auf den Druck-Knopf oben tippen (oder Teilen → Drucken).</li>
+ </ol>
+ <p class="hint">Öffnet sich nur ein kleines Browserfenster: dort auf das Safari-Symbol bzw. „In Safari öffnen“ tippen.</p>
+ <div class="copy">
+  <a class="btn" id="iosOpen" href="#" target="_blank" rel="noopener">In Safari öffnen</a>
+  <button type="button" class="btn ghost" id="iosCopy">Link kopieren</button>
+  <button type="button" class="btn ghost" id="iosClose">Schließen</button>
+ </div>
+ <p class="ok" id="iosMsg" role="status" aria-live="polite"></p>
+</dialog>
 
 <dialog class="sheet" id="sheet" aria-labelledby="h-set">
  <div class="sheethead">
@@ -1640,9 +1663,25 @@ $('prepBtn').addEventListener('click', () => {
 });
 
 /* Drucken: nur der Ablauf (Notiztext wird ausgeblendet) */
+// iPhone/iPad als Web-App vom Home-Bildschirm: window.print() tut dort nichts
+const iosApp = () => {
+  const ios = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  return ios && (navigator.standalone === true || matchMedia('(display-mode: standalone)').matches);
+};
 $('printBtn').addEventListener('click', () => {
+  if(iosApp()){
+    $('iosOpen').href = `${APP_URL}#${encode()}`; $('iosMsg').textContent = '';
+    $('iosPrint').showModal(); return;
+  }
   try { window.print(); } catch(e){ $('copyMsg').textContent = 'Drucken ist hier nicht möglich.'; }
 });
+$('iosClose').addEventListener('click', () => $('iosPrint').close());
+$('iosOpen').addEventListener('click', () => setTimeout(() => $('iosPrint').close(), 300));
+$('iosCopy').addEventListener('click', async () => {
+  try { await navigator.clipboard.writeText($('iosOpen').href); $('iosMsg').textContent = 'Link kopiert – in Safari einfügen und öffnen.'; }
+  catch(e){ $('iosMsg').textContent = 'Kopieren nicht möglich.'; }
+});
+$('iosPrint').addEventListener('click', e => { if(e.target === $('iosPrint')) $('iosPrint').close(); });
 
 $('copyBtn').addEventListener('click', async () => {
   const ta = $('note'), msg = $('copyMsg');
