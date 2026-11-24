@@ -1,6 +1,6 @@
 // Service Worker: macht die App offline nutzbar.
 // Strategie: erst Netzwerk (damit Updates sofort ankommen), bei fehlender Verbindung aus dem Cache.
-const CACHE = 'termin-planer-v55';
+const CACHE = 'termin-planer-v63';
 const FILES = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png',
   './red-hat-display-latin-600-normal.woff2', './red-hat-display-latin-800-normal.woff2',
   './red-hat-text-latin-400-normal.woff2', './red-hat-text-latin-500-normal.woff2', './red-hat-text-latin-700-normal.woff2'];

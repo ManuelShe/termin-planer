@@ -35,15 +35,16 @@ Die App läuft komplett im Browser auf Handy, Tablet und Computer – ohne Serve
     | Kategorie | Wofür | Symbol |
     |---|---|---|
     | Vorbereitung | zu Hause fertig werden, z. B. anziehen, Tasche packen – nur „benötigte Zeit“, mit Vorschlägen für die Beschreibung. Die Beschreibung ersetzt „Vorbereiten“; Uhrzeit klein und grau | kleiner Punkt |
+    | Los | Hier geht es los, z. B. „von zu Hause“, „vom Büro“ – optional mit fester Uhrzeit, ohne Aufenthalt | Pfeil |
     | Zwischenstopp | kurz etwas erledigen | kleiner Punkt |
     | Termin | Ziel mit Uhrzeit und Dauer | Zielflagge – steht davor eine Zeile „Ankommen“ (durch „zuvor ankommen“ oder nach Bus/Bahn), Kalender und die Flagge bei „Ankommen“ |
     | Beginn | Beginn einer Veranstaltung | immer Play-Zeichen (die Flagge steht bei „Ankommen“) |
     | Treffen | mit jemandem verabredet | zwei Personen |
     | Abholen | jemanden abholen | Person |
     | Bringen | jemanden irgendwo hinbringen | Person mit Pfeil |
-    | Haltestelle | Bus oder Bahn – die feste Uhrzeit ist die Abfahrt; optional „Ankunft um“. Dann zeigt die Station in den Einstellungen Fahrzeit, Ankunft, Weg zum nächsten Punkt und den Puffer bis zur nächsten festen Uhrzeit (Puffer = was über das eingestellte „vorher da sein“ hinaus übrig bleibt). Schnellwahl „Verspätung“ direkt an der Station, auch zugeklappt: Abfahrt und – mit Ankunftszeit – Ankunft getrennt („wie Abfahrt“, „pünktlich“ oder +1 bis +120 Min.). Im Ablauf stehen „Abfahrt“ über und „Ankunft“ unter der Uhrzeit. Nach der Ankunft geht es direkt weiter: flexible Stationen schließen an, bei einem Termin ergibt sich „zuvor ankommen“ aus der Ankunft | Bus |
+    | Haltestelle | Bus oder Bahn – die feste Uhrzeit ist die Abfahrt; optional „Ankunft um“. Dann zeigt die Station in den Einstellungen Fahrzeit, Ankunft, Weg zum nächsten Punkt und den Puffer bis zur nächsten festen Uhrzeit (Puffer = was über das eingestellte „vorher da sein“ hinaus übrig bleibt). Schnellwahl „Verspätung: Abfahrt“ direkt an der Station (auch zugeklappt) | Bus |
     | Abflug | Flug – die feste Uhrzeit ist der Abflug, vorbelegt mit 2 Std. vorher da sein (Einchecken, Sicherheitskontrolle). Schnellwahl „Verspätung“ für den Abflug | Flugzeug |
-    | Ankunft | Ankunft von Bus, Bahn oder Flug zu fester Uhrzeit. Direkt nach „Haltestelle“ oder „Abflug“ ergibt sich die Fahr- bzw. Flugzeit automatisch aus beiden Uhrzeiten. Schnellwahl „Verspätung“ für die Ankunft (direkt nach Abflug/Haltestelle zunächst „wie Abflug“) | Pfeil nach unten |
+    | Ankunft | Ankunft von Bus, Bahn oder Flug zu fester Uhrzeit. Direkt nach „Haltestelle“ oder „Abflug“ ergibt sich die Fahr- bzw. Flugzeit automatisch aus beiden Uhrzeiten. Eine spätere Ankunft stellst du mit der Verspätung zwischen Abflug/Haltestelle und Ankunft ein | Pfeil nach unten |
     | Pause | Rast auf langen Wegen (im Balken eigene Farbe) | Tasse |
     | Rückweg | Heimweg als letzte Station – eine Beschreibung (z. B. „Oma“) ersetzt „Zu Hause“ | Haus |
     | Individuell | alles andere, Name über die Beschreibung | Punkt |
@@ -58,8 +59,13 @@ Die App läuft komplett im Browser auf Handy, Tablet und Computer – ohne Serve
   - **Aufenthalt**
   - **ca.** bei „Zeit bis hierhin“ und „Aufenthalt“: die Dauer ist nur geschätzt. Alle Zeiten, die sich daraus ergeben, stehen dann mit „ca.“ da – bis zur nächsten Station mit fester Uhrzeit
 - Stationen stehen zugeklappt und kompakt untereinander (Uhrzeit, Name, Kurzinfo); ein Tipp klappt eine Station zum Bearbeiten auf. Zwischen den Stationen stehen Abfahrts-, Ankunfts- und Wegzeiten, die sich beim Ändern sofort anpassen
+- **Aufenthalt:** steht standardmäßig auf 0 – nur bei Zwischenstopp (10 Min.), Abholen (5 Min.) und Pause (20 Min.) gibt es einen Startwert. Beim Wechsel der Kategorie wird ein solcher Startwert nicht mitgenommen
+- **Aufenthalt „Ende fest“:** Danach geht es wirklich weiter – wie bei der Haltestelle rücken alle flexiblen Zeiten danach nach vorne (z. B. „Ankommen“ bei der nächsten Station), feste Uhrzeiten bleiben.
+- **„Los“ übernimmt:** Liegt zwischen dem automatischen „Los“ und der ersten Station keine Zeit (Zeit bis hierhin „–“), entfällt die automatische Zeile „Los“ und diese Station ist der Startpunkt (Countdown, Kalender-Beginn). Eine Station der Kategorie „Los“ bekommt den Pfeil, andere behalten ihr Symbol
 - Mit **+** zwischen zwei Stationen lässt sich dort eine neue einfügen (ganz oben eine Vorbereitung)
-- **Verspätungen** (Haltestelle, Abflug, Ankunft): Im Ablauf werden die betroffenen Uhrzeiten durchgestrichen und durch die neuen in **Rot** ersetzt, die Verspätung steht als „+10 Min.“ neben dem Namen. Alles vor der Abfahrt bleibt wie geplant; flexible Stationen danach verschieben sich, feste Uhrzeiten bleiben. Reicht die Zeit nicht mehr, warnt die App („Durch die Verspätung … zu spät für …“)
+- **Verspätungen – drei Schnellwahlen:** (1) **zwischen zwei Stationen** (⏱ im Zwischenraum, in den Einstellungen): „so viele Minuten später unterwegs“ – Stau, später losgekommen, Bus/Bahn kommt später an. Ab da rücken flexible Zeiten nach hinten, feste Uhrzeiten bleiben (dort wird der Puffer kleiner, reicht er nicht, warnt die App). (2) **später losgekommen** – im Zwischenraum nach dem automatischen „Los“ gibt es zwei Knöpfe: ⏱ **Los** (später losgekommen) und ⏱ **an** (unterwegs aufgehalten, später angekommen); überall sonst genügt ein Knopf: Die Los-Zeit oben und im Ablauf wird ersetzt, alles danach rückt nach hinten. (3) **an Haltestelle/Abflug** („Verspätung: Abfahrt/Abflug“, auch zugeklappt): Bus, Bahn oder Flug fährt später ab. „Los“ und alles davor bleiben wie geplant. Im Ablauf werden die betroffenen Uhrzeiten durchgestrichen und durch die neuen in **Rot** ersetzt, dazu „+10 Min.“ neben dem Namen
+- **„Display anlassen“** (neben „Ablauf“): Das Display geht nicht aus, solange der Zeitplan offen ist; nochmal tippen schaltet es wieder ab. Der Knopf erscheint nur, wenn der Browser das kann (z. B. Chrome, Edge, Safari ab iOS 16.4)
+- **Link teilen mit Kurzinfo:** Vor dem Link steht automatisch, worum es geht – Titel, Termin mit Datum und Uhrzeit, „Los um …“ (ggf. „vorbereiten ab …“) und die Stationen unterwegs. WhatsApp zeigt diesen Text über der Link-Vorschau. Die Vorschau-Karte selbst (Titel, Beschreibung, Bild aus den `og:`-Angaben in `index.html`) ist für alle Links gleich, weil WhatsApp die Seite ohne den #-Teil und ohne JavaScript abruft. Tipp: Bei `og:image` die volle Adresse eintragen, z. B. `https://<benutzername>.github.io/termin-planer/icon-512.png` – manche Apps zeigen das Bild sonst nicht
 - **Farben der Uhrzeiten:** feste Uhrzeiten in einem gelben, abgerundeten Kasten, verschobene (verspätete) Uhrzeiten rot, berechnete schwarz
 - Stationen lassen sich mit ↑ und ↓ umsortieren und mit ✕ entfernen
 - **Link zur Route** (optional), z. B. aus Google Maps oder Apple Karten über „Teilen“ kopiert. In der App erscheint dann der Button „Route öffnen“
@@ -125,7 +131,7 @@ Hinter dem `#` stehen alle Einstellungen. Zuerst ein Block aus Buchstaben und Za
 |---|---|---|
 | `m` | `m0` = Vorbereitungen ausgeblendet | `m0` |
 | `p` / `c` | nur in älteren Links: Vorbereitungszeit – wird beim Öffnen zur Station „Vorbereitung“ | `p15` |
-| `b` | neue Station: 2 Beginn, 3 Zwischenstopp, 4 Individuell, 5 Rückweg, 6 Termin, 7 Abholen, 8 Haltestelle, 9 Pause, 10 Bringen, 11 Treffen, 12 Abflug, 13 Ankunft, 14 Vorbereitung (0 und 1 aus älteren Links werden zu Termin) | `b6` |
+| `b` | neue Station: 2 Beginn, 3 Zwischenstopp, 4 Individuell, 5 Rückweg, 6 Termin, 7 Abholen, 8 Haltestelle, 9 Pause, 10 Bringen, 11 Treffen, 12 Abflug, 13 Ankunft, 14 Vorbereitung, 15 Los (0 und 1 aus älteren Links werden zu Termin) | `b6` |
 | `u` | feste Uhrzeit der Station (hhmm) | `u1400` |
 | `n` | Minuten nach der vorherigen Station (Wegzeit) | `n30` |
 | `y` | Aufenthalt in Minuten | `y10` |
@@ -133,8 +139,8 @@ Hinter dem `#` stehen alle Einstellungen. Zuerst ein Block aus Buchstaben und Za
 | `o` | Gründe fürs Früher-da-sein als Summe: 1 Parkplatzsuche · 2 Fußweg vom Parkplatz · 3 Puffer · 4 Treffpunkt · 5 Anmeldung · 6 Einlass · 7 Einchecken · 8 Sicherheitskontrolle · 9 Ticket holen · 10 Garderobe · 11 Umziehen · 12 Aufwärmen · 13 Platz suchen · 14 Material aufbauen – jeder Grund n zählt 2^(n−1), z. B. Parkplatzsuche + Fußweg = 1 + 2 = 3 | `o3` |
 | `z` | Haltestelle: Ankunft nach der Fahrt (hhmm) | `z0805` |
 | `a` | Haltestelle/Abflug: Verspätung der Abfahrt in Minuten | `a10` |
-| `v` | Haltestelle/Ankunft: Verspätung der Ankunft in Minuten (`v0` = pünktlich; fehlt = wie die Abfahrt) | `v15` |
-| `x` | ungefähr: 1 = Zeit bis hierhin, 2 = Aufenthalt, 3 = beides | `x2` |
+| `v` | Verspätung auf dem Weg zu dieser Station in Minuten (nach Haltestelle/Abflug: spätere Ankunft); vor der ersten Station: so viele Minuten später losgekommen | `v10` |
+| `x` | Bits (addiert): 1 = Zeit bis hierhin ca., 2 = Aufenthalt ca., 4 = Aufenthalt „Ende fest“ | `x4` |
 | `l` | Details vorhanden – sie stehen hinter den Beschreibungen (und ggf. den eigenen Gründen) | `l1` |
 | `t` | eigene Gründe vorhanden – sie stehen dann hinter den Beschreibungen der Stationen | `t1` |
 | `d` | Datum (jjjjmmtt) | `d20261203` |
