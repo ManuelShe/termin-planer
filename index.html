@@ -36,7 +36,7 @@
 :root{color-scheme:light dark;
  --bg:light-dark(#fbfaf8,#15161b);--ink:light-dark(#1d1f26,#f1efe9);--muted:light-dark(#5d606b,#a9abb4);
  --line:light-dark(#e4e1db,#2c2e36);--card:light-dark(#ffffff,#1d1f26);
- --red:#e5483b;--fix:#1d1f26;--fixMark:#ffd23f;--fixBg:#ffd23f;--fixLine:light-dark(#f0cf5a,#6b5a1c);--redDeep:light-dark(#c9372b,#b7342a);--sun:#ffd23f;--soft:light-dark(#f3f1ec,#26282f)}
+ --red:#e5483b;--green:light-dark(#1f7a3d,#7fd39a);--fix:#1d1f26;--fixMark:#ffd23f;--fixBg:#ffd23f;--fixLine:light-dark(#f0cf5a,#6b5a1c);--redDeep:light-dark(#c9372b,#b7342a);--sun:#ffd23f;--soft:light-dark(#f3f1ec,#26282f)}
 :root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
 *{box-sizing:border-box;min-width:0}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Red Hat Text",system-ui,sans-serif;overflow-x:clip}
@@ -91,8 +91,22 @@ h1{font:800 clamp(28px,4.6vw,44px)/1.05 "Red Hat Display",sans-serif;margin:0;te
 .abtn[aria-pressed=false] .bslash{display:inline}
 .abtn[aria-pressed=true]{background:var(--ink);color:var(--card)}
 /* Unterwegs: „Bin da“ */
-.binda{display:inline-flex;align-items:center;gap:5px;margin-top:6px;min-height:34px;padding:0 12px;border:1.5px solid var(--ink);border-radius:999px;background:var(--card);color:var(--ink);font:700 14px "Red Hat Display",sans-serif;cursor:pointer}
-.binda svg{width:15px;height:15px}
+.bgrp{display:inline-flex;flex-wrap:nowrap;max-width:100%;margin-top:6px;border:1.5px solid var(--ink);border-radius:999px;overflow:hidden;background:var(--card)}
+.bgrp button{display:inline-flex;align-items:center;gap:4px;min-height:34px;padding:0 11px;border:0;background:none;color:var(--ink);font:700 14px "Red Hat Display",sans-serif;white-space:nowrap;cursor:pointer}
+.bgrp button+button{border-left:1.5px solid var(--line)}
+.bgrp button:active{background:var(--soft)}
+.bgrp svg{width:14px;height:14px;flex:none}
+/* zu schmal für eine Zeile: Knöpfe untereinander im selben Rahmen */
+#plan li > div{container-type:inline-size}
+@container (max-width:260px){.bgrp button{padding:0 8px;font-size:13px;gap:3px}.bgrp svg{display:none}}
+@container (max-width:176px){.bgrp{flex-direction:column;border-radius:16px}.bgrp button+button{border-left:0;border-top:1.5px solid var(--line)}}
+/* Symbolauswahl */
+.icopick{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:8px 0 4px}
+.icopick span{font-size:13px;font-weight:700;color:var(--muted);margin-right:4px}
+.icopick button{display:grid;place-items:center;width:36px;height:36px;padding:0;border:1.5px solid var(--line);border-radius:50%;background:var(--card);color:var(--ink);cursor:pointer}
+.icopick button svg{width:16px;height:16px}
+.icopick button[aria-checked=true]{border-color:var(--ink);background:var(--ink);color:var(--card)}
+.icopick .sdot{width:8px;height:8px;border-radius:50%;background:currentColor}
 .toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:50;display:flex;gap:12px;align-items:center;max-width:calc(100vw - 32px);padding:10px 12px 10px 16px;border-radius:14px;background:#1d1f26;color:#fff;font-size:15px;box-shadow:0 8px 28px rgba(0,0,0,.3)}
 .toast button{border:0;background:none;color:var(--sun);font:800 15px "Red Hat Display",sans-serif;padding:6px 4px;cursor:pointer}
 .cardhead{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;margin-bottom:6px}
@@ -149,6 +163,8 @@ h2{font:600 22px/1.2 "Red Hat Display",sans-serif;margin:0}
 .plan li.notime > div{grid-column:1/3}
 .was{display:block;font:700 14px/1.1 "Red Hat Display",sans-serif;color:var(--muted);text-align:right;text-decoration-thickness:2px}
 .plan li time.moved,.plan li.fixed time.moved,.plan .t2 b.moved{color:var(--red)}
+.plan li time.moved.earlier,.plan li.fixed time.moved.earlier,.plan .t2 b.moved.earlier{color:var(--green)}
+.lateb.earlyb{background:var(--green);color:light-dark(#fff,#0e2716)}
 .t2 s{margin-right:4px;font-weight:500;color:var(--muted);text-decoration-thickness:2px}
 .lateb{display:inline-block;max-width:calc(100% - 6px);margin:2px 0 0 6px;padding:1px 7px;border-radius:9px;line-height:1.3;background:var(--red);color:#fff;font-size:12px;font-weight:700;vertical-align:2px}
 .tlab{display:block;margin-bottom:3px;font-size:13px;line-height:1.1;font-weight:700;color:var(--muted);text-align:right}
@@ -281,6 +297,7 @@ dialog.sheet[open]{animation:slide .25s ease}
 .wdl{font-size:12px;font-weight:700}
 .wd{padding-right:6px}
 .wd.on{border-color:var(--red);color:var(--red)}
+.wd.on.early{border-color:var(--green);color:var(--green)}
 .st2 .exact{grid-column:1/-1;flex-direction:row;align-items:center;gap:8px;min-height:36px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer}
 .st2 .exact b{color:var(--ink)}
 .st2 .exact input{width:20px;min-height:20px;height:20px;padding:0;margin:0;flex:none;accent-color:var(--red)}
@@ -342,6 +359,9 @@ details.more summary{cursor:pointer;font-weight:700;min-height:44px;display:flex
 .tpl button{border:0;background:none;cursor:pointer;min-height:40px}
 .tpl .use{padding:0 12px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:16em}
 .tpl .use:hover{background:var(--soft)}
+.tpl .over{display:grid;place-items:center;width:38px;color:var(--muted);border-left:1.5px solid var(--line)}
+.tpl .over svg{width:17px;height:17px}
+.tpl .over:hover{color:var(--ink);background:var(--soft)}
 .tpl .del{width:36px;color:var(--muted);border-left:1.5px solid var(--line)}
 .tpl .del:hover{color:var(--red);background:var(--soft)}
 .tplsave{flex-wrap:nowrap}.tplsave .field{flex:1}
@@ -356,7 +376,7 @@ details.more summary{cursor:pointer;font-weight:700;min-height:44px;display:flex
 /* Druckansicht: nur Kopf mit Zeiten und der Ablauf, ohne Notiztext, Buttons und Countdown */
 @media print{
   .printonly{display:inline!important}
-  .abtns,.binda,.toast{display:none!important}
+  .abtns,.bgrp,.toast{display:none!important}
   .ver{display:none!important}
     .startbtn{display:none!important}
   :root{color-scheme:light}
@@ -580,7 +600,12 @@ const TLABEL = {go:'Los', prep:'Vorbereitung', dest:'Termin', arrive:'Termin', t
 const TICON = {go:'➡️', prep:'⏰', dest:'🏁', arrive:'🏁', termin:'🏁', start:'▶️', stop:'📌', pickup:'🙋', dropoff:'👋', meet:'🤝', transit:'🚏', flight:'✈️', arrival:'🛬', pause:'☕', custom:'🔹', back:'🏠'};
 const TDOT = {go:'go', termin:'flag', start:'play', back:'home', pickup:'person', dropoff:'drop', meet:'meet', transit:'bus', flight:'plane', arrival:'land', pause:'cup'};   // Symbol im Kreis des Fortschrittsbalkens
 // Mit einer Zeile „Ankommen“ davor bekommt diese die Flagge und der Termin selbst ein Kalender-Symbol; der Beginn hat immer das Play-Symbol
-const dotFor = (s, arrRow) => arrRow && (s.type === 'termin' || s.type === 'dest' || s.type === 'arrive') ? 'cal' : (TDOT[s.type] || (s.type === 'dest' || s.type === 'arrive' ? 'flag' : ''));
+/* wählbare Symbole: „Individuell“ alle, „Ankunft“ Pfeil auf Strich oder Zielflagge (Reihenfolge = Nummer im Link, nicht umsortieren) */
+const ICON_KEYS = ['', 'flag', 'land', 'go', 'cal', 'play', 'bus', 'plane', 'cup', 'person', 'drop', 'meet', 'home', 'star', 'cart', 'ball', 'book', 'heart', 'pin'];
+const ICON_NAME = {'':'kleiner Punkt', flag:'Zielflagge', land:'Pfeil auf Strich', go:'Pfeil', cal:'Kalender', play:'Start', bus:'Bus', plane:'Flugzeug', cup:'Tasse', person:'Person', drop:'Winken', meet:'Treffen', home:'Haus', star:'Stern', cart:'Einkaufen', ball:'Sport', book:'Buch', heart:'Herz', pin:'Ort'};
+const iconChoices = t => t === 'custom' ? ICON_KEYS : t === 'arrival' ? ['land', 'flag'] : null;
+const ownIcon = s => { const ch = iconChoices(s.type); return ch && ch.includes(s.icon) && s.icon !== (s.type === 'arrival' ? 'land' : '') ? s.icon : null; };
+const dotFor = (s, arrRow) => ownIcon(s) !== null ? ownIcon(s) : arrRow && (s.type === 'termin' || s.type === 'dest' || s.type === 'arrive') ? 'cal' : (TDOT[s.type] || (s.type === 'dest' || s.type === 'arrive' ? 'flag' : ''));
 const TPH = {go:'Beschreibung (optional), z. B. von zu Hause, vom Büro', prep:'Beschreibung (optional), z. B. Anziehen – ersetzt „Vorbereiten“', termin:'Beschreibung (optional), z. B. Zahnarzt', start:'Beschreibung (optional), z. B. Elternabend', stop:'Beschreibung (optional), z. B. Bäcker',
   pickup:'Beschreibung (optional), z. B. Kind von der Musikschule', dropoff:'Beschreibung (optional), z. B. Kind zum Training', meet:'Beschreibung (optional), z. B. mit Anna im Café', transit:'Beschreibung (optional), z. B. Linie 512 Richtung Hbf', flight:'Beschreibung (optional), z. B. LH 1234 nach Rom', arrival:'Beschreibung (optional), z. B. Rom Fiumicino oder Köln Hbf', pause:'Beschreibung (optional), z. B. Raststätte',
   back:'Bezeichnung (optional), z. B. Wohnung – ersetzt „Zu Hause“', custom:'Bezeichnung, z. B. Treffpunkt'};
@@ -643,7 +668,7 @@ function cleanRoute(x){
   if(/^[\w-]+(\.[\w-]+)+(\/\S*)?$/.test(x)) return ('https://' + x).slice(0, 1500);
   return '';
 }
-const station = (o = {}) => ({type:'stop', desc:'', fixed:false, time:'', after:0, before:0, stay:0, early:0, why:0, whyx:'', info:'', afterCa:false, stayCa:false, buf:'', arr2:'', delay:0, wdelay:0, exact:false, timeCa:false, ...o});
+const station = (o = {}) => ({type:'stop', desc:'', fixed:false, time:'', after:0, before:0, stay:0, early:0, why:0, whyx:'', info:'', afterCa:false, stayCa:false, buf:'', arr2:'', delay:0, wdelay:0, exact:false, timeCa:false, icon:'', ...o});
 /* Puffer für den Weg zu einer Station: '' | m5 (Minuten) | p10 (Prozent) */
 const BUFS = [['','kein'],['m5','+5 Min.'],['m10','+10 Min.'],['m15','+15 Min.'],['m20','+20 Min.'],['m30','+30 Min.'],['p10','+10 %'],['p20','+20 %'],['p30','+30 %'],['p50','+50 %']];
 const bufText = b => (BUFS.find(x => x[0] === b) || ['',''])[1];
@@ -656,6 +681,7 @@ const whyText = s => whyList(s).join(', ');
 const PREP_IDEAS = ['Aufstehen','Fertig machen','Anziehen','Duschen','Frühstücken','Kaffee','Tasche packen','Proviant einpacken','Unterlagen ausdrucken','Geschenk einpacken','Kinder fertig machen','Auto freikratzen','Haare machen','Fahrrad vorbereiten'];
 const ideaList = s => (s.desc || '').split(',').map(x => x.trim()).filter(Boolean);
 const nextHour = () => { const d = new Date(); return pad((d.getHours() + 2) % 24) + ':00'; };
+const vMin = num => num > 0 && num <= 240 ? num : num > 1000 && num <= 1240 ? 1000 - num : 0;   // Link-Wert → Minuten (negativ = früher)
 const freshPlan = () => ({date:'', title:'', route:'', rep:'', repDays:0, showPrep:true, losLate:0,
   stations:[station({type:'prep', stay:15}), station({type:'termin', fixed:true, time:nextHour(), after:30})]});
 
@@ -710,7 +736,7 @@ const HHMM = /^([01]\d|2[0-3])[0-5]\d$/;
 function encode(){
   const t = ['zt'];
   if(state.showPrep === false) t.push('m0');
-  if(state.losLate > 0) t.push('v' + state.losLate);   // vor der ersten Station: später losgekommen (Min.)
+  if(state.losLate) t.push('v' + (state.losLate > 0 ? state.losLate : 1000 - state.losLate));   // vor der ersten Station: später (bzw. ab 1000: früher) losgekommen
   for(const s of state.stations){
     t.push('b' + TYPES.indexOf(s.type));
     if(s.fixed && toMin(s.time) !== null) t.push('u' + hm(s.time));
@@ -721,11 +747,12 @@ function encode(){
     if(s.early && s.why) t.push('o' + s.why);
     const ex = s.exact && EXACTOK(s.type);
     const tc = s.fixed && s.timeCa;
-    if(s.afterCa || s.stayCa || ex || tc) t.push('x' + ((s.afterCa ? 1 : 0) | (s.stayCa ? 2 : 0) | (ex ? 4 : 0) | (tc ? 8 : 0)));   // Bits: 1 Weg ca., 2 Aufenthalt ca., 4 Aufenthalt Ende fest, 8 feste Uhrzeit ca.
+    const ic = ownIcon(s) !== null ? ICON_KEYS.indexOf(ownIcon(s)) : 0;
+    if(s.afterCa || s.stayCa || ex || tc || ic) t.push('x' + ((s.afterCa ? 1 : 0) | (s.stayCa ? 2 : 0) | (ex ? 4 : 0) | (tc ? 8 : 0) | ic * 16));   // Bits: 1 Weg ca., 2 Aufenthalt ca., 4 Ende fest, 8 feste Uhrzeit ca.; ab 16: Nummer des Symbols
     if(s.buf) t.push((s.buf[0] === 'm' ? 'f' : 's') + s.buf.slice(1));   // Puffer: f = Minuten, s = Prozent
     if(s.type === 'transit' && toMin(s.arr2) !== null) t.push('z' + hm(s.arr2));   // Ankunft nach der Fahrt
     if(DEP(s.type) && s.delay) t.push('a' + s.delay);    // Verspätung Abfahrt/Abflug (Min.)
-    if(s.wdelay && s.type !== 'prep') t.push('v' + s.wdelay);   // Verspätung auf dem Weg hierher (Min.)
+    if(s.wdelay && s.type !== 'prep') t.push('v' + (s.wdelay > 0 ? s.wdelay : 1000 - s.wdelay));   // Verspätung auf dem Weg hierher (ab 1000: so viel früher)
   }
   if(state.date) t.push('d' + state.date.replace(/-/g,''));
   const RC = {d:1, wd:2, w:3, m:4, y:5};
@@ -772,7 +799,7 @@ function decode(text){
       if(common(k, v, num)) continue;
       const last = S[S.length-1];
       if(k === 'b' && S.length < 12) S.push(station({type: TYPES[num] || 'stop'}));
-      else if(!last){ if(k === 'v' && num > 0 && num <= 240) n.losLate = num; continue; }
+      else if(!last){ if(k === 'v') n.losLate = vMin(num); continue; }
       else if(k === 'u' && HHMM.test(v)){ last.fixed = true; last.time = unhm(v); }
       else if(k === 'n' && num <= 1440) last.after = num;
       else if(k === 'q' && num <= 1440) last.before = num;
@@ -780,12 +807,12 @@ function decode(text){
       else if(k === 'e' && num <= 1440) last.early = num;
       else if(k === 'j' && num >= 1 && num <= WHY.length) last.why = 1 << (num - 1);   // ältere Links: ein einzelner Grund
       else if(k === 'o' && num > 0 && num < (1 << WHY.length)) last.why = num;
-      else if(k === 'x' && num >= 1 && num <= 15){ last.afterCa = !!(num & 1); last.stayCa = !!(num & 2); last.exact = !!(num & 4); last.timeCa = !!(num & 8); }
+      else if(k === 'x' && num >= 1 && num <= 1023){ last.afterCa = !!(num & 1); last.stayCa = !!(num & 2); last.exact = !!(num & 4); last.timeCa = !!(num & 8); last.icon = ICON_KEYS[num >> 4] || ''; }
       else if(k === 'f' && num > 0 && num <= 120) last.buf = 'm' + num;
       else if(k === 's' && num > 0 && num <= 200) last.buf = 'p' + num;
       else if(k === 'z' && HHMM.test(v)) last.arr2 = unhm(v);
       else if(k === 'a' && num > 0 && num <= 240) last.delay = num;
-      else if(k === 'v' && num > 0 && num <= 240) last.wdelay = num;
+      else if(k === 'v') last.wdelay = vMin(num);
     }
   } else {
     // ältere Links (vor den Stationen)
@@ -883,9 +910,9 @@ function compute(){
   const goneOn = Array(n).fill(false);   // Station liegt direkt nach einer Ankunft (vorwärts gerechnet)
   // Verspätungen: Abfahrt/Abflug (delay, an der Station) und „auf dem Weg hierher“ (wdelay, zwischen zwei Stationen)
   const dDep = S.map((s, k) => DEP(s.type) && fixed[k] !== null ? Math.max(0, +s.delay || 0) : 0);
-  const gd = S.map(s => s.type === 'prep' ? 0 : Math.max(0, +s.wdelay || 0));
+  const gd = S.map(s => s.type === 'prep' ? 0 : Math.max(-240, Math.min(240, +s.wdelay || 0)));   // negativ = früher/schneller
   let L0 = 0; while(L0 < n && S[L0].type === 'prep') L0++;
-  const losLate = L0 < n && autoLos(S[L0]) ? Math.max(0, +state.losLate || 0) : 0;   // später losgekommen (nur beim automatischen „Los“)
+  const losLate = L0 < n && autoLos(S[L0]) ? Math.max(-240, Math.min(240, +state.losLate || 0)) : 0;   // später (negativ: früher) losgekommen – nur beim automatischen „Los“
   if(losLate) gd[L0] += losLate;
   const adel = S.map((s, k) => {                 // Ankunft verschiebt sich um …
     if(s.type === 'transit') return dDep[k] + (rideT[k] && k + 1 < n ? gd[k+1] : 0);
@@ -1026,6 +1053,7 @@ function renderStations(){
     </div>
     <input type="text" class="field desc" data-f="desc" value="${esc(s.desc)}" placeholder="${TPH[s.type] || 'Beschreibung (optional)'}" maxlength="40" aria-label="Beschreibung von Station ${i+1}">
     <input type="text" class="field desc info" data-f="info" value="${esc(s.info || '')}" placeholder="Details (optional), z. B. Adresse, Raum, Ansprechpartner" maxlength="120" aria-label="Details zu Station ${i+1}">
+    ${iconChoices(s.type) ? `<div class="icopick" role="radiogroup" aria-label="Symbol im Fortschrittsbalken"><span>Symbol</span>${iconChoices(s.type).map(k => { const on = (ownIcon(s) ?? (s.type === 'arrival' ? 'land' : '')) === k; return `<button type="button" data-ico="${k}" role="radio" aria-checked="${on}" title="${ICON_NAME[k]}" aria-label="${ICON_NAME[k]}">${k ? DOT_ICONS[k] : '<i class="sdot"></i>'}</button>`; }).join('')}</div>` : ''}
     <div class="st2">
      <div class="fxrow"><label class="fx"><input type="checkbox" data-f="fixed"${s.fixed ? ' checked' : ''}> ${DEP(s.type) ? depWord(s.type) : 'Fest um'}</label><label class="ca fca"><input type="checkbox" data-f="timeCa"${s.timeCa ? ' checked' : ''}${s.fixed ? '' : ' disabled'}>ca.</label><span class="tbox"><input type="time" data-f="time" step="300" value="${esc(s.time)}"${s.fixed ? '' : ' disabled'} aria-label="Feste Uhrzeit von Station ${i+1}"></span></div>
      ${s.type === 'transit' ? `<div class="fxrow"><span class="fx" style="padding-left:28px">Ankunft um</span><input type="time" data-f="arr2" step="300" value="${esc(s.arr2 || '')}" aria-label="Ankunftszeit nach der Fahrt (optional)" title="optional: wann Bus oder Bahn am Ziel ankommt"></div><p class="tinfo" data-tinfo></p>` : ''}
@@ -1073,6 +1101,8 @@ function delayRow(s, i){
   const cur = +s.delay || 0, w = depWord(s.type);
   return `<div class="delay"><span class="dlt">${ICO_LATE}Verspätung</span><span class="dls"><label class="dl${cur ? ' on' : ''}">${w}<select data-f="delay" aria-label="${w}: Verspätung von Station ${i+1}">${lateOpts(cur, 'pünktlich')}</select></label></span></div>`;
 }
+const EARLY = [-60,-45,-30,-25,-20,-15,-10,-7,-5,-3,-2,-1];
+const earlyOpts = (cur, zero) => EARLY.concat(cur < 0 && !EARLY.includes(cur) ? [cur] : []).sort((a, b) => a - b).map(m => `<option value="${m}"${cur === m ? ' selected' : ''}>−${-m} Min.</option>`).join('') + lateOpts(cur, zero);
 const lateOpts = (cur, zero) => `<option value="0"${cur ? '' : ' selected'}>${zero}</option>` + DELAYS.concat(cur && !DELAYS.includes(cur) ? [cur] : []).sort((a, b) => a - b).map(m => `<option value="${m}"${cur === m ? ' selected' : ''}>+${m} Min.</option>`).join('');
 /* Verspätung auf dem Weg zu Station j: kleine Schnellwahl zwischen den Stationen */
 /* gibt es ein automatisches „Los“ vor dieser (ersten) Station? Nicht bei „Los“, Ankunft oder ohne Weg dorthin */
@@ -1083,12 +1113,12 @@ function wayDelay(j){
   let L0 = 0; while(L0 < S.length && S[L0].type === 'prep') L0++;
   if(j === L0 && autoLos(s)){   // nach dem automatischen „Los“: später losgekommen + später angekommen
     const lt = +state.losLate || 0, wd = +s.wdelay || 0;
-    return `<span class="wds"><label class="wd${lt ? ' on' : ''}" title="Später losgekommen">${ICO_LATE}<span class="wdl">Los</span><select data-los aria-label="Später losgekommen">${lateOpts(lt, '–')}</select></label>`
-      + `<label class="wd${wd ? ' on' : ''}" title="Unterwegs aufgehalten – später angekommen">${ICO_LATE}<span class="wdl">an</span><select data-gd="${j}" aria-label="Später angekommen bei Station ${j+1}">${lateOpts(wd, '–')}</select></label></span>`;
+    return `<span class="wds"><label class="wd${lt ? ' on' : ''}${lt < 0 ? ' early' : ''}" title="Später oder früher losgekommen">${ICO_LATE}<span class="wdl">Los</span><select data-los aria-label="Später oder früher losgekommen">${earlyOpts(lt, '–')}</select></label>`
+      + `<label class="wd${wd ? ' on' : ''}${wd < 0 ? ' early' : ''}" title="Später oder früher angekommen">${ICO_LATE}<span class="wdl">an</span><select data-gd="${j}" aria-label="Später oder früher angekommen bei Station ${j+1}">${earlyOpts(wd, '–')}</select></label></span>`;
   }
   const cur = +s.wdelay || 0, prevDep = j && DEP(S[j-1].type);
   const what = prevDep && S[j-1].type === 'flight' || s.type === 'arrival' ? 'Ankunft später' : prevDep ? 'Ankunft später (Bus/Bahn)' : 'Verspätung auf dem Weg';
-  return `<label class="wd${cur ? ' on' : ''}" title="${what}">${ICO_LATE}<select data-gd="${j}" aria-label="${what} zu Station ${j+1}">${lateOpts(cur, '–')}</select></label>`;
+  return `<label class="wd${cur ? ' on' : ''}${cur < 0 ? ' early' : ''}" title="${what} (Minus: früher)">${ICO_LATE}<select data-gd="${j}" aria-label="${what} zu Station ${j+1}">${earlyOpts(cur, '–')}</select></label>`;
 }
 
 /* Kurzinfo für zugeklappte Stationen */
@@ -1177,6 +1207,12 @@ function syncUI(){
 
 /* ---------- Hauptansicht ---------- */
 const DOT_ICONS = {
+  star: '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M6 1.2l1.45 3 3.25.4-2.4 2.25.62 3.25L6 8.5l-2.92 1.6.62-3.25L1.3 4.6l3.25-.4z" fill="currentColor"/></svg>',
+  cart: '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 1.8h1.6l1.2 5.7h5.4l1-4H3.3"/><circle cx="4.6" cy="9.8" r=".8" fill="currentColor"/><circle cx="8.6" cy="9.8" r=".8" fill="currentColor"/></svg>',
+  ball: '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><circle cx="6" cy="6" r="4.6"/><path d="M6 1.4v9.2M1.4 6h9.2M2.8 2.8c1.8 1.8 1.8 4.6 0 6.4M9.2 2.8c-1.8 1.8-1.8 4.6 0 6.4"/></svg>',
+  book: '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" aria-hidden="true"><path d="M6 3c-1.4-1-3-1.2-4.6-1v7.4c1.6-.2 3.2 0 4.6 1 1.4-1 3-1.2 4.6-1V2c-1.6-.2-3.2 0-4.6 1zM6 3v7.4"/></svg>',
+  heart: '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M6 10.3S1.2 7.4 1.2 4.3A2.5 2.5 0 0 1 6 3.2a2.5 2.5 0 0 1 4.8 1.1C10.8 7.4 6 10.3 6 10.3z" fill="currentColor"/></svg>',
+  pin: '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><path d="M6 11s-3.6-3.3-3.6-6.2a3.6 3.6 0 0 1 7.2 0C9.6 7.7 6 11 6 11z"/><circle cx="6" cy="4.8" r="1.3"/></svg>',
   cal: '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1.5" y="2.4" width="9" height="8.2" rx="1.3"/><path d="M1.5 5h9M4 1.2v2.2M8 1.2v2.2"/><path d="M3.6 7h1M5.5 7h1M7.4 7h1M3.6 8.8h1M5.5 8.8h1" stroke-width="1.2"/></svg>',
   play: '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3.6 2.1v7.8L10 6z" fill="currentColor" stroke="currentColor" stroke-width="1" stroke-linejoin="round"/></svg>',
   go: '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 1.5v8.5M2.5 6.5 6 10l3.5-3.5"/></svg>',
@@ -1272,7 +1308,7 @@ function render(){
     if(rideK){ parts.push(`Fahrt ${dur(rideK)}`); noteParts.push(`Ankunft ${fmt(c.arr[k] + c.adel[k] + rideK)} Uhr`); }
     if(s.stay){ parts.push(`${ca(s.stayCa, dur(s.stay))} ${s.type === 'pause' ? 'Pause' : 'Aufenthalt'}${c.exact[k] ? ', Ende fest' : ''}`); noteParts.push(`${s.type === 'pause' ? 'Pause' : 'Aufenthalt'} ${ca(s.stayCa, dur(s.stay))}${c.exact[k] ? ', Ende fest' : ''}`); }
     const wd = s.type === 'arrival' || (k && c.rideT[k-1]) ? 0 : c.gd[k] - (k === L0 ? c.losLate : 0);   // (nach Bus/Bahn: steht schon bei der Ankunft)
-    if(wd){ const t = `${dur(wd)} Verspätung unterwegs`; parts.unshift(t); noteParts.push(t); }
+    if(wd){ const t = wd > 0 ? `${dur(wd)} Verspätung unterwegs` : `${dur(-wd)} schneller unterwegs`; parts.unshift(t); noteParts.push(t); }
     if(c.slack[k] > 0) parts.push(`${ca(c.slackA[k], dur(c.slack[k]))} Puffer`);
     if(k === last && s.stay){ parts.push(`bis ${ca(c.leaveA[k], fmt(c.leave[k]))}`); noteParts.push(`bis ${ca(c.leaveA[k], fmt(c.leave[k]))} Uhr`); }
     const nextCa = k < last && S[k+1].afterCa;
@@ -1286,11 +1322,11 @@ function render(){
       steps.push({bin: 'arr', si: k, binM: c.arr[k] - eff, k: fl ? 'Am Flughafen' : tr ? 'An der Haltestelle' : 'Ankommen', m: c.arr[k] - eff, was: c.plan.arr[k] - c.plan.early[k], ca: c.arrA[k], d: `${dur(eff)} vor ${what}${why ? ' · ' + why : ''}`, ic: fl ? '🛄' : tr ? '🚏' : '📍', dotIcon: tr ? '' : 'flag', note: ` (${dur(eff)} vor ${what}${why ? ' – ' + why : ''})`});
     }
     const lb = c.lateAt[k], anc = c.rel && k === S.length - 1;
-    const al = anc && c.relLate > 0 ? `Verspätung erwartet: voraussichtlich ${dur(c.relLate)} später da`
+    const al = anc && c.relLate > 0 ? `Verspätung erwartet: voraussichtlich ${dur(c.relLate)} später da` : anc && c.relLate < 0 ? `voraussichtlich ${dur(-c.relLate)} früher da`
       : '';
     const tooLate = lb > 0 && !anc ? `${dur(lb)} zu spät` : '';
     const expA = lb > 0 && !anc ? c.arr[k] - c.early[k] + lb : undefined;
-    steps.push({bin: s.type === 'prep' || arrRow ? '' : 'arr', si: k, binM: c.arr[k] - c.early[k] + (lb > 0 ? lb : 0), anchor: anc, al, expA, tooLate, k: label(s), m: c.arr[k] + c.delay[k], was: c.delay[k] ? c.arr[k] : c.plan.arr[k], late: (anc && c.relLate) || c.delay[k] || (rideK ? c.adel[k] : 0) || wd, ca: c.arrA[k], depLab: DEP(s.type) && s.fixed ? depWord(s.type) : '', info: (s.info || '').trim(), d: parts.join(' · '), ic: s.type === 'termin' && arrRow ? '📅' : TICON[s.type], stop: s.type === 'stop' || s.type === 'custom', fixed: s.fixed && toMin(s.time) !== null, dotIcon: dotFor(s, arrRow), note: noteParts.length ? ` (${noteParts.join(', ')})` : '', ...(losHere && k === L0 ? {go:true, dotIcon: s.type === 'go' || !TDOT[s.type] ? 'go' : TDOT[s.type], ic: s.type === 'go' ? '➡️' : TICON[s.type]} : {})});
+    steps.push({bin: s.type === 'transit' && s.fixed ? (arrRow ? 'tr' : 'tr+') : s.type === 'prep' || arrRow ? '' : 'arr', ride: rideK, si: k, binM: c.arr[k] - c.early[k] + (lb > 0 ? lb : 0), anchor: anc, al, expA, tooLate, k: label(s), m: c.arr[k] + c.delay[k], was: c.delay[k] ? c.arr[k] : c.plan.arr[k], late: (anc && c.relLate) || c.delay[k] || (rideK ? c.adel[k] : 0) || wd, ca: c.arrA[k], depLab: DEP(s.type) && s.fixed ? depWord(s.type) : '', info: (s.info || '').trim(), d: parts.join(' · '), ic: s.type === 'termin' && arrRow ? '📅' : TICON[s.type], stop: s.type === 'stop' || s.type === 'custom', fixed: s.fixed && toMin(s.time) !== null, dotIcon: dotFor(s, arrRow), note: noteParts.length ? ` (${noteParts.join(', ')})` : '', ...(losHere && k === L0 ? {go:true, dotIcon: s.type === 'go' || !TDOT[s.type] ? 'go' : TDOT[s.type], ic: s.type === 'go' ? '➡️' : TICON[s.type]} : {})});
     if(rideK){
       // Ankunft von Bus/Bahn: zweite Uhrzeit in der Zeile der Haltestelle („an …“)
       steps.push({k:'Ankunft', m: c.arr[k] + c.adel[k] + rideK, was: c.arr[k] + rideK, ca: c.arrA[k], d: k < last && gapNext ? toNext : '', ic:'🛬', merge:true, rideArr:true, noNote:true});
@@ -1329,7 +1365,7 @@ function render(){
   const big = m => { const [h, mi] = fmtD(m).split(':'); return `${h}<span>:</span>${mi}`; };
   $('bigDep').innerHTML = big(c.depart + c.losLate);
   const ls = document.querySelector('#stations select[data-los]');
-  if(ls){ if(![...ls.options].some(o => +o.value === (c.losLate || 0))) renderStations(); else { ls.value = String(c.losLate || 0); ls.closest('.wd').classList.toggle('on', !!c.losLate); } }
+  if(ls){ if(![...ls.options].some(o => +o.value === (c.losLate || 0))) renderStations(); else { ls.value = String(c.losLate || 0); ls.closest('.wd').classList.toggle('on', !!c.losLate); ls.closest('.wd').classList.toggle('early', c.losLate < 0); } }
   $('bigReady').innerHTML = big(c.ready);
   $('caReady').textContent = c.readyA ? ' ca.' : '';
   $('caDep').textContent = c.departA ? ' ca.' : '';
@@ -1341,7 +1377,7 @@ function render(){
   // beim Drucken immer das volle Datum zeigen (aus „Heute“ wird „Heute, Montag, 23.11.2026“)
   $('printDate').textContent = !c.rel && !state.rep && !state.date && word ? `, ${dLong(base)}` : '';
 
-  $('plan').innerHTML = steps.map((s, i) => { const nt = !!s.anchor; return `<li class="${s.fixed ? 'fixed' : ''}${s.prepStep ? ' ready' : ''}${nt ? ' notime' : ''}" data-i="${i}"><span class="tc">${s.depLab ? `<span class="tlab">${s.depLab}</span>` : ''}${!nt && s.was !== undefined && s.was !== s.m ? `<s class="was">${fmtD(s.was)}</s>` : ''}<time${!nt && s.was !== undefined && s.was !== s.m ? ' class="moved"' : ''}>${s.dotIcon ? `<span class="pdot ico" data-ic="${s.dotIcon}">${DOT_ICONS[s.dotIcon]}</span>` : `<span class="pdot${s.stop ? ' small' : ''}"></span>`}${nt ? '' : `${s.ca ? '<span class="ca-s">ca.</span>' : ''}<span class="tv">${fmtD(s.m)}</span>`}</time>${relWord(s.m) && !nt ? `<span class="rv">${relWord(s.m)}</span>` : ''}${s.expA !== undefined ? `<span class="exp">erwartet<b>${fmtD(s.expA)}</b></span>` : ''}${s.m2 !== undefined ? `<span class="t2">${s.rideArr ? 'Ankunft' : 'bis'}${s.latest ? ' max' : ''}${s.ca2 ? ' ca.' : ''} ${s.was2 !== undefined && s.was2 !== s.m2 ? `<s>${fmtD(s.was2)}</s> <b class="moved">` : '<b>'}${fmtD(s.m2)}</b></span>` : ''}</span><div><span class="k">${esc(s.k)}${dayNote(s.m)}${s.late ? `<span class="lateb">+${s.late} Min.</span>` : ''}${s.tooLate ? `<span class="lateb">${esc(s.tooLate)}</span>` : ''}</span>${s.al ? `<span class="al">${esc(s.al)}</span>` : ''}${s.d ? `<span class="d">${esc(relText(s.d))}</span>` : ''}${s.info ? `<span class="in">${esc(s.info)}</span>` : ''}${binMode && !relMode && s.bin ? `<button type="button" class="binda" data-bin="${i}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>${s.bin === 'los' ? 'Bin los' : 'Bin da'}</button>` : ''}</div><span class="cd"></span></li>`; }).join('');
+  $('plan').innerHTML = steps.map((s, i) => { const nt = !!s.anchor; return `<li class="${s.fixed ? 'fixed' : ''}${s.prepStep ? ' ready' : ''}${nt ? ' notime' : ''}" data-i="${i}"><span class="tc">${s.depLab ? `<span class="tlab">${s.depLab}</span>` : ''}${!nt && s.was !== undefined && s.was !== s.m ? `<s class="was">${fmtD(s.was)}</s>` : ''}<time${!nt && s.was !== undefined && s.was !== s.m ? ` class="moved${s.m < s.was ? ' earlier' : ''}"` : ''}>${s.dotIcon ? `<span class="pdot ico" data-ic="${s.dotIcon}">${DOT_ICONS[s.dotIcon]}</span>` : `<span class="pdot${s.stop ? ' small' : ''}"></span>`}${nt ? '' : `${s.ca ? '<span class="ca-s">ca.</span>' : ''}<span class="tv">${fmtD(s.m)}</span>`}</time>${relWord(s.m) && !nt ? `<span class="rv">${relWord(s.m)}</span>` : ''}${s.expA !== undefined ? `<span class="exp">erwartet<b>${fmtD(s.expA)}</b></span>` : ''}${s.m2 !== undefined ? `<span class="t2">${s.rideArr ? 'Ankunft' : 'bis'}${s.latest ? ' max' : ''}${s.ca2 ? ' ca.' : ''} ${s.was2 !== undefined && s.was2 !== s.m2 ? `<s>${fmtD(s.was2)}</s> <b class="moved${s.m2 < s.was2 ? ' earlier' : ''}">` : '<b>'}${fmtD(s.m2)}</b></span>` : ''}</span><div><span class="k">${esc(s.k)}${dayNote(s.m)}${s.late ? `<span class="lateb${s.late < 0 ? ' earlyb' : ''}">${s.late > 0 ? '+' : '−'}${Math.abs(s.late)} Min.</span>` : ''}${s.tooLate ? `<span class="lateb">${esc(s.tooLate)}</span>` : ''}</span>${s.al ? `<span class="al">${esc(s.al)}</span>` : ''}${s.d ? `<span class="d">${esc(relText(s.d))}</span>` : ''}${s.info ? `<span class="in">${esc(s.info)}</span>` : ''}${binMode && !relMode && s.bin ? binButtons(s, i) : ''}</div><span class="cd"></span></li>`; }).join('');
 
   if(!edited){
     const lines = [];
@@ -1351,20 +1387,22 @@ function render(){
     if(state.rep) lines.push(`Wiederholung: ${repText()}`);
     // Verspätungen: wo sie entstehen und was daraus folgt
     const cause = [], cons = [];
-    if(c.losLate) cause.push(`${dur(c.losLate)} später los`);
+    if(c.losLate) cause.push(c.losLate > 0 ? `${dur(c.losLate)} später los` : `${dur(-c.losLate)} früher los`);
     S.forEach((st, k) => {
       if(c.delay[k] && DEP(st.type)) cause.push(`${depWord(st.type)} ${label(st)} +${dur(c.delay[k])}`);
       const w = c.gd[k] - (k === c.lead ? c.losLate : 0);
+      if(w < 0) cause.push(`unterwegs zu ${label(st)} −${dur(-w)}`);
       if(w > 0) cause.push(k && DEP(S[k-1].type) ? `${label(S[k-1])}: ${dur(w)} spätere Ankunft` : `unterwegs zu ${label(st)} +${dur(w)}`);
       if(c.lateAt[k] > 0 && !c.rel) cons.push(`${label(st)} ${dur(c.lateAt[k])} zu spät (erwartete Ankunft ${fmt(c.arr[k] - c.early[k] + c.lateAt[k])} Uhr)`);
     });
-    if(c.rel && c.relLate > 0) cons.push(`voraussichtlich ${dur(c.relLate)} später bei ${label(S[S.length-1])}`);
-    if(cause.length || cons.length) lines.push(`${state.icons ? '⚠️ ' : ''}Verspätung: ${cause.join(', ') || 'Zeit zu knapp'}${cons.length ? ' → ' + cons.join(', ') : ''}`);
+    if(c.rel && c.relLate) cons.push(`voraussichtlich ${dur(Math.abs(c.relLate))} ${c.relLate > 0 ? 'später' : 'früher'} bei ${label(S[S.length-1])}`);
+    const onlyEarly = c.losLate <= 0 && c.gd.every(x => x <= 0) && c.delay.every(x => !x) && !cons.some(x => /zu spät|später/.test(x));
+    if(cause.length || cons.length) lines.push(`${state.icons ? (onlyEarly ? '✅ ' : '⚠️ ') : ''}${onlyEarly ? 'Früher dran' : 'Verspätung'}: ${cause.join(', ') || 'Zeit zu knapp'}${cons.length ? ' → ' + cons.join(', ') : ''}`);
     if(lines.length) lines.push('');
     for(const s of all){
       if(s.noNote) continue;
       const ex = [];
-      if(s.k === 'Los' && c.losLate) ex.push(`${dur(c.losLate)} später los`);
+      if(s.k === 'Los' && c.losLate) ex.push(c.losLate > 0 ? `${dur(c.losLate)} später los` : `${dur(-c.losLate)} früher los`);
       if(!s.anchor && s.was !== undefined && s.was !== s.m && !/geplant/.test(s.note)) ex.push(`geplant ${fmt(s.was)} Uhr`);
       if(s.tooLate) ex.push(`erwartete Ankunft ${fmt(s.expA)} Uhr – ${s.tooLate}`);
       if(s.anchor && s.al) ex.push(s.al.replace(/^Verspätung erwartet: /, ''));
@@ -1532,6 +1570,13 @@ $('stations').addEventListener('click', e => {
     o.el.querySelectorAll('button[data-idea]').forEach(b => b.setAttribute('aria-pressed', ideaList(o.s).includes(b.dataset.idea)));
     update(); return;
   }
+  const icb = e.target.closest('button[data-ico]');
+  if(icb){
+    const o = stOf(icb); if(!o) return;
+    o.s.icon = icb.dataset.ico;
+    o.el.querySelectorAll('button[data-ico]').forEach(x => x.setAttribute('aria-checked', x === icb));
+    update(); return;
+  }
   const wb = e.target.closest('button[data-why]');
   if(wb){
     const o = stOf(wb); if(!o) return;
@@ -1552,10 +1597,10 @@ $('stations').addEventListener('click', e => {
   renderStations(); update();
 });
 $('stations').addEventListener('change', e => {
-  if(e.target.dataset.los !== undefined){ state.losLate = +e.target.value; update(); return; }
+  if(e.target.dataset.los !== undefined){ state.losLate = +e.target.value; e.target.closest('.wd').classList.toggle('on', !!state.losLate); e.target.closest('.wd').classList.toggle('early', state.losLate < 0); update(); return; }
   if(e.target.dataset.gd !== undefined){
     const s = state.stations[+e.target.dataset.gd]; if(!s) return;
-    s.wdelay = +e.target.value; e.target.closest('.wd').classList.toggle('on', !!s.wdelay);
+    s.wdelay = +e.target.value; e.target.closest('.wd').classList.toggle('on', !!s.wdelay); e.target.closest('.wd').classList.toggle('early', s.wdelay < 0);
     update(); return;
   }
   const o = stOf(e.target); const f = e.target.dataset.f; if(!o || !f) return;
@@ -1601,7 +1646,7 @@ const loadTpls = () => { try { const t = JSON.parse(localStorage.getItem(TPL_KEY
 const saveTpls = t => { try { localStorage.setItem(TPL_KEY, JSON.stringify(t)); return true; } catch(e) { return false; } };
 function renderTpls(){
   const t = loadTpls();
-  $('tplList').innerHTML = t.map((x, i) => `<span class="tpl"><button type="button" class="use" data-i="${i}" title="Vorlage laden">${esc(x.name)}</button><button type="button" class="del" data-i="${i}" aria-label="Vorlage ${esc(x.name)} löschen">✕</button></span>`).join('');
+  $('tplList').innerHTML = t.map((x, i) => `<span class="tpl"><button type="button" class="use" data-i="${i}" title="Vorlage laden">${esc(x.name)}</button><button type="button" class="over" data-i="${i}" title="Mit den aktuellen Einstellungen überschreiben" aria-label="Vorlage ${esc(x.name)} mit den aktuellen Einstellungen überschreiben"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h11l3 3v13H5z"/><path d="M8 4v5h7V4"/><path d="M8 20v-6h8v6"/></svg></button><button type="button" class="del" data-i="${i}" aria-label="Vorlage ${esc(x.name)} löschen">✕</button></span>`).join('');
   $('tplEmpty').classList.toggle('hide', t.length > 0);
   if(!$('tplName').value) $('tplName').placeholder = state.title.trim() ? `Name der Vorlage, z. B. ${state.title.trim()}` : 'Name der Vorlage';
 }
@@ -1624,6 +1669,17 @@ $('tplName').addEventListener('keydown', e => { if(e.key === 'Enter'){ e.prevent
 $('tplList').addEventListener('click', e => {
   const b = e.target.closest('button[data-i]'); if(!b) return;
   const t = loadTpls(), x = t[+b.dataset.i]; if(!x) return;
+  if(b.classList.contains('over')){   // mit den aktuellen Einstellungen überschreiben (rückgängig machbar)
+    const old = JSON.parse(JSON.stringify(x.data)), data = {};
+    TPL_FIELDS.forEach(f => data[f] = JSON.parse(JSON.stringify(state[f])));
+    t[+b.dataset.i] = {name: x.name, data};
+    if(!saveTpls(t)){ tplMsg('Speichern ist in diesem Browser nicht möglich.'); return; }
+    tplMsg('');
+    toast(`Vorlage „${x.name}“ mit den aktuellen Einstellungen überschrieben.`, 'Rückgängig', () => {
+      const u = loadTpls(), j = u.findIndex(y => y.name === x.name); if(j >= 0){ u[j] = {name: x.name, data: old}; saveTpls(u); renderTpls(); }
+    });
+    return;
+  }
   if(b.classList.contains('del')){
     t.splice(+b.dataset.i, 1); saveTpls(t); renderTpls(); tplMsg(`Vorlage „${x.name}“ gelöscht.`);
     return;
@@ -1782,18 +1838,38 @@ $('binBtn').addEventListener('click', () => {
   binMode = !binMode; syncBin(); render();
   if(binMode) toast(relMode ? 'Ohne feste Uhrzeit gibt es kein „Bin da“.' : 'Tippe unterwegs bei der Station auf „Bin da“ – die Zeiten danach passen sich an.');
 });
+const ICO_OK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+function binButtons(s, i){
+  const b = (act, txt) => `<button type="button" data-bin="${i}" data-how="${act}">${ICO_OK}${txt}</button>`;
+  const list = s.bin === 'los' ? [b('los', 'Bin los')] : s.bin === 'arr' ? [b('arr', 'Bin da')]
+    : [...(s.bin === 'tr+' ? [b('arr', 'Bin da')] : []), b('dep', 'Abgefahren'), ...(s.ride ? [b('arr2', 'Angekommen')] : [])];
+  return `<span class="bgrp">${list.join('')}</span>`;
+}
 $('plan').addEventListener('click', e => {
   const b = e.target.closest('button[data-bin]'); if(!b) return;
   const st = steps[+b.dataset.bin]; if(!st) return;
+  const how = b.dataset.how, S = state.stations, s = S[st.si], c = lastPlan.c, k = st.si;
+  if(how === 'dep' || how === 'arr2'){   // Haltestelle: tatsächliche Abfahrt bzw. Ankunft
+    const cur = how === 'dep' ? c.arr[k] + c.delay[k] : c.arr[k] + c.adel[k] + c.rideT[k];
+    const diff = Math.round((Date.now() - at(lastPlan.base, cur)) / 60000);
+    if(Math.abs(diff) > 360){ toast('Das geht nur am Tag des Termins, nah an der geplanten Zeit.'); return; }
+    const tgt = how === 'dep' ? s : S[k+1]; if(!tgt){ toast('Nach der Haltestelle fehlt noch eine Station.'); return; }
+    const key = how === 'dep' ? 'delay' : 'wdelay', before = +tgt[key] || 0;
+    tgt[key] = key === 'delay' ? Math.max(0, before + diff) : Math.max(-240, Math.min(240, before + diff));
+    renderStations(); update();
+    const what = how === 'dep' ? 'abgefahren' : 'angekommen';
+    toast(diff > 0 ? `${dur(diff)} später ${what} – Zeiten danach angepasst.` : diff < 0 ? `${dur(-diff)} früher ${what} – Zeiten danach angepasst.` : `Pünktlich ${what}.`,
+      'Rückgängig', () => { tgt[key] = before; renderStations(); update(); });
+    return;
+  }
   const planned = at(lastPlan.base, st.binM), diff = Math.round((Date.now() - planned) / 60000);
   if(Math.abs(diff) > 360){ toast('„Bin da“ geht nur am Tag des Termins, nah an der geplanten Zeit.'); return; }
-  const S = state.stations, s = S[st.si];
   const useLos = st.bin === 'los' && autoLos(S[lastPlan.c.lead]);
-  const before = useLos ? +state.losLate || 0 : +s.wdelay || 0, now = Math.max(0, before + diff);
+  const before = useLos ? +state.losLate || 0 : +s.wdelay || 0, now = Math.max(-240, Math.min(240, before + diff));
   if(useLos) state.losLate = now; else s.wdelay = now;
   renderStations(); update();
   const what = st.bin === 'los' ? 'los' : 'da';
-  toast(diff > 0 ? `${dur(diff)} später ${what} als geplant – Zeiten danach angepasst.` : diff < 0 ? (before ? `Früher ${what} – Verspätung verringert.` : `${dur(-diff)} früher ${what} – prima, der Plan bleibt.`) : `Pünktlich ${what}.`,
+  toast(diff > 0 ? `${dur(diff)} später ${what} als geplant – Zeiten danach angepasst.` : diff < 0 ? `${dur(-diff)} früher ${what} – Zeiten danach angepasst.` : `Pünktlich ${what}.`,
     'Rückgängig', () => { if(useLos) state.losLate = before; else s.wdelay = before; renderStations(); update(); });
 });
 syncBin();
@@ -1862,8 +1938,13 @@ $('prepBtn').addEventListener('click', () => {
 });
 
 /* Version und Änderungen – bei jeder neuen Version hier UND in sw.js (CACHE) anpassen */
-const APP_VERSION = '4.0';   // größere Änderung: erste Zahl +1 (z. B. 3.9 → 4.0), kleine Änderung: zweite Zahl +1 (3.9 → 3.10)
+const APP_VERSION = '5.0';   // größere Änderung: erste Zahl +1 (z. B. 3.9 → 4.0), kleine Änderung: zweite Zahl +1 (3.9 → 3.10)
 const CHANGES = [
+  ['5.0', '24.11.2026', [
+    'Früher dran: Minuszeiten zwischen den Stationen und beim Los – vorgezogene Zeiten erscheinen grün',
+    'Unterwegs-Modus: bei der Haltestelle „Abgefahren“ und „Angekommen“ in einem gemeinsamen Rahmen; „Bin da“ trägt auch Früher-da-sein ein',
+    'Symbol wählbar: bei „Individuell“ aus vielen Symbolen, bei „Ankunft“ Pfeil auf Strich oder Zielflagge',
+    'Vorlagen: Disketten-Knopf überschreibt eine Vorlage mit den aktuellen Einstellungen (mit „Rückgängig“)']],
   ['4.0', '24.11.2026', [
     'Ohne feste Uhrzeit: Zeiten als „… vorher“ bezogen auf die letzte Station; die letzte Station steht ohne Zeit direkt an der Linie',
     '„ca.“ auch bei festen Uhrzeiten',
