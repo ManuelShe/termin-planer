@@ -17,8 +17,8 @@ Die App läuft komplett im Browser auf Handy, Tablet und Computer – ohne Serve
 
 **Teilen und Kalender**
 - **In den Kalender:** erstellt eine Kalenderdatei (.ics) mit Titel, Datum und dem Notiztext. Der Termin beginnt mit „Los“ und endet mit der letzten Station; Erinnerungen gibt es zur Vorbereitung, bei „Los“ und bei jedem „Weiter“. Auf dem Handy die Datei öffnen und „Hinzufügen“ wählen
-- **Teilen:** öffnet das Teilen-Menü des Handys (WhatsApp, Mail, Notizen …) mit dem Notiztext
-- **Nur Link teilen:** teilt nur den Link zum Zeitplan (wo kein Teilen-Menü da ist, wird er kopiert). Bei einer lokal geöffneten Datei gibt es keinen Link
+- **Teilen:** öffnet das Teilen-Menü des Handys (WhatsApp, Mail, Notizen …) mit einer Kurzinfo zum Termin und dem Link (siehe „Link teilen mit Kurzinfo“)
+- **Nur Link teilen:** teilt wirklich nur den Link zum Zeitplan, ohne Text (wo kein Teilen-Menü da ist, wird er kopiert). Bei einer lokal geöffneten Datei gibt es keinen Link
 - **Text kopieren** für die Notizen eines vorhandenen Termins
 - **Drucken** (Drucker-Symbol oben rechts neben den Einstellungen): druckt Kopf mit Zeiten, den Ablauf mit senkrechtem Balken und Symbolen sowie den Aufteilungsbalken – ohne Notiztext und Countdown
 
@@ -64,9 +64,10 @@ Die App läuft komplett im Browser auf Handy, Tablet und Computer – ohne Serve
 - **„Los“ übernimmt:** Liegt zwischen dem automatischen „Los“ und der ersten Station keine Zeit (Zeit bis hierhin „–“), entfällt die automatische Zeile „Los“ und diese Station ist der Startpunkt (Countdown, Kalender-Beginn). Eine Station der Kategorie „Los“ bekommt den Pfeil, andere behalten ihr Symbol
 - Mit **+** zwischen zwei Stationen lässt sich dort eine neue einfügen (ganz oben eine Vorbereitung)
 - **Verspätungen – drei Schnellwahlen:** (1) **zwischen zwei Stationen** (⏱ im Zwischenraum, in den Einstellungen): „so viele Minuten später unterwegs“ – Stau, später losgekommen, Bus/Bahn kommt später an. Ab da rücken flexible Zeiten nach hinten, feste Uhrzeiten bleiben (dort wird der Puffer kleiner, reicht er nicht, warnt die App). (2) **später losgekommen** – im Zwischenraum nach dem automatischen „Los“ gibt es zwei Knöpfe: ⏱ **Los** (später losgekommen) und ⏱ **an** (unterwegs aufgehalten, später angekommen); überall sonst genügt ein Knopf: Die Los-Zeit oben und im Ablauf wird ersetzt, alles danach rückt nach hinten. (3) **an Haltestelle/Abflug** („Verspätung: Abfahrt/Abflug“, auch zugeklappt): Bus, Bahn oder Flug fährt später ab. „Los“ und alles davor bleiben wie geplant. Im Ablauf werden die betroffenen Uhrzeiten durchgestrichen und durch die neuen in **Rot** ersetzt, dazu „+10 Min.“ neben dem Namen
-- **Drucken auf iPhone/iPad als Web-App:** Apple erlaubt in Home-Bildschirm-Web-Apps kein Drucken (der Druck-Dialog öffnet sich dort einfach nicht). Die App erkennt das und zeigt stattdessen einen Hinweis mit „In Safari öffnen“ – dort klappt der Druck-Knopf bzw. Teilen → Drucken
+- **Drucken auf iPhone/iPad als Web-App:** Apple erlaubt in Home-Bildschirm-Web-Apps kein Drucken (der Druck-Dialog öffnet sich dort nicht). Die App zeigt stattdessen einen Hinweis: „Teilen“ schickt den Ablauf als Bild (A4) ins Teilen-Menü, dort „Drucken“ wählen; alternativ Link kopieren und in Safari öffnen
+- **Aufteilungsbalken:** Ist die Vorbereitung ausgeblendet (per Knopf oder automatisch, weil sie vorbei ist), fehlt sie auch im Balken und in der Gesamtzeit
 - **„Display anlassen“** (neben „Ablauf“): Das Display geht nicht aus, solange der Zeitplan offen ist; nochmal tippen schaltet es wieder ab. Der Knopf erscheint nur, wenn der Browser das kann (z. B. Chrome, Edge, Safari ab iOS 16.4)
-- **Link teilen mit Kurzinfo:** Vor dem Link steht automatisch, worum es geht – Titel, Termin mit Datum und Uhrzeit, „Los um …“ (ggf. „vorbereiten ab …“) und die Stationen unterwegs. WhatsApp zeigt diesen Text über der Link-Vorschau. Die Vorschau-Karte selbst (Titel, Beschreibung, Bild aus den `og:`-Angaben in `index.html`) ist für alle Links gleich, weil WhatsApp die Seite ohne den #-Teil und ohne JavaScript abruft. Tipp: Bei `og:image` die volle Adresse eintragen, z. B. `https://<benutzername>.github.io/termin-planer/icon-512.png` – manche Apps zeigen das Bild sonst nicht
+- **Link teilen mit Kurzinfo** (Knopf „Teilen“): Vor dem Link steht automatisch, worum es geht – Titel, Termin mit Datum und Uhrzeit, „Los um …“ (ggf. „vorbereiten ab …“) und die Stationen unterwegs. WhatsApp zeigt diesen Text über der Link-Vorschau. Die Vorschau-Karte selbst (Titel, Beschreibung, Bild aus den `og:`-Angaben in `index.html`) ist für alle Links gleich, weil WhatsApp die Seite ohne den #-Teil und ohne JavaScript abruft. Tipp: Bei `og:image` die volle Adresse eintragen, z. B. `https://<benutzername>.github.io/termin-planer/icon-512.png` – manche Apps zeigen das Bild sonst nicht
 - **Farben der Uhrzeiten:** feste Uhrzeiten in einem gelben, abgerundeten Kasten, verschobene (verspätete) Uhrzeiten rot, berechnete schwarz
 - Stationen lassen sich mit ↑ und ↓ umsortieren und mit ✕ entfernen
 - **Link zur Route** (optional), z. B. aus Google Maps oder Apple Karten über „Teilen“ kopiert. In der App erscheint dann der Button „Route öffnen“
@@ -92,7 +93,7 @@ Route: https://maps.app.goo.gl/AbC123xyz
 Zeitplan öffnen: https://<benutzername>.github.io/termin-planer/#ztb14y15b3n15y10b6n25b2u1530n10d20261203r1.Elternabend%207b.https%3A%2F%2Fmaps%2Eapp%2Egoo%2Egl%2FAbC123xyz..B%C3%A4cker
 ```
 
-Tippt man im Kalender auf den Link, öffnet sich die App mit dem kompletten Zeitplan – inklusive Titel, Datum, Stationen und Route. Falls ein Kalender den Link nicht öffnet, kann man in den Einstellungen unter „Plan aus einem Link laden“ den Link oder den ganzen Notiztext einfügen. Links aus älteren Versionen der App funktionieren weiterhin.
+Tippt man im Kalender auf den Link, öffnet sich die App mit dem kompletten Zeitplan – inklusive Titel, Datum, Stationen und Route. Links aus älteren Versionen der App funktionieren weiterhin.
 
 ## Auf GitHub Pages veröffentlichen
 

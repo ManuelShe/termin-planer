@@ -424,15 +424,15 @@ details.more summary{cursor:pointer;font-weight:700;min-height:44px;display:flex
 
 <!-- Hinweis: In Home-Bildschirm-Web-Apps auf iPhone/iPad kann Apple nicht drucken -->
 <dialog class="popup" id="iosPrint" aria-labelledby="h-iosprint">
- <h2 id="h-iosprint">Drucken in Safari</h2>
- <p>Als App vom Home-Bildschirm kann das iPad/iPhone leider nicht drucken – das ist eine Einschränkung von Apple. In Safari geht es.</p>
+ <h2 id="h-iosprint">Drucken über Teilen</h2>
+ <p>Als App vom Home-Bildschirm lässt Apple den Drucken-Dialog nicht zu. So geht es trotzdem:</p>
  <ol>
-  <li>Tippe auf <b>In Safari öffnen</b>.</li>
-  <li>Dort auf den Druck-Knopf oben tippen (oder Teilen → Drucken).</li>
+  <li>Tippe auf <b>Teilen</b> – der Ablauf wird als Bild geteilt.</li>
+  <li>Im Teilen-Menü <b>Drucken</b> wählen (ganz unten in der Liste).</li>
  </ol>
- <p class="hint">Öffnet sich nur ein kleines Browserfenster: dort auf das Safari-Symbol bzw. „In Safari öffnen“ tippen.</p>
+ <p class="hint">Alternativ: Link kopieren, in Safari einfügen und dort den Druck-Knopf nutzen.</p>
  <div class="copy">
-  <a class="btn" id="iosOpen" href="#" target="_blank" rel="noopener">In Safari öffnen</a>
+  <button type="button" class="btn" id="iosShare">Teilen</button>
   <button type="button" class="btn ghost" id="iosCopy">Link kopieren</button>
   <button type="button" class="btn ghost" id="iosClose">Schließen</button>
  </div>
@@ -518,14 +518,6 @@ details.more summary{cursor:pointer;font-weight:700;min-height:44px;display:flex
    <label class="chk" id="withLinkRow"><input type="checkbox" id="withLink" checked> Link zum Zeitplan</label>
   </div>
 
-  <details class="sec more load">
-   <summary>Plan aus einem Link laden</summary>
-   <div class="row">
-    <input type="text" class="field" id="loadIn" placeholder="Link oder Notiztext einfügen" aria-label="Link oder Notiztext einfügen" autocomplete="off" spellcheck="false">
-    <button type="button" class="btn dark" id="loadBtn">Laden</button>
-   </div>
-   <p class="hint" id="loadMsg" aria-live="polite">Normalerweise reicht es, in der Termin-Notiz auf den Link zu tippen.</p>
-  </details>
  </div>
 </dialog>
 
@@ -1294,7 +1286,7 @@ function render(){
 /* Aufteilung in zeitlicher Reihenfolge: Vorbereitung, Weg, Zeit vor Ort (zuvor ankommen / Puffer), Aufenthalt */
 function renderSplit(c, S){
   const seg = [], add = (cls, min, what) => { if(min > 0) seg.push({cls, min, what}); };
-  const showP = state.showPrep !== false;
+  const showP = state.showPrep !== false && !prepHidden;   // manuell oder automatisch (vorbei) ausgeblendet
   S.forEach((s, k) => {
     if(s.type === 'prep' && k < c.lead){ if(showP) add('c-prep', s.stay, label(s)); return; }   // Vorbereitung zu Hause
     const prevEnd = k === c.lead ? (k ? c.depart : c.arr[0] - (c.early[0] || 0) - c.gap[0]) : c.arr[k-1] + S[k-1].stay;
@@ -1554,9 +1546,6 @@ function loadFrom(text, msgEl){
   if(msgEl) msgEl.textContent = 'Kein Link zum Zeitplan gefunden.';
   return false;
 }
-$('loadBtn').addEventListener('click', () => { if(loadFrom($('loadIn').value, $('loadMsg'))) $('loadIn').value = ''; });
-$('loadIn').addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); $('loadBtn').click(); } });
-$('loadIn').addEventListener('paste', () => setTimeout(() => { if(loadFrom($('loadIn').value, $('loadMsg'))) $('loadIn').value = ''; }, 0));
 window.addEventListener('hashchange', () => loadFrom(location.hash.slice(1)));
 
 /* ---------- Kalenderdatei (.ics): Beginn = Los, mit Erinnerungen ---------- */
@@ -1621,25 +1610,31 @@ function shareIntro(){
   return lines.join('\n') + '\n👉 Ganzer Zeitplan zum Antippen:';
 }
 /* Link zum Zeitplan teilen */
-$('linkBtn').addEventListener('click', async () => {
-  const msg = $('copyMsg');
-  if(!APP_URL){ msg.textContent = 'Einen Link gibt es erst, wenn die App online liegt (z. B. auf GitHub Pages) – nicht bei einer lokal geöffneten Datei.'; return; }
-  if(!lastPlan){ msg.textContent = 'Erst einen Zeitplan anlegen.'; return; }
-  const url = `${APP_URL}#${encode()}`, title = lastPlan.ttl || 'Zeitplan', text = shareIntro();
+function planUrl(msg){
+  if(!APP_URL){ msg.textContent = 'Einen Link gibt es erst, wenn die App online liegt (z. B. auf GitHub Pages) – nicht bei einer lokal geöffneten Datei.'; return ''; }
+  if(!lastPlan){ msg.textContent = 'Erst einen Zeitplan anlegen.'; return ''; }
+  return `${APP_URL}#${encode()}`;
+}
+/* Teilen: Kurzinfo zum Termin + Link */
+$('shareBtn').addEventListener('click', async () => {
+  const msg = $('copyMsg'), url = planUrl(msg); if(!url) return;
+  const title = lastPlan.ttl || 'Zeitplan', text = shareIntro();
   if(navigator.share){
     try { await navigator.share({title, text, url}); msg.textContent = ''; return; }
     catch(e){ if(e.name === 'AbortError') return; }
   }
-  try { await navigator.clipboard.writeText(`${text}\n${url}`); msg.textContent = 'Link mit Kurzinfo kopiert.'; }
+  try { await navigator.clipboard.writeText(`${text}\n${url}`); msg.textContent = 'Kurzinfo mit Link kopiert.'; }
   catch(e){ msg.textContent = 'Link: ' + url; }
 });
-$('shareBtn').addEventListener('click', async () => {
-  const text = $('note').value, msg = $('copyMsg');
-  if(!text){ msg.textContent = 'Noch kein Text zum Teilen.'; return; }
+/* Nur Link teilen: wirklich nur der Link */
+$('linkBtn').addEventListener('click', async () => {
+  const msg = $('copyMsg'), url = planUrl(msg); if(!url) return;
   if(navigator.share){
-    try { await navigator.share({title: lastPlan && lastPlan.ttl ? lastPlan.ttl : 'Zeitplaner', text}); msg.textContent = ''; }
-    catch(e){ if(e.name !== 'AbortError') msg.textContent = 'Teilen hat nicht geklappt – bitte „Text kopieren“ nutzen.'; }
-  } else $('copyBtn').click();
+    try { await navigator.share({url}); msg.textContent = ''; return; }
+    catch(e){ if(e.name === 'AbortError') return; }
+  }
+  try { await navigator.clipboard.writeText(url); msg.textContent = 'Link kopiert.'; }
+  catch(e){ msg.textContent = 'Link: ' + url; }
 });
 
 /* Vorbereitungen ein-/ausblenden (wird im Link gespeichert) */
@@ -1681,8 +1676,10 @@ $('prepBtn').addEventListener('click', () => {
 });
 
 /* Version und Änderungen – bei jeder neuen Version hier UND in sw.js (CACHE) anpassen */
-const APP_VERSION = '3.9';   // größere Änderung: erste Zahl +1 (z. B. 3.9 → 4.0), kleine Änderung: zweite Zahl +1 (3.9 → 3.10)
+const APP_VERSION = '3.11';   // größere Änderung: erste Zahl +1 (z. B. 3.9 → 4.0), kleine Änderung: zweite Zahl +1 (3.9 → 3.10)
 const CHANGES = [
+  ['3.11', '24.11.2026', ['„Teilen“ schickt Kurzinfo zum Termin mit Link, „Nur Link teilen“ wirklich nur den Link', 'Aufteilungsbalken passt sich an, wenn die Vorbereitung ausgeblendet ist (auch automatisch)', '„Plan aus einem Link laden“ aus den Einstellungen entfernt']],
+  ['3.10', '24.11.2026', ['Drucken auf iPhone/iPad als Web-App: „Teilen“ schickt den Ablauf als Bild ins Teilen-Menü, dort „Drucken“ wählen']],
   ['3.9', '24.11.2026', ['Versionsnummer im Format „Hauptversion.Unterversion“ – größere Änderungen erhöhen die erste, kleine die zweite Zahl']],
   ['3.8', '24.11.2026', ['Versionsnummer ganz unten – antippen zeigt die Änderungen der letzten Versionen']],
   ['3.7', '24.11.2026', ['Drucken auf iPhone/iPad als Web-App: Hinweis mit „In Safari öffnen“, weil Apple dort kein Drucken erlaubt']],
@@ -1708,6 +1705,74 @@ $('chClose').addEventListener('click', () => $('changes').close());
 $('changes').addEventListener('click', e => { if(e.target === $('changes')) $('changes').close(); });
 
 /* Drucken: nur der Ablauf (Notiztext wird ausgeblendet) */
+/* Ablauf als Bild (A4-Hochformat) zeichnen – zum Teilen/Drucken, wo window.print() nicht geht */
+async function planImage(){
+  try { await document.fonts.ready; } catch(e){}
+  const W = 1240, M = 90, rows = [...document.querySelectorAll('#plan li')];
+  const c = document.createElement('canvas'), x = c.getContext('2d');
+  const F = (w, px, fam = 'Red Hat Text') => `${w} ${px}px "${fam}", sans-serif`;
+  const wrap = (t, maxW, font) => { x.font = font; const out = []; let line = '';
+    for(const w of String(t).split(/\s+/)){ const tst = line ? line + ' ' + w : w; if(x.measureText(tst).width > maxW && line){ out.push(line); line = w; } else line = tst; }
+    if(line) out.push(line); return out; };
+  const items = rows.map(li => {
+    const q = sel => li.querySelector(sel), txt = sel => q(sel) ? q(sel).innerText.replace(/\s+/g, ' ').trim() : '';
+    const k = q('.k'), name = k ? [...k.childNodes].filter(n => !(n.classList && n.classList.contains('lateb'))).map(n => n.textContent).join('').trim() : '';
+    return {time: txt('time'), lab: txt('.tlab'), was: txt('.was'), t2: txt('.t2'), name, late: txt('.lateb'), desc: txt('.d') + (txt('.in') ? ' – ' + txt('.in') : ''),
+            fixed: li.classList.contains('fixed'), moved: !!q('time.moved'), ready: li.classList.contains('ready')};
+  });
+  const TX = 330, TW = W - M - TX;
+  const layout = it => { const d = it.desc ? wrap(it.desc, TW, F(400, 26)) : []; const hL = (it.lab ? 30 : 0) + (it.was ? 30 : 0) + 58 + (it.t2 ? 34 : 0); return {d, h: Math.max(hL, 46 + d.length * 34) + 34}; };
+  const L = items.map(layout), head = 300, warn = $('warn').innerText.trim();
+  const H = Math.max(1754, head + (warn ? 90 : 0) + L.reduce((a, l) => a + l.h, 0) + 140);
+  c.width = W; c.height = H;
+  x.fillStyle = '#fff'; x.fillRect(0, 0, W, H);
+  // Kopf
+  x.fillStyle = '#e5483b'; x.fillRect(0, 0, W, 230);
+  x.fillStyle = '#fff'; x.textBaseline = 'alphabetic';
+  x.font = F(800, 60, 'Red Hat Display'); x.fillText('Zeitplan', M, 105);
+  const ttl = $('titleLine').textContent.trim(), when = $('whenLine').textContent.trim();
+  x.font = F(700, 28); x.fillText([ttl, when].filter(Boolean).join(' · ').slice(0, 70), M, 160);
+  x.textAlign = 'right'; x.font = F(700, 26); x.fillText('Los um', W - M, 80);
+  x.font = F(800, 96, 'Red Hat Display'); x.fillText($('bigDep').textContent.trim(), W - M, 180);
+  if(!$('readyBox').hidden){ x.font = F(700, 22); x.fillText('Vorbereiten um ' + $('bigReady').textContent.trim(), W - M, 212); }
+  x.textAlign = 'left';
+  let y = head;
+  if(warn){ x.fillStyle = '#fff4cc'; x.beginPath(); x.roundRect(M, y - 50, W - 2 * M, 66, 14); x.fill(); x.fillStyle = '#1d1f26'; x.font = F(500, 24); x.fillText(warn.slice(0, 90), M + 20, y - 8); y += 60; }
+  x.fillStyle = '#e4e1db'; x.fillRect(M + 14, y - 10, 6, L.reduce((a, l) => a + l.h, 0) - 20);
+  items.forEach((it, i) => {
+    const l = L[i]; let ty = y + 4;
+    x.textAlign = 'right';
+    if(it.lab){ x.fillStyle = '#5d606b'; x.font = F(700, 20); x.fillText(it.lab, TX - 30, ty + 20); ty += 30; }
+    if(it.was){ x.fillStyle = '#8a8d96'; x.font = F(700, 22, 'Red Hat Display'); x.fillText(it.was, TX - 30, ty + 22); const w = x.measureText(it.was).width; x.fillRect(TX - 30 - w, ty + 14, w, 2.5); ty += 30; }
+    x.font = F(800, it.ready ? 40 : 48, 'Red Hat Display');
+    const tw = x.measureText(it.time).width;
+    if(it.fixed){ x.fillStyle = '#ffd23f'; x.beginPath(); x.roundRect(TX - 30 - tw - 12, ty + 2, tw + 24, 58, 12); x.fill(); }
+    x.fillStyle = it.moved ? '#e5483b' : it.ready ? '#55585f' : '#1d1f26'; x.fillText(it.time, TX - 30, ty + 48);
+    if(it.t2){ x.font = F(700, 22); x.fillStyle = '#5d606b'; x.fillText(it.t2, TX - 30, ty + 88); }
+    x.textAlign = 'left';
+    x.fillStyle = '#fff'; x.strokeStyle = '#1d1f26'; x.lineWidth = 4; x.beginPath(); x.arc(M + 17, y + 36, 11, 0, 7); x.fill(); x.stroke();
+    x.fillStyle = '#1d1f26'; x.font = F(700, 30); x.fillText(it.name, TX, y + 36);
+    if(it.late){ const nw = x.measureText(it.name).width; x.font = F(700, 20); const lw = x.measureText(it.late).width + 20; x.fillStyle = '#e5483b'; x.beginPath(); x.roundRect(TX + nw + 12, y + 12, lw, 30, 15); x.fill(); x.fillStyle = '#fff'; x.fillText(it.late, TX + nw + 22, y + 34); }
+    x.fillStyle = '#5d606b'; x.font = F(400, 26); l.d.forEach((t, j) => x.fillText(t, TX, y + 76 + j * 34));
+    y += l.h;
+    if(i < items.length - 1){ x.fillStyle = '#e4e1db'; x.fillRect(M + 50, y - 16, W - 2 * M - 50, 2); }
+  });
+  x.fillStyle = '#8a8d96'; x.font = F(400, 20); x.fillText(`Zeitplaner · Version ${APP_VERSION}`, M, H - 50);
+  return new Promise(res => c.toBlob(res, 'image/png'));
+}
+async function sharePlanImage(){
+  const msg = $('iosMsg'); msg.textContent = 'Bild wird erstellt …';
+  try {
+    const blob = await planImage(), name = (lastPlan.ttl || 'Zeitplan').replace(/[^\wäöüÄÖÜß -]/g, '').trim() || 'Zeitplan';
+    const file = new File([blob], `${name}.png`, {type: 'image/png'});
+    if(navigator.canShare && navigator.canShare({files: [file]})){
+      await navigator.share({files: [file], title: name}); msg.textContent = ''; return;
+    }
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = file.name; a.click();
+    msg.textContent = 'Bild gespeichert – von dort aus drucken.';
+  } catch(e){ msg.textContent = e.name === 'AbortError' ? '' : 'Teilen hat nicht geklappt – bitte Link kopieren und in Safari öffnen.'; }
+}
+
 // iPhone/iPad als Web-App vom Home-Bildschirm: window.print() tut dort nichts
 const iosApp = () => {
   const ios = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
@@ -1715,15 +1780,15 @@ const iosApp = () => {
 };
 $('printBtn').addEventListener('click', () => {
   if(iosApp()){
-    $('iosOpen').href = `${APP_URL}#${encode()}`; $('iosMsg').textContent = '';
+    $('iosMsg').textContent = '';
     $('iosPrint').showModal(); return;
   }
   try { window.print(); } catch(e){ $('copyMsg').textContent = 'Drucken ist hier nicht möglich.'; }
 });
 $('iosClose').addEventListener('click', () => $('iosPrint').close());
-$('iosOpen').addEventListener('click', () => setTimeout(() => $('iosPrint').close(), 300));
+$('iosShare').addEventListener('click', sharePlanImage);
 $('iosCopy').addEventListener('click', async () => {
-  try { await navigator.clipboard.writeText($('iosOpen').href); $('iosMsg').textContent = 'Link kopiert – in Safari einfügen und öffnen.'; }
+  try { await navigator.clipboard.writeText(`${APP_URL}#${encode()}`); $('iosMsg').textContent = 'Link kopiert – in Safari einfügen und öffnen.'; }
   catch(e){ $('iosMsg').textContent = 'Kopieren nicht möglich.'; }
 });
 $('iosPrint').addEventListener('click', e => { if(e.target === $('iosPrint')) $('iosPrint').close(); });
