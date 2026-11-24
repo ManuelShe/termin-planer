@@ -169,3 +169,7 @@ Hinter dem `#` stehen alle Einstellungen. Zuerst ein Block aus Buchstaben und Za
 ## Datenschutz
 
 Die App sendet keine Daten an einen Server und lädt nichts von fremden Diensten – auch die Schriften (Red Hat Display und Red Hat Text, SIL Open Font License) liegen mit im Repository. Die letzten Einstellungen werden nur im Browser des jeweiligen Geräts gespeichert (`localStorage`). Was im Link steht (Titel, Zeiten, Route, Beschreibungen der Stationen), landet in der Termin-Notiz und – beim Öffnen – im Browserverlauf.
+
+## Versionen
+
+Ganz unten in der App steht die Versionsnummer; antippen zeigt die Änderungen der letzten Versionen. Format **Hauptversion.Unterversion** (z. B. 3.9): Bei einer größeren Änderung (neue Funktion, neues Konzept) steigt die erste Zahl und die zweite beginnt bei 0 (3.9 → 4.0), bei einer kleinen Änderung (Korrektur, Feinschliff) steigt die zweite Zahl (3.9 → 3.10). Bei jeder neuen Version `APP_VERSION` und die Liste `CHANGES` in `index.html` sowie `CACHE` in `sw.js` (gleiche Nummer) anpassen.

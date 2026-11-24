@@ -174,6 +174,15 @@ dialog.popup h2{margin-bottom:8px}
 dialog.popup p,dialog.popup ol{margin:0 0 10px;line-height:1.45}
 dialog.popup ol{padding-left:22px}
 dialog.popup .btn{display:inline-flex;align-items:center;text-decoration:none}
+/* Versionsnummer ganz unten */
+.ver{text-align:center;padding:4px 16px 24px}
+.ver button{border:0;background:none;padding:6px 10px;min-height:32px;font:500 12px "Red Hat Text",sans-serif;color:var(--muted);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.ver button:hover{color:var(--ink)}
+#changes{max-height:min(80vh,640px);overflow:auto}
+#h-changes:focus{outline:none}
+#chList h3{margin:14px 0 4px;font:700 15px "Red Hat Display",sans-serif}
+#chList h3 small{font-weight:500;color:var(--muted)}
+#chList ul{margin:0;padding-left:20px;line-height:1.45;font-size:15px}
 dialog.sheet[open]{animation:slide .25s ease}
 @keyframes slide{from{transform:translateX(40px);opacity:.4}}
 @media(prefers-reduced-motion:reduce){dialog.sheet[open]{animation:none}.fill{transition:none}}
@@ -316,6 +325,7 @@ details.more summary{cursor:pointer;font-weight:700;min-height:44px;display:flex
 /* Druckansicht: nur Kopf mit Zeiten und der Ablauf, ohne Notiztext, Buttons und Countdown */
 @media print{
   .printonly{display:inline!important}
+  .ver{display:none!important}
     .startbtn{display:none!important}
   :root{color-scheme:light}
   @page{margin:14mm}
@@ -403,6 +413,14 @@ details.more summary{cursor:pointer;font-weight:700;min-height:44px;display:flex
   </section>
  </div>
 </main>
+<footer class="ver"><button type="button" id="verBtn" aria-haspopup="dialog">Version <span id="verNo"></span></button></footer>
+
+<!-- Änderungen der letzten Versionen -->
+<dialog class="popup" id="changes" aria-labelledby="h-changes">
+ <h2 id="h-changes" tabindex="-1">Was ist neu?</h2>
+ <div id="chList"></div>
+ <div class="copy"><button type="button" class="btn ghost" id="chClose">Schließen</button></div>
+</dialog>
 
 <!-- Hinweis: In Home-Bildschirm-Web-Apps auf iPhone/iPad kann Apple nicht drucken -->
 <dialog class="popup" id="iosPrint" aria-labelledby="h-iosprint">
@@ -1661,6 +1679,33 @@ $('prepBtn').addEventListener('click', () => {
   else state.showPrep = state.showPrep === false;
   syncPrepBtn(); update();
 });
+
+/* Version und Änderungen – bei jeder neuen Version hier UND in sw.js (CACHE) anpassen */
+const APP_VERSION = '3.9';   // größere Änderung: erste Zahl +1 (z. B. 3.9 → 4.0), kleine Änderung: zweite Zahl +1 (3.9 → 3.10)
+const CHANGES = [
+  ['3.9', '24.11.2026', ['Versionsnummer im Format „Hauptversion.Unterversion“ – größere Änderungen erhöhen die erste, kleine die zweite Zahl']],
+  ['3.8', '24.11.2026', ['Versionsnummer ganz unten – antippen zeigt die Änderungen der letzten Versionen']],
+  ['3.7', '24.11.2026', ['Drucken auf iPhone/iPad als Web-App: Hinweis mit „In Safari öffnen“, weil Apple dort kein Drucken erlaubt']],
+  ['3.6', '24.11.2026', ['Fehler behoben: Auf Tablets und breiten Bildschirmen fehlte ein großer Teil der Gestaltung']],
+  ['3.5', '24.11.2026', ['Nach dem automatischen „Los“ zwei Verspätungs-Knöpfe: später los / später angekommen', 'Aufenthalt steht standardmäßig auf 0 (Ausnahmen: Zwischenstopp, Abholen, Pause)']],
+  ['3.4', '24.11.2026', ['„Später los“ nur noch in den Einstellungen, nicht mehr auf der Startseite']],
+  ['3.3', '24.11.2026', ['„Später los“ im Zwischenraum nach den Vorbereitungen', 'Kompaktere Verspätungs-Knöpfe']],
+  ['3.2', '24.11.2026', ['Verspätung beim automatischen „Los“ einstellbar']],
+  ['3.1', '24.11.2026', ['Knopf „Display anlassen“', 'Link teilen mit Kurzinfo zum Termin (z. B. für WhatsApp)']],
+  ['3.0', '24.11.2026', ['Neues Verspätungskonzept: Verspätungen zwischen allen Stationen einstellbar', 'Display kann beim Ablauf angelassen werden']],
+  ['2.1', '24.11.2026', ['Aufenthalt „Ende fest“: danach rücken flexible Zeiten nach vorne']],
+  ['2.0', '24.11.2026', ['Neue Kategorie „Los“', 'Liegt keine Zeit zwischen „Los“ und der ersten Station, ersetzt diese das automatische „Los“']],
+  ['1.2', '23.11.2026', ['Feste Uhrzeiten im gelben Kasten', 'Symbole im Fortschrittsbalken korrigiert (Beginn immer mit Play-Zeichen)']],
+  ['1.1', '23.11.2026', ['Verspätete Uhrzeiten werden rot, alte durchgestrichen', 'Verspätung auch bei Abflug und Ankunft', 'Erledigte Vorbereitungen blenden sich im Ablauf aus']],
+  ['1.0', '23.11.2026', ['Verspätung an der Haltestelle', 'Puffer berücksichtigt die „früher da“-Zeit']],
+];
+$('verNo').textContent = APP_VERSION;
+$('verBtn').addEventListener('click', () => {
+  $('chList').innerHTML = CHANGES.map(([v, d, items]) => `<h3>Version ${v} <small>· ${d}</small></h3><ul>${items.map(t => `<li>${esc(t)}</li>`).join('')}</ul>`).join('');
+  $('changes').showModal(); $('h-changes').focus(); $('changes').scrollTop = 0;
+});
+$('chClose').addEventListener('click', () => $('changes').close());
+$('changes').addEventListener('click', e => { if(e.target === $('changes')) $('changes').close(); });
 
 /* Drucken: nur der Ablauf (Notiztext wird ausgeblendet) */
 // iPhone/iPad als Web-App vom Home-Bildschirm: window.print() tut dort nichts
