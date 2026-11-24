@@ -107,8 +107,9 @@ h1{font:800 clamp(28px,4.6vw,44px)/1.05 "Red Hat Display",sans-serif;margin:0;te
 .icopick button svg{width:16px;height:16px}
 .icopick button[aria-checked=true]{border-color:var(--ink);background:var(--ink);color:var(--card)}
 .icopick .sdot{width:8px;height:8px;border-radius:50%;background:currentColor}
-.toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:50;display:flex;gap:12px;align-items:center;max-width:calc(100vw - 32px);padding:10px 12px 10px 16px;border-radius:14px;background:#1d1f26;color:#fff;font-size:15px;box-shadow:0 8px 28px rgba(0,0,0,.3)}
-.toast button{border:0;background:none;color:var(--sun);font:800 15px "Red Hat Display",sans-serif;padding:6px 4px;cursor:pointer}
+.toast{position:fixed;left:16px;right:16px;bottom:18px;margin:0 auto;width:fit-content;max-width:440px;box-sizing:border-box;z-index:50;display:flex;gap:12px;align-items:center;line-height:1.35;padding:10px 12px 10px 16px;border-radius:14px;background:#1d1f26;color:#fff;font-size:15px;box-shadow:0 8px 28px rgba(0,0,0,.3)}
+.toast span{flex:1 1 auto;min-width:0;font:500 15px/1.35 "Red Hat Text",sans-serif}
+.toast button{flex:none;width:auto;min-height:0;border:0;background:none;color:var(--sun);font:800 15px "Red Hat Display",sans-serif;padding:6px 4px;cursor:pointer}
 .cardhead{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;margin-bottom:6px}
 h2{font:600 22px/1.2 "Red Hat Display",sans-serif;margin:0}
 .summary{color:var(--muted);font-size:15px;margin:0 0 16px}
@@ -370,12 +371,19 @@ details.more summary{cursor:pointer;font-weight:700;min-height:44px;display:flex
 .wdays button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 @media(max-width:400px){.sttime{min-width:3.4em;font-size:16px;padding:8px 4px}.st1{gap:4px}.st1 select{font-size:15px}}
 .printonly{display:none}
+.qrs{gap:18px;flex-wrap:wrap;margin-top:14px}
+.qrs figure{display:flex;align-items:center;gap:10px;margin:0}
+.qrs svg{width:30mm;height:30mm;flex:none}
+.qrs figcaption{display:flex;flex-direction:column;font-size:11pt;max-width:55mm;overflow-wrap:anywhere}
+.qrs figcaption span{font-size:8pt;color:#555}
 .iconbtn{display:grid;place-items:center;width:44px;height:44px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);cursor:pointer}
 .iconbtn:hover{border-color:var(--ink)}
 .iconbtn svg{width:22px;height:22px}
 /* Druckansicht: nur Kopf mit Zeiten und der Ablauf, ohne Notiztext, Buttons und Countdown */
 @media print{
   .printonly{display:inline!important}
+  .qrs.printonly{display:flex!important;break-inside:avoid}
+  .qrs:empty{display:none!important}
   .abtns,.bgrp,.toast{display:none!important}
   .ver{display:none!important}
     .startbtn{display:none!important}
@@ -439,6 +447,7 @@ details.more summary{cursor:pointer;font-weight:700;min-height:44px;display:flex
     <button type="button" class="startbtn" id="startBtn" aria-pressed="false"></button></div></div>
    <p class="summary" id="summary"></p>
    <a class="routebtn hide" id="routeLink" href="#" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="19" r="2.5"/><circle cx="18" cy="5" r="2.5"/><path d="M8.5 19H16a3.5 3.5 0 0 0 0-7H8a3.5 3.5 0 0 1 0-7h7.5"/></svg>Route öffnen</a>
+   <a class="routebtn hide" id="infoLink" href="#" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5M12 7.5h.01"/></svg><span id="infoLinkTxt">Infos</span></a>
    <p class="warn hide" id="warn"></p>
    <div class="flow" id="flow">
     <div class="track" id="track"></div>
@@ -452,6 +461,7 @@ details.more summary{cursor:pointer;font-weight:700;min-height:44px;display:flex
     <div class="sleg" id="sleg"></div>
     <p class="stotal" id="stotal"></p>
    </div>
+   <div class="qrs printonly" id="qrs"></div>
   </section>
 
   <section class="card notecard" aria-labelledby="h-note">
@@ -565,6 +575,10 @@ details.more summary{cursor:pointer;font-weight:700;min-height:44px;display:flex
   <div class="sec">
    <label class="lt" for="route">Link zur Route <span class="opt">(optional)</span></label>
    <input type="url" class="field" id="route" placeholder="Aus der Karten-App über „Teilen“ kopieren" autocomplete="off" spellcheck="false" inputmode="url">
+   <label class="lt" for="link" style="margin-top:12px">Link für Infos <span class="opt">(optional)</span></label>
+   <input type="url" class="field" id="link" placeholder="z. B. Einladung, Spielplan, Webseite" autocomplete="off" spellcheck="false" inputmode="url">
+   <input type="text" class="field" id="linkName" placeholder="Wofür ist der Link? z. B. Einladung" maxlength="40" style="margin-top:6px">
+   <p class="hint">Beide Links erscheinen beim Drucken auch als QR-Code.</p>
   </div>
 
   <div class="sec">
@@ -682,7 +696,7 @@ const PREP_IDEAS = ['Aufstehen','Fertig machen','Anziehen','Duschen','Frühstüc
 const ideaList = s => (s.desc || '').split(',').map(x => x.trim()).filter(Boolean);
 const nextHour = () => { const d = new Date(); return pad((d.getHours() + 2) % 24) + ':00'; };
 const vMin = num => num > 0 && num <= 240 ? num : num > 1000 && num <= 1240 ? 1000 - num : 0;   // Link-Wert → Minuten (negativ = früher)
-const freshPlan = () => ({date:'', title:'', route:'', rep:'', repDays:0, showPrep:true, losLate:0,
+const freshPlan = () => ({date:'', title:'', route:'', link:'', linkName:'', rep:'', repDays:0, showPrep:true, losLate:0,
   stations:[station({type:'prep', stay:15}), station({type:'termin', fixed:true, time:nextHour(), after:30})]});
 
 /* Alte Einstellungen (vor den Stationen) umwandeln */
@@ -758,7 +772,7 @@ function encode(){
   const RC = {d:1, wd:2, w:3, m:4, y:5};
   if(RC[state.rep]){ t.push('w' + RC[state.rep]); if(state.rep === 'w' && state.repDays) t.push('k' + state.repDays); }
   if(state.icons) t.push('i1');
-  if(state.route) t.push('r1');
+  if(state.route || state.link) t.push('r' + ((state.route ? 1 : 0) | (state.link ? 2 : 0)));   // 1 Route, 2 Info-Link
   if(state.stations.some(s => s.early && s.whyx && s.whyx.trim())) t.push('t1');
   if(state.stations.some(s => s.info && s.info.trim())) t.push('l1');
   const code = t.join('');
@@ -766,8 +780,8 @@ function encode(){
   // eigene Gründe: hinter den Beschreibungen, angezeigt durch t1 (dann stehen alle Beschreibungen vollständig davor)
   const ownWhy = state.stations.some(s => s.early && s.whyx && s.whyx.trim());
   const ownInfo = state.stations.some(s => s.info && s.info.trim());
-  const extra = [state.title, ...(state.route ? [state.route] : []), ...state.stations.map(s => s.desc), ...(ownWhy ? state.stations.map(s => s.early ? s.whyx || '' : '') : []), ...(ownInfo ? state.stations.map(s => s.info || '') : [])];
-  const keep = (state.route ? 2 : 1) + (ownWhy ? state.stations.length : 0) + (ownInfo ? state.stations.length : 0);
+  const extra = [state.title, ...(state.route ? [state.route] : []), ...(state.link ? [state.link, state.linkName || ''] : []), ...state.stations.map(s => s.desc), ...(ownWhy ? state.stations.map(s => s.early ? s.whyx || '' : '') : []), ...(ownInfo ? state.stations.map(s => s.info || '') : [])];
+  const keep = (state.route ? 2 : 1) + (state.link ? 2 : 0) + (ownWhy ? state.stations.length : 0) + (ownInfo ? state.stations.length : 0);
   while(extra.length > keep && !String(extra[extra.length-1]).trim()) extra.pop();
   return extra.some(x => String(x).trim()) ? code + '.' + extra.map(enc).join('.') : code;
 }
@@ -776,8 +790,8 @@ function decode(text){
   const m = text.match(/(?<![a-z])zt((?:-?[a-z]\d+)+)/i);
   if(!m) return false;
   const toks = [...m[1].toLowerCase().replace(/-/g,'').matchAll(/([a-z])(\d+)/g)].map(x => [x[1], x[2], parseInt(x[2], 10)]);
-  const n = {date:'', title:'', route:'', icons:false, buffer:'', rep:'', repDays:0, losLate:0};
-  let hasRoute = false, hasOwnWhy = false, hasInfo = false, S = [];
+  const n = {date:'', title:'', route:'', link:'', linkName:'', icons:false, buffer:'', rep:'', repDays:0, losLate:0};
+  let hasRoute = false, hasLink = false, hasOwnWhy = false, hasInfo = false, S = [];
   const common = (k, v, num) => {
     if(k === 'p' && num >= 0 && num <= 600) n.prep = v;   // ältere Links: Vorbereitungszeit
     else if(k === 'm') n.showPrep = v !== '0';
@@ -786,7 +800,7 @@ function decode(text){
     else if(k === 'k' && num >= 1 && num <= 127) n.repDays = num;
     else if(k === 'd' && /^20\d\d(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])$/.test(v)) n.date = `${v.slice(0,4)}-${v.slice(4,6)}-${v.slice(6)}`;
     else if(k === 'i') n.icons = v === '1';
-    else if(k === 'r') hasRoute = v === '1';
+    else if(k === 'r' && num >= 1 && num <= 3){ hasRoute = !!(num & 1); hasLink = !!(num & 2); }
     else if(k === 't') hasOwnWhy = v === '1';
     else if(k === 'l') hasInfo = v === '1';
     else if(k === 'g' && num > 0 && num <= 120) n.buffer = 'm' + num;
@@ -836,6 +850,7 @@ function decode(text){
     const segs = tail[1].split('.').map(x => { try { return decodeURIComponent(x); } catch(e) { return ''; } });
     n.title = (segs.shift() || '').slice(0, 60);
     if(hasRoute) n.route = cleanRoute(segs.shift() || '');
+    if(hasLink){ n.link = cleanRoute(segs.shift() || ''); n.linkName = (segs.shift() || '').slice(0, 40); }
     segs.slice(0, S.length).forEach((d, i) => { S[i].desc = d.slice(0, 40); });
     if(hasOwnWhy) segs.slice(S.length, 2 * S.length).forEach((d, i) => { S[i].whyx = d.slice(0, 40); });
     if(hasInfo){ const o = (hasOwnWhy ? 2 : 1) * S.length; segs.slice(o, o + S.length).forEach((d, i) => { S[i].info = d.slice(0, 120); }); }
@@ -1198,6 +1213,7 @@ function syncUI(){
   if(typeof renderTpls === 'function') renderTpls();
   $('title').value = state.title;
   $('route').value = state.route;
+  $('link').value = state.link || ''; $('linkName').value = state.linkName || '';
   $('icons').checked = state.icons;
   $('withLink').checked = state.withLink;
   $('withLinkRow').classList.toggle('hide', !APP_URL);
@@ -1236,6 +1252,14 @@ function render(){
   $('titleLine').classList.toggle('hide', !ttl);
   document.title = ttl ? `${ttl} – Zeitplaner` : 'Zeitplaner';
   $('routeLink').classList.toggle('hide', !state.route);
+  $('infoLink').classList.toggle('hide', !state.link);
+  if(state.link){ $('infoLink').href = state.link; $('infoLinkTxt').textContent = (state.linkName || '').trim() || 'Infos öffnen'; }
+  const qrKey = JSON.stringify([state.route, state.link || '', state.linkName || '']);
+  if($('qrs').dataset.k !== qrKey){
+    $('qrs').dataset.k = qrKey;
+    const qi = [state.route && ['Route', state.route], state.link && [(state.linkName || '').trim() || 'Infos', state.link]].filter(Boolean);
+    $('qrs').innerHTML = qi.map(([t, u]) => { try { return `<figure>${QR.svg(u)}<figcaption><b>${esc(t)}</b><span>${esc(u.length > 60 ? u.slice(0, 57) + '…' : u)}</span></figcaption></figure>`; } catch(e){ return ''; } }).join('');
+  }
   if(state.route) $('routeLink').href = state.route;
 
   const S = state.stations;
@@ -1415,6 +1439,7 @@ function render(){
     }
     const ic = x => state.icons ? x + ' ' : '';
     if(state.route) lines.push('', `${ic('🗺️')}Route: ${state.route}`);
+    if(state.link) lines.push(...(state.route ? [] : ['']), `${ic('ℹ️')}${(state.linkName || '').trim() || 'Infos'}: ${state.link}`);
     if(state.withLink && APP_URL) lines.push('', `${ic('🔗')}Zeitplan öffnen: ${APP_URL}#${encode()}`);
     $('note').value = lines.join('\n');
   }
@@ -1515,6 +1540,9 @@ const ro = new ResizeObserver(() => tick()); ro.observe($('flow'));
 const update = () => { edited = false; $('copyMsg').textContent = ''; render(); };
 $('title').addEventListener('input', e => { state.title = e.target.value; update(); });
 $('route').addEventListener('input', e => { state.route = cleanRoute(e.target.value); update(); });
+$('link').addEventListener('input', e => { state.link = cleanRoute(e.target.value); update(); });
+$('link').addEventListener('blur', () => { $('link').value = state.link || ''; });
+$('linkName').addEventListener('input', e => { state.linkName = e.target.value.slice(0, 40); update(); });
 $('rep').addEventListener('change', e => {
   state.rep = e.target.value;
   if(state.rep === 'w' && !state.repDays) state.repDays = wbit(state.date ? fromIso(state.date) : new Date());
@@ -1643,7 +1671,7 @@ $('closeSet').addEventListener('click', closeSet);
 sheet.addEventListener('click', e => { if(e.target === sheet) closeSet(); });
 /* ---------- Vorlagen (nur in diesem Browser gespeichert) ---------- */
 const TPL_KEY = 'zeitplan-vorlagen';
-const TPL_FIELDS = ['title','route','rep','repDays','showPrep','stations'];   // ohne Datum
+const TPL_FIELDS = ['title','route','link','linkName','rep','repDays','showPrep','stations'];   // ohne Datum
 const loadTpls = () => { try { const t = JSON.parse(localStorage.getItem(TPL_KEY) || '[]'); return Array.isArray(t) ? t : []; } catch(e) { return []; } };
 const saveTpls = t => { try { localStorage.setItem(TPL_KEY, JSON.stringify(t)); return true; } catch(e) { return false; } };
 function renderTpls(){
@@ -1819,6 +1847,62 @@ function syncPrepBtn(){
   b.setAttribute('aria-label', b.title);
   b.classList.toggle('hide', !state.stations.some(s => s.type === 'prep'));
 }
+/* QR-Code (Byte-Modus, Fehlerkorrektur M) – nach dem Verfahren von Project Nayuki (MIT), stark gekürzt, ohne Internet */
+const QR = (() => {
+  const ECW = [-1,10,16,26,18,24,16,18,22,22,26,30,22,22,24,24,28,28,26,26,26,26,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28];
+  const NBL = [-1,1,1,1,2,2,4,4,4,5,5,5,8,9,9,10,10,11,13,14,16,17,17,18,20,21,23,25,26,28,29,31,33,35,37,38,40,43,45,47,49];
+  const rawMods = v => { let r = (16 * v + 128) * v + 64; if(v >= 2){ const a = Math.floor(v / 7) + 2; r -= (25 * a - 10) * a - 55; if(v >= 7) r -= 36; } return r; };
+  const dataCw = v => Math.floor(rawMods(v) / 8) - ECW[v] * NBL[v];
+  const gmul = (x, y) => { let z = 0; for(let i = 7; i >= 0; i--){ z = (z << 1) ^ ((z >>> 7) * 0x11D); z ^= ((y >>> i) & 1) * x; } return z & 255; };
+  const rsDiv = d => { const r = Array(d).fill(0); r[d-1] = 1; let root = 1; for(let i = 0; i < d; i++){ for(let j = 0; j < d; j++){ r[j] = gmul(r[j], root); if(j + 1 < d) r[j] ^= r[j+1]; } root = gmul(root, 2); } return r; };
+  const rsRem = (data, div) => { const r = div.map(() => 0); for(const b of data){ const f = b ^ r.shift(); r.push(0); div.forEach((c, i) => r[i] ^= gmul(c, f)); } return r; };
+  function make(text){
+    const bytes = [...new TextEncoder().encode(text)];
+    let v = 1; for(; v <= 40; v++) if(4 + (v <= 9 ? 8 : 16) + bytes.length * 8 <= dataCw(v) * 8) break;
+    if(v > 40) throw new Error('zu lang');
+    const bits = []; const put = (x, n) => { for(let i = n - 1; i >= 0; i--) bits.push((x >>> i) & 1); };
+    put(4, 4); put(bytes.length, v <= 9 ? 8 : 16); bytes.forEach(b => put(b, 8));
+    const cap = dataCw(v) * 8; put(0, Math.min(4, cap - bits.length)); put(0, (8 - bits.length % 8) % 8);
+    for(let p = 0xEC; bits.length < cap; p ^= 0xEC ^ 0x11) put(p, 8);
+    const data = []; for(let i = 0; i < bits.length; i += 8) data.push(parseInt(bits.slice(i, i + 8).join(''), 2));
+    // Blöcke + Fehlerkorrektur, verschränkt
+    const nb = NBL[v], el = ECW[v], raw = Math.floor(rawMods(v) / 8), nShort = nb - raw % nb, sLen = Math.floor(raw / nb), div = rsDiv(el), blocks = [];
+    for(let i = 0, k = 0; i < nb; i++){ const dat = data.slice(k, k + sLen - el + (i < nShort ? 0 : 1)); k += dat.length; const ecc = rsRem(dat, div); if(i < nShort) dat.push(0); blocks.push(dat.concat(ecc)); }
+    const cw = []; for(let i = 0; i < blocks[0].length; i++) blocks.forEach((b, j) => { if(i !== sLen - el || j >= nShort) cw.push(b[i]); });
+    // Matrix
+    const n = v * 4 + 17, M = Array.from({length: n}, () => Array(n).fill(false)), F = Array.from({length: n}, () => Array(n).fill(false));
+    const set = (x, y, d) => { M[y][x] = d; F[y][x] = true; };
+    for(let i = 0; i < n; i++){ set(6, i, i % 2 === 0); set(i, 6, i % 2 === 0); }
+    for(const [cx, cy] of [[3, 3], [n - 4, 3], [3, n - 4]]) for(let dy = -4; dy <= 4; dy++) for(let dx = -4; dx <= 4; dx++){ const x = cx + dx, y = cy + dy, d = Math.max(Math.abs(dx), Math.abs(dy)); if(x >= 0 && x < n && y >= 0 && y < n) set(x, y, d !== 2 && d !== 4); }
+    if(v > 1){
+      const na = Math.floor(v / 7) + 2, step = v === 32 ? 26 : Math.ceil((v * 4 + 4) / (na * 2 - 2)) * 2, pos = [6];
+      for(let p = n - 7; pos.length < na; p -= step) pos.splice(1, 0, p);
+      pos.forEach((a, i) => pos.forEach((b, j) => { if((i === 0 && j === 0) || (i === 0 && j === na - 1) || (i === na - 1 && j === 0)) return; for(let dy = -2; dy <= 2; dy++) for(let dx = -2; dx <= 2; dx++) set(a + dx, b + dy, Math.max(Math.abs(dx), Math.abs(dy)) !== 1); }));
+    }
+    const format = mask => { const d = mask; let r = d; for(let i = 0; i < 10; i++) r = (r << 1) ^ ((r >>> 9) * 0x537); const b = ((d << 10) | r) ^ 0x5412, bit = i => ((b >>> i) & 1) === 1;
+      for(let i = 0; i <= 5; i++) set(8, i, bit(i)); set(8, 7, bit(6)); set(8, 8, bit(7)); set(7, 8, bit(8)); for(let i = 9; i < 15; i++) set(14 - i, 8, bit(i));
+      for(let i = 0; i < 8; i++) set(n - 1 - i, 8, bit(i)); for(let i = 8; i < 15; i++) set(8, n - 15 + i, bit(i)); set(8, n - 8, true); };
+    format(0);
+    if(v >= 7){ let r = v; for(let i = 0; i < 12; i++) r = (r << 1) ^ ((r >>> 11) * 0x1F25); const b = (v << 12) | r; for(let i = 0; i < 18; i++){ const d = ((b >>> i) & 1) === 1, a = n - 11 + i % 3, c = Math.floor(i / 3); set(a, c, d); set(c, a, d); } }
+    let i = 0;
+    for(let right = n - 1; right >= 1; right -= 2){ if(right === 6) right = 5; for(let vert = 0; vert < n; vert++) for(let j = 0; j < 2; j++){ const x = right - j, up = ((right + 1) & 2) === 0, y = up ? n - 1 - vert : vert; if(!F[y][x] && i < cw.length * 8){ M[y][x] = ((cw[i >>> 3] >>> (7 - (i & 7))) & 1) === 1; i++; } } }
+    const inv = [(x, y) => (x + y) % 2 === 0, (x, y) => y % 2 === 0, (x, y) => x % 3 === 0, (x, y) => (x + y) % 3 === 0, (x, y) => (Math.floor(x / 3) + Math.floor(y / 2)) % 2 === 0, (x, y) => x * y % 2 + x * y % 3 === 0, (x, y) => (x * y % 2 + x * y % 3) % 2 === 0, (x, y) => ((x + y) % 2 + x * y % 3) % 2 === 0];
+    const apply = m => { for(let y = 0; y < n; y++) for(let x = 0; x < n; x++) if(!F[y][x] && inv[m](x, y)) M[y][x] = !M[y][x]; };
+    const penalty = () => { let p = 0, dark = 0;   // Regeln 1, 2 und 4 (genügt für eine gute Maskenwahl)
+      for(let a = 0; a < n; a++){ for(const row of [true, false]){ let run = 1; for(let b = 1; b < n; b++){ const c = row ? M[a][b] : M[b][a], pr = row ? M[a][b-1] : M[b-1][a]; if(c === pr){ run++; if(run === 5) p += 3; else if(run > 5) p++; } else run = 1; } } }
+      for(let y = 0; y < n - 1; y++) for(let x = 0; x < n - 1; x++){ const c = M[y][x]; if(c === M[y][x+1] && c === M[y+1][x] && c === M[y+1][x+1]) p += 3; }
+      M.forEach(row => row.forEach(c => { if(c) dark++; }));
+      return p + Math.floor(Math.abs(dark * 20 - n * n * 10) / (n * n)) * 10; };
+    let best = 0, bp = Infinity;
+    for(let m = 0; m < 8; m++){ apply(m); format(m); const pv = penalty(); if(pv < bp){ bp = pv; best = m; } apply(m); }
+    apply(best); format(best);
+    return M;
+  }
+  return { svg(text){ const M = make(text), n = M.length, q = 4; let d = '';
+    M.forEach((row, y) => row.forEach((c, x) => { if(c) d += `M${x + q} ${y + q}h1v1h-1z`; }));
+    return `<svg viewBox="0 0 ${n + 2 * q} ${n + 2 * q}" shape-rendering="crispEdges" role="img" aria-label="QR-Code"><rect width="100%" height="100%" fill="#fff"/><path d="${d}" fill="#000"/></svg>`; } };
+})();
+
 /* Kurze Meldung unten (mit optionaler Aktion, z. B. „Rückgängig“) – erscheint auch über offenen Dialogen */
 let toastT = 0;
 function toast(msg, act, fn){
@@ -1941,8 +2025,9 @@ $('prepBtn').addEventListener('click', () => {
 });
 
 /* Version und Änderungen – bei jeder neuen Version hier UND in sw.js (CACHE) anpassen */
-const APP_VERSION = '5.1';   // größere Änderung: erste Zahl +1 (z. B. 3.9 → 4.0), kleine Änderung: zweite Zahl +1 (3.9 → 3.10)
+const APP_VERSION = '6.0';   // größere Änderung: erste Zahl +1 (z. B. 3.9 → 4.0), kleine Änderung: zweite Zahl +1 (3.9 → 3.10)
 const CHANGES = [
+  ['6.0', '24.11.2026', ['Zusätzlicher Link für Infos mit kurzer Beschreibung (z. B. „Einladung“) – als Knopf im Ablauf und im Notiztext', 'Route und Info-Link stehen beim Drucken als QR-Code auf dem Ausdruck (auch im Bild für iPhone/iPad)', 'Meldungen mit „Rückgängig“ passen jetzt vollständig in ihre Box']],
   ['5.1', '24.11.2026', ['Beginnt der Weg direkt an der ersten Station, steht oben deren Name statt „Los um“', 'Wochentage im Kalender wieder schlicht und mittig']],
   ['5.0', '24.11.2026', [
     'Früher dran: Minuszeiten zwischen den Stationen und beim Los – vorgezogene Zeiten erscheinen grün',
@@ -2004,7 +2089,9 @@ async function planImage(){
   const TX = 330, TW = W - M - TX;
   const layout = it => { const d = it.desc ? wrap(it.desc, TW, F(400, 26)) : []; const hL = (it.lab ? 30 : 0) + (it.was ? 30 : 0) + 58 + (it.t2 ? 34 : 0); return {d, h: Math.max(hL, 46 + d.length * 34) + 34}; };
   const L = items.map(layout), head = 300, warn = $('warn').innerText.trim();
-  const H = Math.max(1754, head + (warn ? 90 : 0) + L.reduce((a, l) => a + l.h, 0) + 140);
+  const qrList = [state.route && ['Route', state.route], state.link && [(state.linkName || '').trim() || 'Infos', state.link]].filter(Boolean);
+  const qrImgs = await Promise.all(qrList.map(([t, u]) => new Promise(res => { try { const im = new Image(); im.onload = () => res([t, u, im]); im.onerror = () => res(null); im.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(QR.svg(u).replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" ')); } catch(e){ res(null); } }))).then(a => a.filter(Boolean));
+  const H = Math.max(1754, head + (warn ? 90 : 0) + L.reduce((a, l) => a + l.h, 0) + 140 + (qrImgs.length ? 300 : 0));
   c.width = W; c.height = H;
   x.fillStyle = '#fff'; x.fillRect(0, 0, W, H);
   // Kopf
@@ -2037,6 +2124,13 @@ async function planImage(){
     x.fillStyle = '#5d606b'; x.font = F(400, 26); l.d.forEach((t, j) => x.fillText(t, TX, y + 76 + j * 34));
     y += l.h;
     if(i < items.length - 1){ x.fillStyle = '#e4e1db'; x.fillRect(M + 50, y - 16, W - 2 * M - 50, 2); }
+  });
+  // QR-Codes für Route und Info-Link
+  qrImgs.forEach(([t, u, im], i) => {
+    const qx = M + i * 560, qy = y + 30;
+    x.drawImage(im, qx, qy, 220, 220);
+    x.fillStyle = '#1d1f26'; x.font = F(700, 26); x.fillText(t.slice(0, 24), qx + 240, qy + 90);
+    x.fillStyle = '#5d606b'; x.font = F(400, 18); x.fillText(u.length > 34 ? u.slice(0, 33) + '…' : u, qx + 240, qy + 124);
   });
   x.fillStyle = '#8a8d96'; x.font = F(400, 20); x.fillText(`Zeitplaner · Version ${APP_VERSION}`, M, H - 50);
   return new Promise(res => c.toBlob(res, 'image/png'));

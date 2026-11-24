@@ -81,6 +81,8 @@ Die App läuft komplett im Browser auf Handy, Tablet und Computer – ohne Serve
 - **Farben der Uhrzeiten:** feste Uhrzeiten in einem gelben, abgerundeten Kasten, verschobene (verspätete) Uhrzeiten rot, berechnete schwarz
 - Stationen lassen sich mit ↑ und ↓ umsortieren und mit ✕ entfernen
 - **Link zur Route** (optional), z. B. aus Google Maps oder Apple Karten über „Teilen“ kopiert. In der App erscheint dann der Button „Route öffnen“
+- **Link für Infos** (optional) mit kurzer Beschreibung, wofür er ist (z. B. „Einladung“). In der App erscheint ein Button mit dieser Beschreibung, im Notiztext eine eigene Zeile
+- **QR-Codes beim Drucken:** Route und Info-Link stehen auf dem Ausdruck (auch im Bild für iPhone/iPad) zusätzlich als QR-Code. Die QR-Codes erzeugt die App selbst, ohne Internetdienst
 - Notiztext mit oder ohne Symbole, mit oder ohne Link
 
 Die App rechnet von den Stationen mit fester Uhrzeit aus rückwärts bzw. vorwärts. Liegen zwei feste Uhrzeiten hintereinander, zeigt sie den Puffer – oder warnt, wenn es zu knapp wird. Die letzten Einstellungen merkt sich der Browser.
@@ -159,7 +161,7 @@ Hinter dem `#` stehen alle Einstellungen. Zuerst ein Block aus Buchstaben und Za
 | `w` | Wiederholung: 1 täglich, 2 werktags, 3 wöchentlich, 4 monatlich, 5 jährlich | `w3` |
 | `k` | Wochentage bei wöchentlich (Mo = 1, Di = 2, Mi = 4 … So = 64, addiert) | `k6` |
 | `i` | Symbole im Notiztext an | `i1` |
-| `r` | Route-Link vorhanden (steht hinter dem Titel) | `r1` |
+| `r` | Links vorhanden (Bits): 1 = Route, 2 = Info-Link; sie stehen hinter dem Titel, der Info-Link gefolgt von seiner Beschreibung | `r3` |
 | `f` / `s` | Puffer für den Weg zur Station in Minuten / in Prozent | `f10`, `s20` |
 | `g` / `h` | nur in älteren Links: Puffer für alle Wege – wird beim Öffnen auf die Stationen verteilt | `g10` |
 
