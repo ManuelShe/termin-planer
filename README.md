@@ -80,7 +80,16 @@ Die App läuft komplett im Browser auf Handy, Tablet und Computer – ohne Serve
 - **Neuladen ohne Verlust:** Wurde der Plan über einen Link geöffnet, führt die App den Link in der Adresszeile automatisch mit. Ein versehentliches Neuladen behält so alle Änderungen, auch eingetragene Verspätungen
 - **Station gelöscht?** Unten erscheint kurz „Rückgängig“
 - **„Display anlassen“** (neben „Ablauf“): Das Display geht nicht aus, solange der Zeitplan offen ist; nochmal tippen schaltet es wieder ab. Der Knopf erscheint nur, wenn der Browser das kann (z. B. Chrome, Edge, Safari ab iOS 16.4)
-- **Link teilen mit Kurzinfo** (Knopf „Teilen“): Die Los-Zeit steht nur drin, solange sie noch bevorsteht. Bei Verspätung kommt ein kurzer Satz dazu (z. B. „⚠️ Verspätung: voraussichtlich 10 Min. zu spät bei Termin Arzt (Ankunft ca. 18:10 Uhr) – Details im Zeitplan.“; entsteht sie erst nach dem Termin: „⚠️ Verspätung nach Termin Friseur: voraussichtlich 15 Min. später zu Hause (ca. 21:35 Uhr)“), bei früher dran „✅ Früher dran als geplant“. Vor dem Link steht automatisch, worum es geht – Titel, Termin mit Datum und Uhrzeit, „Los um …“ (ggf. „vorbereiten ab …“) und die Stationen unterwegs. WhatsApp zeigt diesen Text über der Link-Vorschau. Die Vorschau-Karte selbst (Titel, Beschreibung, Bild aus den `og:`-Angaben in `index.html`) ist für alle Links gleich, weil WhatsApp die Seite ohne den #-Teil und ohne JavaScript abruft. Tipp: Bei `og:image` die volle Adresse eintragen, z. B. `https://<benutzername>.github.io/termin-planer/icon-512.png` – manche Apps zeigen das Bild sonst nicht
+- **Link teilen mit Kurzinfo** (Knopf „Teilen“): kurzer Text über dem Link –
+  ```
+  📅 Name
+  🗓️ Donnerstag, 26.11.2026
+  🕒 Termin Arzt 18:00 (an 18:10) · Zu Hause 18:40
+
+  ⚠️ Verspätung: 20 Min. später los.
+  👉 Ganzer Plan zum Antippen:
+  ```
+  Zeile 3 nennt alle Stationen mit fester Uhrzeit (bei Verspätung mit neu berechneter Ankunft) und die letzte Station; die Verspätungszeile erscheint nur bei Bedarf (bei mehreren: „Mehrere Verspätungen (bis zu +15 Min.)“, früher dran: „✅ Früher dran …“)
 - **Farben der Uhrzeiten:** feste Uhrzeiten in einem gelben, abgerundeten Kasten, verschobene (verspätete) Uhrzeiten rot, berechnete schwarz
 - Stationen lassen sich mit ↑ und ↓ umsortieren und mit ✕ entfernen
 - **Link zur Route** (optional), z. B. aus Google Maps oder Apple Karten über „Teilen“ kopiert. In der App erscheint dann der Button „Route öffnen“
