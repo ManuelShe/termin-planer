@@ -1361,7 +1361,7 @@ function render(){
       : '';
     const tooLate = lb > 0 && !anc ? `${dur(lb)} zu spät` : '';
     const expA = lb > 0 && !anc ? c.arr[k] - c.early[k] + lb : undefined;
-    steps.push({bin: s.type === 'transit' && s.fixed ? (arrRow ? 'tr' : 'tr+') : s.type === 'prep' || arrRow ? '' : 'arr', ride: rideK, si: k, binM: c.arr[k] - c.early[k] + (lb > 0 ? lb : 0), anchor: anc, al, expA, tooLate, k: label(s), m: c.arr[k] + c.delay[k], was: c.delay[k] ? c.arr[k] : c.plan.arr[k], late: (anc && c.relLate) || c.delay[k] || (rideK ? c.adel[k] : 0) || wd, ca: c.arrA[k], depLab: DEP(s.type) && s.fixed ? depWord(s.type) : '', info: (s.info || '').trim(), d: parts.join(' · '), ic: s.type === 'termin' && arrRow ? '📅' : TICON[s.type], stop: s.type === 'stop' || s.type === 'custom', fixed: s.fixed && toMin(s.time) !== null, dotIcon: dotFor(s, arrRow), note: noteParts.length ? ` (${noteParts.join(', ')})` : '', ...(losHere && k === L0 ? {go:true, dotIcon: s.type === 'go' || !TDOT[s.type] ? 'go' : TDOT[s.type], ic: s.type === 'go' ? '➡️' : TICON[s.type]} : {})});
+    steps.push({bin: s.type === 'transit' && s.fixed ? (arrRow ? 'tr' : 'tr+') : s.type === 'prep' || arrRow ? '' : 'arr', canLeave: s.stay > 0 && !DEP(s.type) && s.type !== 'prep' && k < S.length - 1 && S[k+1].type !== 'prep', ride: rideK, si: k, binM: c.arr[k] - c.early[k] + (lb > 0 ? lb : 0), anchor: anc, al, expA, tooLate, k: label(s), m: c.arr[k] + c.delay[k], was: c.delay[k] ? c.arr[k] : c.plan.arr[k], late: (anc && c.relLate) || c.delay[k] || (rideK ? c.adel[k] : 0) || wd, ca: c.arrA[k], depLab: DEP(s.type) && s.fixed ? depWord(s.type) : '', info: (s.info || '').trim(), d: parts.join(' · '), ic: s.type === 'termin' && arrRow ? '📅' : TICON[s.type], stop: s.type === 'stop' || s.type === 'custom', fixed: s.fixed && toMin(s.time) !== null, dotIcon: dotFor(s, arrRow), note: noteParts.length ? ` (${noteParts.join(', ')})` : '', ...(losHere && k === L0 ? {go:true, dotIcon: s.type === 'go' || !TDOT[s.type] ? 'go' : TDOT[s.type], ic: s.type === 'go' ? '➡️' : TICON[s.type]} : {})});
     if(rideK){
       // Ankunft von Bus/Bahn: zweite Uhrzeit in der Zeile der Haltestelle („an …“)
       steps.push({k:'Ankunft', m: c.arr[k] + c.adel[k] + rideK, was: c.arr[k] + rideK, ca: c.arrA[k], d: k < last && gapNext ? toNext : '', ic:'🛬', merge:true, rideArr:true, noNote:true});
@@ -1414,7 +1414,7 @@ function render(){
   // beim Drucken immer das volle Datum zeigen (aus „Heute“ wird „Heute, Montag, 23.11.2026“)
   $('printDate').textContent = !c.rel && !state.rep && !state.date && word ? `, ${dLong(base)}` : '';
 
-  $('plan').innerHTML = steps.map((s, i) => { const nt = !!s.anchor; return `<li class="${s.fixed ? 'fixed' : ''}${s.prepStep ? ' ready' : ''}${nt ? ' notime' : ''}" data-i="${i}"><span class="tc">${s.depLab ? `<span class="tlab">${s.depLab}</span>` : ''}${!nt && s.was !== undefined && s.was !== s.m ? `<s class="was">${fmtD(s.was)}</s>` : ''}<time${!nt && s.was !== undefined && s.was !== s.m ? ` class="moved${s.m < s.was ? ' earlier' : ''}"` : ''}>${s.dotIcon ? `<span class="pdot ico" data-ic="${s.dotIcon}">${DOT_ICONS[s.dotIcon]}</span>` : `<span class="pdot${s.stop ? ' small' : ''}"></span>`}${nt ? '' : `${s.ca ? '<span class="ca-s">ca.</span>' : ''}<span class="tv">${fmtD(s.m)}</span>`}</time>${relWord(s.m) && !nt ? `<span class="rv">${relWord(s.m)}</span>` : ''}${s.expA !== undefined ? `<span class="exp">erwartet<b>${fmtD(s.expA)}</b></span>` : ''}${s.m2 !== undefined ? `<span class="t2">${s.rideArr ? 'Ankunft' : 'bis'}${s.latest ? ' max' : ''}${s.ca2 ? ' ca.' : ''} ${s.was2 !== undefined && s.was2 !== s.m2 ? `<s>${fmtD(s.was2)}</s> <b class="moved${s.m2 < s.was2 ? ' earlier' : ''}">` : '<b>'}${fmtD(s.m2)}</b></span>` : ''}</span><div><span class="k">${esc(s.k)}${dayNote(s.m)}${s.late ? `<span class="lateb${s.late < 0 ? ' earlyb' : ''}">${s.late > 0 ? '+' : '−'}${Math.abs(s.late)} Min.</span>` : ''}${s.tooLate ? `<span class="lateb">${esc(s.tooLate)}</span>` : ''}</span>${s.al ? `<span class="al">${esc(s.al)}</span>` : ''}${s.d ? `<span class="d">${esc(relText(s.d))}</span>` : ''}${s.info ? `<span class="in">${esc(s.info)}</span>` : ''}${binMode && !relMode && s.bin ? binButtons(s, i) : ''}</div><span class="cd"></span></li>`; }).join('');
+  $('plan').innerHTML = steps.map((s, i) => { const nt = !!s.anchor; return `<li class="${s.fixed ? 'fixed' : ''}${s.prepStep ? ' ready' : ''}${nt ? ' notime' : ''}" data-i="${i}"><span class="tc">${s.depLab ? `<span class="tlab">${s.depLab}</span>` : ''}${!nt && s.was !== undefined && s.was !== s.m ? `<s class="was">${fmtD(s.was)}</s>` : ''}<time${!nt && s.was !== undefined && s.was !== s.m ? ` class="moved${s.m < s.was ? ' earlier' : ''}"` : ''}>${s.dotIcon ? `<span class="pdot ico" data-ic="${s.dotIcon}">${DOT_ICONS[s.dotIcon]}</span>` : `<span class="pdot${s.stop ? ' small' : ''}"></span>`}${nt ? '' : `${s.ca ? '<span class="ca-s">ca.</span>' : ''}<span class="tv">${fmtD(s.m)}</span>`}</time>${relWord(s.m) && !nt ? `<span class="rv">${relWord(s.m)}</span>` : ''}${s.expA !== undefined ? `<span class="exp">erwartet<b>${fmtD(s.expA)}</b></span>` : ''}${s.m2 !== undefined ? `<span class="t2">${s.rideArr ? 'Ankunft' : 'bis'}${s.latest ? ' max' : ''}${s.ca2 ? ' ca.' : ''} ${s.was2 !== undefined && s.was2 !== s.m2 ? `<s>${fmtD(s.was2)}</s> <b class="moved${s.m2 < s.was2 ? ' earlier' : ''}">` : '<b>'}${fmtD(s.m2)}</b></span>` : ''}</span><div><span class="k">${esc(s.k)}${dayNote(s.m)}${s.late ? `<span class="lateb${s.late < 0 ? ' earlyb' : ''}">${s.late > 0 ? '+' : '−'}${Math.abs(s.late)} Min.</span>` : ''}${s.tooLate ? `<span class="lateb">${esc(s.tooLate)}</span>` : ''}</span>${s.al ? `<span class="al">${esc(s.al)}</span>` : ''}${s.d ? `<span class="d">${esc(relText(s.d))}</span>` : ''}${s.info ? `<span class="in">${esc(s.info)}</span>` : ''}${binMode && !relMode && (s.bin || s.canLeave) ? binButtons(s, i) : ''}</div><span class="cd"></span></li>`; }).join('');
 
   if(!edited){
     const lines = [];
@@ -1947,6 +1947,7 @@ $('binBtn').addEventListener('click', () => {
 const ICO_OK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
 function binButtons(s, i){
   const b = (act, txt) => `<button type="button" data-bin="${i}" data-how="${act}">${ICO_OK}${txt}</button>`;
+  if(s.canLeave && (s.bin === 'arr' || !s.bin)) return `<span class="bgrp">${s.bin === 'arr' ? b('arr', 'Bin da') : ''}${b('leave', 'Bin los')}</span>`;   // Aufenthalt: ankommen und wieder los
   const list = s.bin === 'los' ? [b('los', 'Bin los')] : s.bin === 'arr' ? [b('arr', 'Bin da')]
     : [...(s.bin === 'tr+' ? [b('arr', 'Bin da')] : []), b('dep', 'Abgefahren'), ...(s.ride ? [b('arr2', 'Angekommen')] : [])];
   return `<span class="bgrp">${list.join('')}</span>`;
@@ -1955,15 +1956,15 @@ $('plan').addEventListener('click', e => {
   const b = e.target.closest('button[data-bin]'); if(!b) return;
   const st = steps[+b.dataset.bin]; if(!st) return;
   const how = b.dataset.how, S = state.stations, s = S[st.si], c = lastPlan.c, k = st.si;
-  if(how === 'dep' || how === 'arr2'){   // Haltestelle: tatsächliche Abfahrt bzw. Ankunft
-    const cur = how === 'dep' ? c.arr[k] + c.delay[k] : c.arr[k] + c.adel[k] + c.rideT[k];
+  if(how === 'dep' || how === 'arr2' || how === 'leave'){   // Haltestelle: Abfahrt/Ankunft · Aufenthalt: wieder los
+    const cur = how === 'dep' ? c.arr[k] + c.delay[k] : how === 'leave' ? c.leave[k] : c.arr[k] + c.adel[k] + c.rideT[k];
     const diff = Math.round((Date.now() - at(lastPlan.base, cur)) / 60000);
     if(Math.abs(diff) > 360){ toast('Das geht nur am Tag des Termins, nah an der geplanten Zeit.'); return; }
-    const tgt = how === 'dep' ? s : S[k+1]; if(!tgt){ toast('Nach der Haltestelle fehlt noch eine Station.'); return; }
+    const tgt = how === 'dep' ? s : S[k+1]; if(!tgt){ toast('Danach fehlt noch eine Station.'); return; }
     const key = how === 'dep' ? 'delay' : 'wdelay', before = +tgt[key] || 0;
     tgt[key] = key === 'delay' ? Math.max(0, before + diff) : Math.max(-240, Math.min(240, before + diff));
     renderStations(); update();
-    const what = how === 'dep' ? 'abgefahren' : 'angekommen';
+    const what = how === 'dep' ? 'abgefahren' : how === 'leave' ? 'los' : 'angekommen';
     toast(diff > 0 ? `${dur(diff)} später ${what} – Zeiten danach angepasst.` : diff < 0 ? `${dur(-diff)} früher ${what} – Zeiten danach angepasst.` : `Pünktlich ${what}.`,
       'Rückgängig', () => { tgt[key] = before; renderStations(); update(); });
     return;
@@ -2044,8 +2045,9 @@ $('prepBtn').addEventListener('click', () => {
 });
 
 /* Version und Änderungen – bei jeder neuen Version hier UND in sw.js (CACHE) anpassen */
-const APP_VERSION = '6.1';   // größere Änderung: erste Zahl +1 (z. B. 3.9 → 4.0), kleine Änderung: zweite Zahl +1 (3.9 → 3.10)
+const APP_VERSION = '6.2';   // größere Änderung: erste Zahl +1 (z. B. 3.9 → 4.0), kleine Änderung: zweite Zahl +1 (3.9 → 3.10)
 const CHANGES = [
+  ['6.2', '25.11.2026', ['Unterwegs-Modus: Stationen mit Aufenthalt haben „Bin da“ und „Bin los“ in einem gemeinsamen Rahmen']],
   ['6.1', '24.11.2026', ['Neuer Knopf „QR-Code“ unten: zeigt den Link zum Zeitplan direkt als QR-Code zum Scannen']],
   ['6.0', '24.11.2026', ['Zusätzlicher Link für Infos mit kurzer Beschreibung (z. B. „Einladung“) – als Knopf im Ablauf und im Notiztext', 'Route und Info-Link stehen beim Drucken als QR-Code auf dem Ausdruck (auch im Bild für iPhone/iPad)', 'Meldungen mit „Rückgängig“ passen jetzt vollständig in ihre Box']],
   ['5.1', '24.11.2026', ['Beginnt der Weg direkt an der ersten Station, steht oben deren Name statt „Los um“', 'Wochentage im Kalender wieder schlicht und mittig']],
