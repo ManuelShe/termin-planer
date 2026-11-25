@@ -90,7 +90,7 @@ Die App läuft komplett im Browser auf Handy, Tablet und Computer – ohne Serve
   👉 Ganzer Plan zum Antippen:
   ```
   Zeile 3 nennt alle Stationen mit fester Uhrzeit (bei Verspätung mit neu berechneter Ankunft) und die letzte Station; die Verspätungszeile erscheint nur bei Bedarf (bei mehreren: „Mehrere Verspätungen (bis zu +15 Min.)“, früher dran: „✅ Früher dran …“)
-- **Farben der Uhrzeiten:** feste Uhrzeiten in einem gelben, abgerundeten Kasten, verschobene (verspätete) Uhrzeiten rot, berechnete schwarz
+- **Farben der Uhrzeiten:** feste Uhrzeiten in einem gelben, abgerundeten Kasten, verschobene (verspätete) Uhrzeiten rot, berechnete schwarz; ungefähre Uhrzeiten („ca.“) stehen in einem gestrichelten Kasten ohne Füllung, feste ca.-Uhrzeiten in einem hellgelben Kasten mit gestricheltem gelben Rahmen
 - Stationen lassen sich mit ↑ und ↓ umsortieren und mit ✕ entfernen
 - **Link zur Route** (optional), z. B. aus Google Maps oder Apple Karten über „Teilen“ kopiert. In der App erscheint dann der Button „Route öffnen“
 - **Link für Infos** (optional) mit kurzer Beschreibung, wofür er ist (z. B. „Einladung“). In der App erscheint ein Button mit dieser Beschreibung, im Notiztext eine eigene Zeile

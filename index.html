@@ -172,6 +172,11 @@ h2{font:600 22px/1.2 "Red Hat Display",sans-serif;margin:0}
 .plan li.fixed time{color:var(--fix)}
 .plan li.fixed time{margin:4px 0}
 .plan li.fixed time .tv{display:inline-block;padding:3px 6px;margin-right:-6px;border-radius:9px;background:var(--fixMark)}
+.plan li.fixed time .tv .ca-s{margin-right:2px}
+.plan .tv.approx{display:inline-block;padding:1px 4px;margin-right:-6px;border:2px dashed color-mix(in srgb,currentColor 45%,transparent);border-radius:9px}
+.plan .tv.approx .ca-s{margin-right:2px}
+.plan li.fixed.approx time .tv{padding:1px 4px;border:2px dashed light-dark(#d9a800,#ffd23f);background:light-dark(#fff6d1,#3a3214)}
+.plan li.fixed.approx time:not(.moved){color:light-dark(#1d1f26,#ffe27a)}
 .plan li.fixed .was{margin-bottom:2px}
 /* Aufteilungsbalken unter dem Ablauf */
 .split{margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}
@@ -1428,7 +1433,7 @@ function render(){
   // beim Drucken immer das volle Datum zeigen (aus „Heute“ wird „Heute, Montag, 23.11.2026“)
   $('printDate').textContent = !c.rel && !state.rep && !state.date && word ? `, ${dLong(base)}` : '';
 
-  $('plan').innerHTML = steps.map((s, i) => { const nt = !!s.anchor; return `<li class="${s.fixed ? 'fixed' : ''}${s.prepStep ? ' ready' : ''}${nt ? ' notime' : ''}" data-i="${i}"><span class="tc">${s.depLab ? `<span class="tlab">${s.depLab}</span>` : ''}${!nt && s.was !== undefined && s.was !== s.m ? `<s class="was">${fmtD(s.was)}</s>` : ''}<time${!nt && s.was !== undefined && s.was !== s.m ? ` class="moved${s.m < s.was ? ' earlier' : ''}"` : ''}>${s.dotIcon ? `<span class="pdot ico" data-ic="${s.dotIcon}">${DOT_ICONS[s.dotIcon]}</span>` : `<span class="pdot${s.stop ? ' small' : ''}"></span>`}${nt ? '' : `${s.ca ? '<span class="ca-s">ca.</span>' : ''}<span class="tv">${fmtD(s.m)}</span>`}</time>${relWord(s.m) && !nt ? `<span class="rv">${relWord(s.m)}</span>` : ''}${s.expA !== undefined ? `<span class="exp">erwartet<b>${fmtD(s.expA)}</b></span>` : ''}${s.m2 !== undefined ? `<span class="t2">${s.rideArr ? 'Ankunft' : 'bis'}${s.latest ? ' max' : ''}${s.ca2 ? ' ca.' : ''} ${s.was2 !== undefined && s.was2 !== s.m2 ? `<s>${fmtD(s.was2)}</s> <b class="moved${s.m2 < s.was2 ? ' earlier' : ''}">` : '<b>'}${fmtD(s.m2)}</b></span>` : ''}</span><div><span class="k">${esc(s.k)}${dayNote(s.m)}${s.late ? `<span class="lateb${s.late < 0 ? ' earlyb' : ''}">${s.late > 0 ? '+' : '−'}${Math.abs(s.late)} Min.</span>` : ''}${s.tooLate ? `<span class="lateb">${esc(s.tooLate)}</span>` : ''}</span>${s.al ? `<span class="al">${esc(s.al)}</span>` : ''}${s.d ? `<span class="d">${esc(relText(s.d))}</span>` : ''}${s.info ? `<span class="in">${esc(s.info)}</span>` : ''}${binMode && !relMode && (s.bin || s.canLeave) ? binButtons(s, i) : ''}</div><span class="cd"></span></li>`; }).join('');
+  $('plan').innerHTML = steps.map((s, i) => { const nt = !!s.anchor; return `<li class="${s.fixed ? 'fixed' : ''}${s.fixed && s.ca ? ' approx' : ''}${s.prepStep ? ' ready' : ''}${nt ? ' notime' : ''}" data-i="${i}"><span class="tc">${s.depLab ? `<span class="tlab">${s.depLab}</span>` : ''}${!nt && s.was !== undefined && s.was !== s.m ? `<s class="was">${fmtD(s.was)}</s>` : ''}<time${!nt && s.was !== undefined && s.was !== s.m ? ` class="moved${s.m < s.was ? ' earlier' : ''}"` : ''}>${s.dotIcon ? `<span class="pdot ico" data-ic="${s.dotIcon}">${DOT_ICONS[s.dotIcon]}</span>` : `<span class="pdot${s.stop ? ' small' : ''}"></span>`}${nt ? '' : `<span class="tv${s.ca && !s.fixed ? ' approx' : ''}">${s.ca ? '<span class="ca-s">ca.</span>' : ''}${fmtD(s.m)}</span>`}</time>${relWord(s.m) && !nt ? `<span class="rv">${relWord(s.m)}</span>` : ''}${s.expA !== undefined ? `<span class="exp">erwartet<b>${fmtD(s.expA)}</b></span>` : ''}${s.m2 !== undefined ? `<span class="t2">${s.rideArr ? 'Ankunft' : 'bis'}${s.latest ? ' max' : ''}${s.ca2 ? ' ca.' : ''} ${s.was2 !== undefined && s.was2 !== s.m2 ? `<s>${fmtD(s.was2)}</s> <b class="moved${s.m2 < s.was2 ? ' earlier' : ''}">` : '<b>'}${fmtD(s.m2)}</b></span>` : ''}</span><div><span class="k">${esc(s.k)}${dayNote(s.m)}${s.late ? `<span class="lateb${s.late < 0 ? ' earlyb' : ''}">${s.late > 0 ? '+' : '−'}${Math.abs(s.late)} Min.</span>` : ''}${s.tooLate ? `<span class="lateb">${esc(s.tooLate)}</span>` : ''}</span>${s.al ? `<span class="al">${esc(s.al)}</span>` : ''}${s.d ? `<span class="d">${esc(relText(s.d))}</span>` : ''}${s.info ? `<span class="in">${esc(s.info)}</span>` : ''}${binMode && !relMode && (s.bin || s.canLeave) ? binButtons(s, i) : ''}</div><span class="cd"></span></li>`; }).join('');
 
   if(!edited){
     const lines = [];
@@ -2094,8 +2099,9 @@ $('prepBtn').addEventListener('click', () => {
 });
 
 /* Version und Änderungen – bei jeder neuen Version hier UND in sw.js (CACHE) anpassen */
-const APP_VERSION = '7.1';   // größere Änderung: erste Zahl +1 (z. B. 3.9 → 4.0), kleine Änderung: zweite Zahl +1 (3.9 → 3.10)
+const APP_VERSION = '7.2';   // größere Änderung: erste Zahl +1 (z. B. 3.9 → 4.0), kleine Änderung: zweite Zahl +1 (3.9 → 3.10)
 const CHANGES = [
+  ['7.2', '26.11.2026', ['„ca.“ steht bei festen Uhrzeiten mit in der gelben Box', 'Ungefähre Uhrzeiten (ca.) sind gestrichelt umrandet – ohne Füllung, bei festen Uhrzeiten mit gelbem gestrichelten Rahmen; auch im Ausdruck und im Bild fürs iPhone']],
   ['7.1', '25.11.2026', ['Kurztext beim Teilen neu: Name, Datum, feste Uhrzeiten und letzte Station in einer Zeile, darunter ggf. die Verspätung']],
   ['7.0', '25.11.2026', [
     'Nach Stationen mit Aufenthalt: Knöpfe „Los“ (später/früher losgekommen) und „an“ – „Bin los“ trägt dort ein',
@@ -2161,7 +2167,7 @@ async function planImage(){
     const q = sel => li.querySelector(sel), txt = sel => q(sel) ? q(sel).innerText.replace(/\s+/g, ' ').trim() : '';
     const k = q('.k'), name = k ? [...k.childNodes].filter(n => !(n.classList && n.classList.contains('lateb'))).map(n => n.textContent).join('').trim() : '';
     return {time: txt('time'), lab: txt('.tlab'), was: txt('.was'), t2: txt('.t2'), name, late: txt('.lateb'), desc: txt('.d') + (txt('.in') ? ' – ' + txt('.in') : ''),
-            fixed: li.classList.contains('fixed'), moved: !!q('time.moved'), ready: li.classList.contains('ready')};
+            fixed: li.classList.contains('fixed'), approx: !!q('.tv.approx') || li.classList.contains('approx'), moved: !!q('time.moved'), ready: li.classList.contains('ready')};
   });
   const TX = 330, TW = W - M - TX;
   const layout = it => { const d = it.desc ? wrap(it.desc, TW, F(400, 26)) : []; const hL = (it.lab ? 30 : 0) + (it.was ? 30 : 0) + 58 + (it.t2 ? 34 : 0); return {d, h: Math.max(hL, 46 + d.length * 34) + 34}; };
@@ -2189,11 +2195,19 @@ async function planImage(){
     x.textAlign = 'right';
     if(it.lab){ x.fillStyle = '#5d606b'; x.font = F(700, 20); x.fillText(it.lab, TX - 30, ty + 20); ty += 30; }
     if(it.was){ x.fillStyle = '#8a8d96'; x.font = F(700, 22, 'Red Hat Display'); x.fillText(it.was, TX - 30, ty + 22); const w = x.measureText(it.was).width; x.fillRect(TX - 30 - w, ty + 14, w, 2.5); ty += 30; }
+    // „ca.“ klein vor die große Uhrzeit setzen (wie in der App)
+    const caP = /^ca\.\s*/.test(it.time), tMain = it.time.replace(/^ca\.\s*/, '');
+    x.font = F(800, 22, 'Red Hat Display'); const cw = caP ? x.measureText('ca.').width + 6 : 0;
     x.font = F(800, it.ready ? 40 : 48, 'Red Hat Display');
-    const tw = x.measureText(it.time).width;
-    if(it.fixed){ x.fillStyle = '#ffd23f'; x.beginPath(); x.roundRect(TX - 30 - tw - 12, ty + 2, tw + 24, 58, 12); x.fill(); }
-    x.fillStyle = it.moved ? '#e5483b' : it.ready ? '#55585f' : '#1d1f26'; x.fillText(it.time, TX - 30, ty + 48);
-    if(it.t2){ x.font = F(700, 22); x.fillStyle = '#5d606b'; x.fillText(it.t2, TX - 30, ty + 88); }
+    const tw = x.measureText(tMain).width + cw;
+    if(it.fixed || it.approx){   // fest: gelbe Fläche · ungefähr: gestrichelter Rahmen (fest + ungefähr: hellgelb mit gelbem Rahmen)
+      x.beginPath(); x.roundRect(TX - 30 - tw - 12, ty + 2, tw + 24, 58, 12);
+      if(it.fixed){ x.fillStyle = it.approx ? '#fff6d1' : '#ffd23f'; x.fill(); }
+      if(it.approx){ x.save(); x.setLineDash([10, 6]); x.lineWidth = 3; x.strokeStyle = it.fixed ? '#d9a800' : it.moved ? '#efa39c' : '#a9abb2'; x.stroke(); x.restore(); }
+    }
+    x.fillStyle = it.moved ? '#e5483b' : it.ready ? '#55585f' : '#1d1f26'; x.fillText(tMain, TX - 30, ty + 48);
+    if(caP){ x.font = F(800, 22, 'Red Hat Display'); x.fillText('ca.', TX - 30 - tw + cw - 6, ty + 30); }
+    if(it.t2){ let fs = 22; do { x.font = F(700, fs); } while(x.measureText(it.t2).width > TX - 30 - M - 40 && --fs > 14); x.fillStyle = '#5d606b'; x.fillText(it.t2, TX - 30, ty + 88); }
     x.textAlign = 'left';
     x.fillStyle = '#fff'; x.strokeStyle = '#1d1f26'; x.lineWidth = 4; x.beginPath(); x.arc(M + 17, y + 36, 11, 0, 7); x.fill(); x.stroke();
     x.fillStyle = '#1d1f26'; x.font = F(700, 30); x.fillText(it.name, TX, y + 36);
