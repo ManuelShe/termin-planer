@@ -1493,7 +1493,9 @@ function render(){
     else if(s.stay){ parts.push(`${ca(s.stayCa, dur(s.stay))} ${s.type === 'pause' ? 'Pause' : 'Aufenthalt'}${c.exact[k] ? ', Ende fest' : ''}`); noteParts.push(`${s.type === 'pause' ? 'Pause' : 'Aufenthalt'} ${ca(s.stayCa, dur(s.stay))}${c.exact[k] ? ', Ende fest' : ''}`); }
     const wd = s.type === 'arrival' || (k && c.rideT[k-1]) ? 0 : c.gd[k] - (k === L0 ? c.losLate : 0) - (k ? c.ld[k-1] : 0);
     if(c.ld[k]){ const t = c.ld[k] > 0 ? `${dur(c.ld[k])} später ${A ? 'fertig' : 'los'}` : `${dur(-c.ld[k])} früher ${A ? 'fertig' : 'los'}`; parts.push(t); noteParts.push(t); }   // (nach Bus/Bahn: steht schon bei der Ankunft)
-    if(wd){ const t = A ? `${dur(Math.abs(wd))} ${wd > 0 ? 'später' : 'früher'} begonnen` : wd > 0 ? `${dur(wd)} Verspätung unterwegs` : `${dur(-wd)} schneller unterwegs`; parts.unshift(t); noteParts.push(t); }
+    const eff0 = c.early[k], arrRow0 = eff0 > 0 && (s.early || c.goneOn[k]);   // eigene Zeile „Ankommen“: Weg-Verspätung steht dort
+    const wdT = wd ? (A ? `${dur(Math.abs(wd))} ${wd > 0 ? 'später' : 'früher'} begonnen` : wd > 0 ? `${dur(wd)} Verspätung unterwegs` : `${dur(-wd)} schneller unterwegs`) : '';
+    if(wd && !arrRow0){ parts.unshift(wdT); noteParts.push(wdT); }
     if(c.slack[k] > 0) parts.push(`${ca(c.slackA[k], dur(c.slack[k]))} Puffer`);
     if(k === last && s.stay && !A){ parts.push(`bis ${ca(c.leaveA[k], fmt(c.leave[k]))}`); noteParts.push(`bis ${ca(c.leaveA[k], fmt(c.leave[k]))} Uhr`); }
     const nextCa = k < last && S[k+1].afterCa;
@@ -1504,14 +1506,14 @@ function render(){
     if(arrRow){
       const tr = DEP(s.type), fl = s.type === 'flight', what = tr ? depWord(s.type) : label(s);
       const why = whyText(s);
-      steps.push({bin: 'arr', si: k, binM: c.arr[k] - eff, k: fl ? 'Am Flughafen' : tr ? 'An der Haltestelle' : 'Ankommen', m: c.arr[k] - eff, was: c.plan.arr[k] - c.plan.early[k], ca: c.arrA[k], d: `${dur(eff)} vor ${what}${why ? ' · ' + why : ''}`, ic: fl ? '🛄' : tr ? '🚏' : '📍', dotIcon: tr ? '' : 'flag', note: ` (${dur(eff)} vor ${what}${why ? ' – ' + why : ''})`});
+      steps.push({bin: 'arr', si: k, binM: c.arr[k] - eff, k: fl ? 'Am Flughafen' : tr ? 'An der Haltestelle' : 'Ankommen', m: c.arr[k] - eff, was: c.plan.arr[k] - c.plan.early[k], ca: c.arrA[k], late: (c.arr[k] - eff) - (c.plan.arr[k] - c.plan.early[k]), d: `${wdT ? wdT + ' · ' : ''}${dur(eff)} vor ${what}${why ? ' · ' + why : ''}`, ic: fl ? '🛄' : tr ? '🚏' : '📍', dotIcon: tr ? '' : 'flag', note: ` (${wdT ? wdT + ', ' : ''}${dur(eff)} vor ${what}${why ? ' – ' + why : ''})`});
     }
     const lb = c.lateAt[k], anc = c.rel && k === S.length - 1;
     const al = anc && c.relLate > 0 ? `Verspätung erwartet: voraussichtlich ${dur(c.relLate)} später da` : anc && c.relLate < 0 ? `voraussichtlich ${dur(-c.relLate)} früher da`
       : '';
     const tooLate = lb > 0 && !anc ? `${dur(lb)} zu spät` : '';
     const expA = lb > 0 && !anc ? c.arr[k] - c.early[k] + lb : undefined;
-    steps.push({bin: s.type === 'transit' && s.fixed ? (arrRow ? 'tr' : 'tr+') : s.type === 'prep' || arrRow ? '' : 'arr', canLeave: s.stay > 0 && !DEP(s.type) && s.type !== 'prep' && k < S.length - 1 && S[k+1].type !== 'prep', ride: rideK, si: k, binM: c.arr[k] - c.early[k] + (lb > 0 ? lb : 0), anchor: anc, al, expA, tooLate, k: label(s), m: c.arr[k] + c.delay[k], was: c.delay[k] ? c.arr[k] : c.plan.arr[k], late: (anc && c.relLate) || c.ld[k] || c.delay[k] || (rideK ? c.adel[k] : 0) || wd, ca: c.arrA[k], depLab: DEP(s.type) && s.fixed ? depWord(s.type) : '', info: (s.info || '').trim(), d: parts.join(' · '), ic: s.type === 'termin' && arrRow ? '📅' : TICON[s.type], stop: s.type === 'stop' || s.type === 'custom' || s.type === 'task', fixed: s.fixed && toMin(s.time) !== null, dotIcon: dotFor(s, arrRow), note: noteParts.length ? ` (${noteParts.join(', ')})` : '', ...(losHere && k === L0 ? {go:true, dotIcon: A ? dotFor(s) || 'go' : s.type === 'go' || !TDOT[s.type] ? 'go' : TDOT[s.type], ic: s.type === 'go' ? '➡️' : TICON[s.type]} : {})});
+    steps.push({bin: s.type === 'transit' && s.fixed ? (arrRow ? 'tr' : 'tr+') : s.type === 'prep' || arrRow ? '' : 'arr', canLeave: s.stay > 0 && !DEP(s.type) && s.type !== 'prep' && k < S.length - 1 && S[k+1].type !== 'prep', ride: rideK, si: k, binM: c.arr[k] - c.early[k] + (lb > 0 ? lb : 0), anchor: anc, al, expA, tooLate, k: label(s), m: c.arr[k] + c.delay[k], was: c.delay[k] ? c.arr[k] : c.plan.arr[k], late: (anc && c.relLate) || c.ld[k] || c.delay[k] || (rideK ? c.adel[k] : 0) || (arrRow ? 0 : wd), ca: c.arrA[k], depLab: DEP(s.type) && s.fixed ? depWord(s.type) : '', info: (s.info || '').trim(), d: parts.join(' · '), ic: s.type === 'termin' && arrRow ? '📅' : TICON[s.type], stop: s.type === 'stop' || s.type === 'custom' || s.type === 'task', fixed: s.fixed && toMin(s.time) !== null, dotIcon: dotFor(s, arrRow), note: noteParts.length ? ` (${noteParts.join(', ')})` : '', ...(losHere && k === L0 ? {go:true, dotIcon: A ? dotFor(s) || 'go' : s.type === 'go' || !TDOT[s.type] ? 'go' : TDOT[s.type], ic: s.type === 'go' ? '➡️' : TICON[s.type]} : {})});
     // Ablauf: Ende des Punkts als zweite Uhrzeit („bis …“)
     if(A && s.stay > 0 && !rideK && !depStep) steps.push({k: 'Ende', m: c.leave[k], was: c.plan.leave[k], ca: c.leaveA[k], merge: true, endRow: true, noNote: true});
     if(rideK){
@@ -1674,7 +1676,7 @@ function renderSplit(c, S){
     const w = s.type === 'arrival' ? 0 : c.gd[k] || 0;
     const wd = s.type === 'arrival' ? 0 : Math.max(-240, Math.min(240, +s.wdelay || 0)), dep = w - wd;   // dep: später/früher los (Los, nach dem Aufenthalt), wd: unterwegs
     let j = k; while(j < S.length - 1 && state.stations[j].par) j++;   // gleichzeitige Punkte zählen nicht
-    const prevPh = seg.length ? (seg[seg.length - 1].ph || seg[seg.length - 1].cls) : 'c-drive';
+    const prevPh = seg.length ? (seg[seg.length - 1].ph || seg[seg.length - 1].cls) : lead && k === lead ? 'c-prep' : 'c-drive';
     if(dep > 0) add('c-late', dep, A ? `${k ? label(S[k-1]) + ' später fertig' : 'Später begonnen'}` : k === lead ? 'Später losgekommen' : `Später los bei ${label(S[k-1])}`, '', prevPh);
     if(dep < 0){   // früher los: der Abschnitt davor wird kürzer
       const last = seg[seg.length - 1];
@@ -1687,7 +1689,7 @@ function renderSplit(c, S){
     add('c-drive', walk, label0);
     add('c-buf', bf, `Puffer für den Weg bis ${goal(s)}`);
     add('c-late', Math.max(0, wd), `Verspätung ${A ? 'vor' : 'auf dem Weg zu'} ${label(S[j])}`, '', A ? prevPh : ride && !walk ? 'c-ride' : 'c-drive');
-    return -Math.min(0, dep) - Math.min(0, wd);   // so viel früher da
+    return Math.max(0, -(dep + wd));   // so viel früher da (netto: später los und schneller unterwegs heben sich auf)
   };
   S.forEach((s, k) => {
     if(k < La || k >= Lz) return;
@@ -2374,8 +2376,9 @@ $('prepBtn').addEventListener('click', () => {
 });
 
 /* Version und Änderungen – bei jeder neuen Version hier UND in sw.js (CACHE) anpassen */
-const APP_VERSION = '8.2';   // größere Änderung: erste Zahl +1 (z. B. 3.9 → 4.0), kleine Änderung: zweite Zahl +1 (3.9 → 3.10)
+const APP_VERSION = '8.3';   // größere Änderung: erste Zahl +1 (z. B. 3.9 → 4.0), kleine Änderung: zweite Zahl +1 (3.9 → 3.10)
 const CHANGES = [
+  ['8.3', '26.11.2026', ['Nach „Bin da“: Bei „Ankommen“ steht die tatsächliche Verspätung gegenüber dem Plan (z. B. +4 Min.), „schneller unterwegs“ steht dort statt beim Termin', 'Übersichtsbalken: „früher da“ nur noch, wenn man insgesamt früher als geplant ankommt; Verspätung beim Losgehen nach der Vorbereitung gelb schraffiert']],
   ['8.2', '26.11.2026', ['Ablauf: aus „Vorbereitung“ wird „Orga“ – alles, was man selbst davor und danach erledigt (Einkaufen, Aufbau, Abbau …)', 'Das Klemmbrett oben blendet alle Orga-Punkte aus, auch die am Ende; erledigte Orga-Punkte verschwinden automatisch einzeln']],
   ['8.1', '26.11.2026', ['Ablauf: Vorbereitungen am Anfang lassen sich wie beim Weg mit dem Kleiderbügel ausblenden – oben steht dann der erste sichtbare Punkt; sind sie vorbei, verschwinden sie automatisch']],
   ['8.0', '26.11.2026', ['Neu: Ablauf planen – z. B. eine Feier, eine Veranstaltung oder einen Tag mit vielen Programmpunkten (oben in den Einstellungen „Was planst du?“)', 'Punkte mit Dauer, festen Zeitpunkten, frei wählbaren Symbolen und „gleichzeitig mit dem Punkt davor“, dazu Beispiele für Feier und Veranstaltung', 'Läuft-Modus mit „Gestartet“ und „Fertig“', 'Übersichtsbalken neu: Dauer und Symbole in den Abschnitten, Bus/Bahn und Puffer extra, Verspätungen schraffiert in der Farbe ihrer Phase, Zeitachse und „Jetzt“-Strich', 'Weg: „Zeit vor Ort“ und „Aufenthalt“ im Balken zusammengefasst zu „Vor Ort“', 'Bis zu 20 Stationen bzw. Punkte']],
