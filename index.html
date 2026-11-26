@@ -359,7 +359,8 @@ dialog.sheet[open]{animation:slide .25s ease}
 /* „Fest um“, „ca.“ und dann die Uhrzeit – das Zeitfeld steht ganz rechts, nichts kann darunter rutschen */
 .fxrow{grid-column:1/-1;display:grid;grid-template-columns:auto auto minmax(0,1fr);gap:10px;align-items:center}
 .fxrow > span.fx{grid-column:1/3}
-.fxrow > span.fx.bis{grid-column:1;padding-left:30px;font-weight:700}
+.fxrow > span.fx.bis{grid-column:1;display:flex;align-items:center;padding-left:30px;font-weight:700}
+.fxrow select[data-f=day]{width:100%;min-height:40px}
 .fxrow > input[type=time]{grid-column:3}
 /* Uhrzeit-Feld darf schmaler werden (iOS gibt ihm sonst eine Mindestbreite) – „ca.“ bleibt daneben */
 .fxrow .tbox{display:block;min-width:0;overflow:hidden;border-radius:10px}
@@ -638,6 +639,15 @@ details.more summary{cursor:pointer;font-weight:700;min-height:44px;display:flex
   </div>
 
   <div class="sec">
+   <label class="lt" for="openLink">Plan aus Link öffnen</label>
+   <div class="row tplsave">
+    <input type="text" class="field" id="openLink" placeholder="Link oder Notiztext hier einfügen" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Link zum Zeitplan">
+    <button type="button" class="btn dark" id="openLinkBtn">Öffnen</button>
+   </div>
+   <p class="hint" id="openLinkMsg" aria-live="polite">Einen geteilten Link (oder den ganzen Text aus den Termin-Notizen) einfügen – der Plan öffnet sich dann hier in der App.</p>
+  </div>
+
+  <div class="sec">
    <span class="lt">Notiztext</span>
    <label class="chk"><input type="checkbox" id="icons"> Symbole</label>
    <label class="chk" id="withLinkRow"><input type="checkbox" id="withLink" checked> Link zum Zeitplan</label>
@@ -731,7 +741,15 @@ const relText = t => !relMode ? t : t.replace(/(?:um )?(ca\. )?([−+]?)(\d+:\d\
 /* Anzeige ohne Vorzeichen („vorher“ steht daneben) */
 const fmtD = m => fmt(m).replace(/^[−+]/, '');
 const relWord = m => !relMode ? '' : m < REL_ANCHOR ? 'vorher' : m > REL_ANCHOR ? 'danach' : '';
-const dayNote = m => relMode ? '' : m < 0 ? ' (Vortag)' : m >= 1440 ? ' (Folgetag)' : '';
+let curBase = null;   // Tag des Plans (für Datumsangaben bei Zeiten an anderen Tagen)
+const dShort = d => `${WDL[d.getDay()].slice(0, 2)} ${pad(d.getDate())}.${pad(d.getMonth()+1)}.`;
+const dayNote = m => { if(relMode) return ''; const d = Math.floor(m / 1440); if(!d) return '';
+  const w = d === -1 ? 'Vortag' : d === 1 ? 'Folgetag' : ''; const dt = curBase ? dShort(new Date(curBase.getFullYear(), curBase.getMonth(), curBase.getDate() + d)) : '';
+  return ` (${[w, dt].filter(Boolean).join(', ') || (d > 0 ? '+' : '') + d + ' Tage'})`; };
+/* Auswahl „Tag“ bei fester Uhrzeit: 7 Tage vorher … 7 Tage später */
+const DAYS = [-7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7];
+const dayOpts = v => { const b = curBase || new Date(); return DAYS.map(d => { const dt = dShort(new Date(b.getFullYear(), b.getMonth(), b.getDate() + d));
+  return `<option value="${d}"${d === (v || 0) ? ' selected' : ''}>${d === 0 ? 'gleicher Tag' : d === -1 ? 'Vortag' : d === 1 ? 'nächster Tag' : d < 0 ? `${-d} Tage vorher` : `${d} Tage später`} · ${dt}</option>`; }).join(''); };
 const ca = (a, x) => (a ? 'ca. ' : '') + x;   // „ca. “ voranstellen, wenn ungefähr
 const dur = m => m >= 60 ? Math.floor(m/60) + ' Std.' + (m%60 ? ' ' + (m%60) + ' Min.' : '') : m + ' Min.';
 const clamp = (v,a,b) => Math.min(b, Math.max(a, v));
@@ -756,7 +774,7 @@ function cleanRoute(x){
   if(/^[\w-]+(\.[\w-]+)+(\/\S*)?$/.test(x)) return ('https://' + x).slice(0, 1500);
   return '';
 }
-const station = (o = {}) => ({par:false, beforeCa:false, until:'', untilCa:false, type:'stop', desc:'', fixed:false, time:'', after:0, before:0, stay:0, early:0, why:0, whyx:'', info:'', afterCa:false, stayCa:false, buf:'', arr2:'', delay:0, wdelay:0, exact:false, timeCa:false, icon:'', ...o});
+const station = (o = {}) => ({par:false, beforeCa:false, until:'', untilCa:false, untilDay:0, day:0, type:'stop', desc:'', fixed:false, time:'', after:0, before:0, stay:0, early:0, why:0, whyx:'', info:'', afterCa:false, stayCa:false, buf:'', arr2:'', delay:0, wdelay:0, exact:false, timeCa:false, icon:'', ...o});
 /* Puffer für den Weg zu einer Station: '' | m5 (Minuten) | p10 (Prozent) */
 const BUFS = [['','kein'],['m5','+5 Min.'],['m10','+10 Min.'],['m15','+15 Min.'],['m20','+20 Min.'],['m30','+30 Min.'],['p10','+10 %'],['p20','+20 %'],['p30','+30 %'],['p50','+50 %']];
 const bufText = b => (BUFS.find(x => x[0] === b) || ['',''])[1];
@@ -814,10 +832,13 @@ state.stations = state.stations.map(s => station(s));
 const hhmm = m => { m = ((m % 1440) + 1440) % 1440; return pad(Math.floor(m / 60)) + ':' + pad(m % 60); };
 const UNTILOK = t => !DEP(t) && t !== 'prep' && t !== 'go' && t !== 'back' && t !== 'arrival' && t !== 'end';
 const useUntil = s => !!s.until && s.fixed && UNTILOK(s.type) && toMin(s.time) !== null && toMin(s.until) !== null;
-function syncUntil(s){ if(useUntil(s)){ s.stay = (toMin(s.until) - toMin(s.time) + 1440) % 1440; s.stayCa = !!s.untilCa; } }
+function syncUntil(s){ if(useUntil(s)){ const d = () => toMin(s.until) + (+s.untilDay || 0) * 1440 - toMin(s.time) - (+s.day || 0) * 1440;
+  if(d() < 0 && (+s.untilDay || 0) === (+s.day || 0) && s.day < 7) s.untilDay = (+s.day || 0) + 1;   // ältere Pläne: Ende vor Beginn = nächster Tag
+  s.stay = Math.max(0, d()); s.stayCa = !!s.untilCa; } }   // Ende mit Tag (z. B. Hotel bis übermorgen)
 function normalize(){
   const S = state.stations;
-  S.forEach(s => { if(s.untilB){ s.until = toMin(s.time) !== null ? hhmm(toMin(s.time) + (+s.stay || 0)) : ''; s.untilCa = !!s.stayCa; } delete s.untilB; syncUntil(s); });   // aus dem Link
+  S.forEach(s => { s.day = DAYS.includes(+s.day) ? +s.day : 0; s.untilDay = DAYS.includes(+s.untilDay) ? +s.untilDay : s.day; });
+  S.forEach(s => { if(s.untilB){ const e = toMin(s.time) !== null ? toMin(s.time) + (+s.day || 0) * 1440 + (+s.stay || 0) : null; s.until = e !== null ? hhmm(e) : ''; s.untilDay = e !== null ? clamp(Math.floor(e / 1440), -7, 7) : 0; s.untilCa = !!s.stayCa; } delete s.untilB; syncUntil(s); });   // aus dem Link
   S.forEach((s, k) => { if(s.before && state.mode !== 'a'){ if(S[k+1]) S[k+1].after = Math.max(S[k+1].after || 0, s.before); s.before = 0; } });
   S.forEach(s => { if(s.type === 'dest' || s.type === 'arrive') s.type = 'termin'; });   // Ziel/Ankommen → Termin
   // frühere Einstellung „Puffer für Wege“ (für alle) → bei jeder Station mit Weg
@@ -855,7 +876,7 @@ function encode(){
   if(state.losLate) t.push('v' + (state.losLate > 0 ? state.losLate : 1000 - state.losLate));   // vor der ersten Station: später (bzw. ab 1000: früher) losgekommen
   for(const s of state.stations){
     t.push('b' + TYPES.indexOf(s.type));
-    if(s.fixed && toMin(s.time) !== null) t.push('u' + hm(s.time));
+    if(s.fixed && toMin(s.time) !== null) t.push('u' + (!s.day ? '' : s.day >= 1 && s.day <= 6 ? String(s.day) : s.day === -1 ? '9' : String(50 + s.day)) + hm(s.time));   // vorne optional der Tag: 1–6 später, 9 = Vortag, sonst 50 + Tag (z. B. 47 = 3 Tage vorher)
     if(s.after) t.push('n' + s.after);
     if(s.before) t.push('q' + s.before);
     if(s.stay) t.push('y' + s.stay);
@@ -919,9 +940,11 @@ function decode(text){
       if(k === 'b' && S.length < 20) S.push(station({type: TYPES[num] || 'stop'}));
       else if(!last){ if(k === 'v') n.losLate = vMin(num); continue; }
       else if(k === 'u' && HHMM.test(v)){ last.fixed = true; last.time = unhm(v); }
+      else if(k === 'u' && /^[1-69]\d{4}$/.test(v) && HHMM.test(v.slice(1))){ last.fixed = true; last.time = unhm(v.slice(1)); last.day = v[0] === '9' ? -1 : +v[0]; }
+      else if(k === 'u' && /^\d{6}$/.test(v) && HHMM.test(v.slice(2)) && Math.abs(+v.slice(0, 2) - 50) <= 7){ last.fixed = true; last.time = unhm(v.slice(2)); last.day = +v.slice(0, 2) - 50; }
       else if(k === 'n' && num <= 1440) last.after = num;
       else if(k === 'q' && num <= 1440) last.before = num;
-      else if(k === 'y' && num <= 1440) last.stay = num;
+      else if(k === 'y' && num <= 20160) last.stay = num;   // bis zu 14 Tage (mit „bis“ und Tag)
       else if(k === 'e' && num <= 1440) last.early = num;
       else if(k === 'j' && num >= 1 && num <= WHY.length) last.why = 1 << (num - 1);   // ältere Links: ein einzelner Grund
       else if(k === 'o' && num > 0 && num < (1 << WHY.length)) last.why = num;
@@ -994,7 +1017,7 @@ function compute(){
   });
   for(let k = 1; k < n; k++) base[k] += rideT[k-1];
   const gap = base.map((g, k) => g + buf[k]);
-  const fixed = S.map(s => s.fixed ? toMin(s.time) : null);
+  const fixed = S.map(s => s.fixed && toMin(s.time) !== null ? toMin(s.time) + (+s.day || 0) * 1440 : null);   // „Tag“: Vortag bzw. spätere Tage
   let L = -1; fixed.forEach((f, k) => { if(f !== null) L = k; });
   // Ablauf: nur vor dem ersten festen Zeitpunkt rückwärts rechnen – danach schließt jeder Punkt direkt an den vorherigen an
   if(state.mode === 'a'){ const F = fixed.findIndex(f => f !== null); if(F >= 0) L = F; }
@@ -1161,7 +1184,8 @@ const minOpts = v => (MINS.includes(v) ? MINS : [...MINS, v].sort((a,b) => a-b))
 function aBody(s, i){
   const par = !!s.par && i > 0, out = [];
   if(!par) out.push(`<div class="fxrow"><label class="fx"><input type="checkbox" data-f="fixed"${s.fixed ? ' checked' : ''}> Fest um</label><label class="ca fca"><input type="checkbox" data-f="timeCa"${s.timeCa ? ' checked' : ''}${s.fixed ? '' : ' disabled'}>ca.</label><span class="tbox"><input type="time" data-f="time" step="300" value="${esc(s.time)}"${s.fixed ? '' : ' disabled'} aria-label="Feste Uhrzeit von Punkt ${i+1}"></span>`);
-  if(!par && s.fixed && UNTILOK(s.type)) out.push(`<span class="fx bis">bis</span><label class="ca fca"><input type="checkbox" data-f="untilCa"${s.untilCa ? ' checked' : ''}${s.until ? '' : ' disabled'}>ca.</label><span class="tbox"><input type="time" data-f="until" step="300" value="${esc(s.until || '')}" aria-label="Ende als Uhrzeit (optional)" title="optional: bis wann – statt einer Dauer"></span>`);
+  if(!par && s.fixed) out.push(`<span class="fx bis">Tag</span><span></span><span class="tbox"><select data-f="day" aria-label="Tag der festen Uhrzeit">${dayOpts(s.day)}</select></span>`);
+  if(!par && s.fixed && UNTILOK(s.type)) out.push(`<span class="fx bis">bis</span><label class="ca fca"><input type="checkbox" data-f="untilCa"${s.untilCa ? ' checked' : ''}${s.until ? '' : ' disabled'}>ca.</label><span class="tbox"><input type="time" data-f="until" step="300" value="${esc(s.until || '')}" aria-label="Ende als Uhrzeit (optional)" title="optional: bis wann – statt einer Dauer"></span><span class="fx bis">Tag</span><span></span><span class="tbox"><select data-f="untilDay" aria-label="Tag des Endes">${dayOpts(s.until ? s.untilDay : (+s.untilDay || +s.day || 0))}</select></span>`);
   if(!par) out.push('</div>');   // Ende der Zeile „Fest um“ / „bis“
   if(s.type !== 'end' && !(useUntil(s) && !par)){
     const w = s.type === 'pause' ? 'Pause' : 'Dauer';
@@ -1194,7 +1218,7 @@ function renderStations(){
     <input type="text" class="field desc info" data-f="info" value="${esc(s.info || '')}" placeholder="Details (optional), z. B. Adresse, Raum, Ansprechpartner" maxlength="120" aria-label="Details zu Station ${i+1}">
     ${iconChoices(s.type) ? `<div class="icopick" role="radiogroup" aria-label="Symbol im Fortschrittsbalken"><span>Symbol</span>${iconChoices(s.type).map(k => { const on = (ownIcon(s) ?? defIcon(s.type)) === k; return `<button type="button" data-ico="${k}" role="radio" aria-checked="${on}" title="${ICON_NAME[k]}" aria-label="${ICON_NAME[k]}">${k && k !== 'dot' ? DOT_ICONS[k] : '<i class="sdot"></i>'}</button>`; }).join('')}</div>` : ''}
     <div class="st2">
-     ${AT(s.type) || (am() && s.type === 'pause') ? aBody(s, i) : `<div class="fxrow"><label class="fx"><input type="checkbox" data-f="fixed"${s.fixed ? ' checked' : ''}> ${DEP(s.type) ? depWord(s.type) : 'Fest um'}</label><label class="ca fca"><input type="checkbox" data-f="timeCa"${s.timeCa ? ' checked' : ''}${s.fixed ? '' : ' disabled'}>ca.</label><span class="tbox"><input type="time" data-f="time" step="300" value="${esc(s.time)}"${s.fixed ? '' : ' disabled'} aria-label="Feste Uhrzeit von Station ${i+1}"></span>${s.fixed && UNTILOK(s.type) ? `<span class="fx bis">bis</span><label class="ca fca"><input type="checkbox" data-f="untilCa"${s.untilCa ? ' checked' : ''}${s.until ? '' : ' disabled'}>ca.</label><span class="tbox"><input type="time" data-f="until" step="300" value="${esc(s.until || '')}" aria-label="Ende als Uhrzeit (optional)" title="optional: bis wann – statt einer Dauer"></span>` : ''}</div>
+     ${AT(s.type) || (am() && s.type === 'pause') ? aBody(s, i) : `<div class="fxrow"><label class="fx"><input type="checkbox" data-f="fixed"${s.fixed ? ' checked' : ''}> ${DEP(s.type) ? depWord(s.type) : 'Fest um'}</label><label class="ca fca"><input type="checkbox" data-f="timeCa"${s.timeCa ? ' checked' : ''}${s.fixed ? '' : ' disabled'}>ca.</label><span class="tbox"><input type="time" data-f="time" step="300" value="${esc(s.time)}"${s.fixed ? '' : ' disabled'} aria-label="Feste Uhrzeit von Station ${i+1}"></span>${s.fixed ? `<span class="fx bis">Tag</span><span></span><span class="tbox"><select data-f="day" aria-label="Tag der festen Uhrzeit">${dayOpts(s.day)}</select></span>` : ''}${s.fixed && UNTILOK(s.type) ? `<span class="fx bis">bis</span><label class="ca fca"><input type="checkbox" data-f="untilCa"${s.untilCa ? ' checked' : ''}${s.until ? '' : ' disabled'}>ca.</label><span class="tbox"><input type="time" data-f="until" step="300" value="${esc(s.until || '')}" aria-label="Ende als Uhrzeit (optional)" title="optional: bis wann – statt einer Dauer"></span><span class="fx bis">Tag</span><span></span><span class="tbox"><select data-f="untilDay" aria-label="Tag des Endes">${dayOpts(s.until ? s.untilDay : (+s.untilDay || +s.day || 0))}</select></span>` : ''}</div>
      ${s.type === 'transit' ? `<div class="fxrow"><span class="fx" style="padding-left:28px">Ankunft um</span><input type="time" data-f="arr2" step="300" value="${esc(s.arr2 || '')}" aria-label="Ankunftszeit nach der Fahrt (optional)" title="optional: wann Bus oder Bahn am Ziel ankommt"></div><p class="tinfo" data-tinfo></p>` : ''}
      ${s.type === 'prep' ? `<div class="sel"><div class="lab2"><span>benötigte Zeit</span><label class="ca"><input type="checkbox" data-f="stayCa"${s.stayCa ? ' checked' : ''}>ca.</label></div><select data-f="stay" aria-label="benötigte Zeit">${minOpts(s.stay)}</select></div>
      <div class="whys"><span>Vorschläge <span class="opt">(mehrere möglich – oder selbst oben eintragen)</span></span><div class="whychips" role="group" aria-label="Vorschläge für die Beschreibung">${PREP_IDEAS.map(w => `<button type="button" data-idea="${esc(w)}" aria-pressed="${ideaList(s).includes(w)}">${w}</button>`).join('')}</div></div>` : `
@@ -1463,6 +1487,7 @@ function render(){
 
   const last = S.length - 1;
   const {d: base, auto} = baseDay(c.arr[last]);
+  curBase = base;
   const L0 = c.lead;   // Vorbereitungen am Anfang (vor „Los“)
   const losStep = () => {
     const f = S[L0];
@@ -1951,6 +1976,8 @@ $('stations').addEventListener('change', e => {
   const o = stOf(e.target); const f = e.target.dataset.f; if(!o || !f) return;
   if(f === 'type'){ if(o.s.stay === (STAY_DEF[o.s.type] || 0)) o.s.stay = 0;   // Standard-Aufenthalt der alten Kategorie nicht mitnehmen
     o.s.type = e.target.value; typeDefaults(o.s); if(o.s.fixed && !o.s.time) o.s.time = o.el.querySelector('.sttime').textContent.replace('--:--', '') || nextHour(); renderStations(); }
+  else if(f === 'day'){ const old = +o.s.day || 0; o.s.day = +e.target.value || 0; o.s.untilDay = clamp((+o.s.untilDay || 0) + o.s.day - old, -7, 7); syncUntil(o.s); renderStations(); }   // „bis“ rückt mit
+  else if(f === 'untilDay'){ o.s.untilDay = +e.target.value || 0; syncUntil(o.s); }
   else if(f === 'untilCa'){ o.s.untilCa = e.target.checked; syncUntil(o.s); }
   else if(f === 'afterCa' || f === 'stayCa' || f === 'timeCa' || f === 'beforeCa') o.s[f] = e.target.checked;
   else if(f === 'exact') o.s.exact = e.target.checked;
@@ -1961,7 +1988,7 @@ $('stations').addEventListener('change', e => {
     o.s.fixed = e.target.checked;
     const t = o.el.querySelector('input[data-f=time]'); t.disabled = !o.s.fixed;
     if(o.s.fixed && !o.s.time){ o.s.time = o.el.querySelector('.sttime').textContent.replace('--:--', '') || nextHour(); t.value = o.s.time; }
-    syncUntil(o.s); if(UNTILOK(o.s.type)) renderStations();   // „bis“ nur mit fester Uhrzeit
+    syncUntil(o.s); renderStations();   // „Tag“ und „bis“ nur mit fester Uhrzeit
   }
   else if(f === 'after' || f === 'stay' || f === 'before' || f === 'early'){
     const had = !!o.s.early, hadStay = o.s.stay > 0; o.s[f] = +e.target.value;
@@ -1975,7 +2002,9 @@ $('stations').addEventListener('input', e => {
   else if(f === 'whyx'){ o.s.whyx = e.target.value; update(); }
   else if(f === 'info'){ o.s.info = e.target.value; update(); }
   else if(f === 'time'){ o.s.time = e.target.value; syncUntil(o.s); update(); }
-  else if(f === 'until'){ const had = useUntil(o.s); o.s.until = e.target.value; syncUntil(o.s); if(had !== useUntil(o.s)) renderStations(); else update(); }
+  else if(f === 'until'){ const had = useUntil(o.s); o.s.until = e.target.value;
+    if(!had && toMin(o.s.until) !== null && toMin(o.s.time) !== null && (+o.s.untilDay || 0) <= (+o.s.day || 0)) o.s.untilDay = clamp((+o.s.day || 0) + (toMin(o.s.until) <= toMin(o.s.time) ? 1 : 0), -7, 7);   // selbst gewählten Tag behalten   // Ende vor Beginn → nächster Tag
+    syncUntil(o.s); if(had !== useUntil(o.s)) renderStations(); else update(); }
   else if(f === 'arr2'){ o.s.arr2 = e.target.value; update(); }
 });
 
@@ -2082,6 +2111,14 @@ function loadFrom(text, msgEl){
   return false;
 }
 window.addEventListener('hashchange', () => loadFrom(location.hash.slice(1)));
+// Einstellungen: geteilten Link einfügen und öffnen (der aktuelle Plan lässt sich mit „Rückgängig“ zurückholen)
+const openLinkNow = () => {
+  const t = $('openLink').value.trim(); if(!t){ $('openLinkMsg').textContent = 'Bitte zuerst einen Link einfügen.'; $('openLink').focus(); return; }
+  const before = JSON.stringify(state);
+  if(loadFrom(t, $('openLinkMsg'))){ undoState = before; save(); $('openLink').value = ''; showUndo('Plan aus dem Link geöffnet.'); }
+};
+$('openLinkBtn').addEventListener('click', openLinkNow);
+$('openLink').addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); openLinkNow(); } });
 
 /* ---------- Kalenderdatei (.ics): Beginn = Los, mit Erinnerungen ---------- */
 function icsText(){
@@ -2408,8 +2445,9 @@ $('prepBtn').addEventListener('click', () => {
 });
 
 /* Version und Änderungen – bei jeder neuen Version hier UND in sw.js (CACHE) anpassen */
-const APP_VERSION = '8.6';   // größere Änderung: erste Zahl +1 (z. B. 3.9 → 4.0), kleine Änderung: zweite Zahl +1 (3.9 → 3.10)
+const APP_VERSION = '8.7';   // größere Änderung: erste Zahl +1 (z. B. 3.9 → 4.0), kleine Änderung: zweite Zahl +1 (3.9 → 3.10)
 const CHANGES = [
+  ['8.7', '26.11.2026', ['Neu: Bei fester Uhrzeit und bei „bis“ lässt sich der Tag wählen (7 Tage vorher bis 7 Tage später) – für Pläne über mehrere Tage', 'Wieder da: „Plan aus Link öffnen“ ganz unten in den Einstellungen – Link oder Notiztext einfügen, der Plan öffnet sich in der App']],
   ['8.6', '26.11.2026', ['Ablauf: „Abstand danach“ ist auch beim letzten Punkt zu sehen (ausgegraut, bis danach ein Punkt kommt)', 'Legende: „Verspätung“ weiß/dunkel schraffiert – passend zu allen Phasenfarben']],
   ['8.5', '26.11.2026', ['Neu: „bis“ – bei fester Uhrzeit lässt sich das Ende als Uhrzeit eintragen (auch „ca.“), Aufenthalt bzw. Dauer ergeben sich daraus', 'Verspätung bzw. Verfrühung steht jetzt an allen folgenden Stationen (gesamt gegenüber dem Plan); feste Termine nur, wenn man zu spät kommt oder früher/später wieder losgeht', 'Übersichtsbalken: früher Losgehen erscheint grün – aber nur, wenn man wirklich früher als geplant dran ist; zu spät zu einem festen Termin verkürzt den Aufenthalt', 'Kopfzeile mit „Vorbereiten um“ auf mittelbreiten Bildschirmen wieder gut lesbar']],
   ['8.4', '26.11.2026', ['Ablauf: neues Feld „Abstand danach“ (auch mit „ca.“) – Zeit zwischen dem Ende eines Punkts und dem nächsten', '„bis …“ zeigt jetzt immer das Ende der Dauer; „Ende fest“ gibt es im Ablauf nicht mehr', 'Nach einem festen Zeitpunkt schließt jeder Punkt direkt an den vorherigen an; bis zum nächsten festen Zeitpunkt steht „… frei“', 'Übersichtsbalken: Programm in Blau']],

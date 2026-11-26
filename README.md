@@ -20,10 +20,14 @@ Die App läuft komplett im Browser auf Handy, Tablet und Computer – ohne Serve
 - Bis zu 20 Stationen bzw. Punkte
 
 **Bis wann?**
-- Bei Stationen und Punkten mit fester Uhrzeit lässt sich zusätzlich ein Ende als Uhrzeit eintragen („bis“, auch „ca.“) – Aufenthalt bzw. Dauer ergeben sich daraus und das Auswahlfeld verschwindet
+- Bei fester Uhrzeit lässt sich auch der **Tag** wählen (7 Tage vorher … gleicher Tag … 7 Tage später) – für Pläne über mehrere Tage; im Ablauf steht dann z. B. „(Folgetag, Sa 28.11.)“. Im Link vorne an der Uhrzeit: `u11000` = nächster Tag 10:00, `u90800` = Vortag 08:00, sonst 6-stellig mit 50 + Tag, z. B. `u471000` = 3 Tage vorher 10:00
+- Bei Stationen und Punkten mit fester Uhrzeit lässt sich zusätzlich ein Ende als Uhrzeit eintragen („bis“, auch „ca.“ und mit eigenem Tag – z. B. Hotel bis übermorgen 10:00) – Aufenthalt bzw. Dauer ergeben sich daraus und das Auswahlfeld verschwindet
 
 **Verspätungen an allen folgenden Stationen**
 - Jede nicht feste Station zeigt im Kästchen die gesamte Abweichung vom ursprünglichen Plan (+ rot / − grün); feste Termine nur, wenn man voraussichtlich zu spät kommt oder später bzw. früher wieder losgeht
+
+**Plan aus Link öffnen**
+- In den Einstellungen ganz unten: einen geteilten Link (oder den ganzen Notiztext) einfügen und „Öffnen“ – der Plan öffnet sich in der App (mit „Rückgängig“). Praktisch, wenn ein Link sonst im Browser statt in der installierten App aufgeht
 
 **Übersichtsbalken** unter dem Ablauf
 - Abschnitte in zeitlicher Reihenfolge mit Dauer („30 Min.“, „1:30 Std.“) und Symbol, soweit der Platz reicht
