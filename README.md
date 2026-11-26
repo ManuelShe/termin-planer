@@ -172,7 +172,7 @@ Hinter dem `#` stehen alle Einstellungen. Zuerst ein Block aus Buchstaben und Za
 
 | Kürzel | Bedeutung | Beispiel |
 |---|---|---|
-| `m` | `m0` = Vorbereitungen ausgeblendet, `m2` = Ablauf (statt Weg) | `m0` |
+| `m` | `m0` = Vorbereitungen ausgeblendet, `m2` = Ablauf (statt Weg), `m3` = Ablauf mit ausgeblendeten Vorbereitungen | `m0` |
 | `p` / `c` | nur in älteren Links: Vorbereitungszeit – wird beim Öffnen zur Station „Vorbereitung“ | `p15` |
 | `b` | neue Station: 2 Beginn, 3 Zwischenstopp, 4 Individuell, 5 Rückweg, 6 Termin, 7 Abholen, 8 Haltestelle, 9 Pause, 10 Bringen, 11 Treffen, 12 Abflug, 13 Ankunft, 14 Vorbereitung, 15 Los; Ablauf: 16 Programmpunkt, 17 Fester Zeitpunkt, 18 Weg, 19 Ende, 20 Vorbereitung (0 und 1 aus älteren Links werden zu Termin) | `b6` |
 | `u` | feste Uhrzeit der Station (hhmm) | `u1400` |
