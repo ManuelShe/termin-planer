@@ -11,6 +11,7 @@ Die App läuft komplett im Browser auf Handy, Tablet und Computer – ohne Serve
 **Weg oder Ablauf**
 - Oben in den Einstellungen: „Was planst du?“ – **🚗 Weg** (wie bisher) oder **📋 Ablauf**. Umschalten legt einen neuen Plan an (mit „Rückgängig“)
 - Im Ablauf gibt es statt Stationen **Punkte**: Orga, Programmpunkt, Fester Zeitpunkt, Pause, Weg und Ende – jeweils mit Dauer (auch „ca.“), „Fest um“ und frei wählbarem Symbol (Haken, Einkaufen, Werkzeug, Kochen, Essen, Mikrofon, Musik, Feier, Foto, Geschenk, Auto …)
+- **Abstand danach:** Zeit zwischen dem Ende eines Punkts und dem nächsten Punkt, auch „ca.“ (Link-Kürzel `q`). „bis …“ im Ablauf ist immer das Ende der Dauer; bleibt bis zum nächsten festen Zeitpunkt noch Zeit, steht „… frei“ dabei
 - **Gleichzeitig mit dem Punkt davor:** beginnt zur selben Zeit und verschiebt die Zeiten danach nicht (z. B. Dekorieren, während das Essen vorbereitet wird)
 - **Orga** ist alles, was man selbst davor und danach erledigt (Einkaufen, Aufbau, Abbau …). Das Klemmbrett oben blendet alle Orga-Punkte aus bzw. wieder ein (im Link gespeichert); erledigte Orga-Punkte verschwinden automatisch einzeln
 - **Beispiele:** Leerer Ablauf, Feier / Fest, Veranstaltung. Eigene Vorlagen merken sich, ob sie Weg oder Ablauf sind
@@ -184,7 +185,7 @@ Hinter dem `#` stehen alle Einstellungen. Zuerst ein Block aus Buchstaben und Za
 | `z` | Haltestelle: Ankunft nach der Fahrt (hhmm) | `z0805` |
 | `a` | Haltestelle/Abflug: Verspätung der Abfahrt in Minuten | `a10` |
 | `v` | Verspätung auf dem Weg zu dieser Station in Minuten (nach Haltestelle/Abflug: spätere Ankunft); vor der ersten Station: so viele Minuten später losgekommen. Ab 1000: so viel früher (`v1005` = 5 Min. früher) | `v10` |
-| `x` | Bits (addiert): 1 = Zeit bis hierhin ca., 2 = Aufenthalt ca., 4 = Aufenthalt „Ende fest“, 8 = feste Uhrzeit ca.; dazu 16 × Nummer des gewählten Symbols; 1024 = gleichzeitig mit dem Punkt davor | `x4` |
+| `x` | Bits (addiert): 1 = Zeit bis hierhin ca., 2 = Aufenthalt ca., 4 = Aufenthalt „Ende fest“, 8 = feste Uhrzeit ca.; dazu 16 × Nummer des gewählten Symbols; 1024 = gleichzeitig mit dem Punkt davor; 2048 = Abstand danach ca. | `x4` |
 | `l` | Details vorhanden – sie stehen hinter den Beschreibungen (und ggf. den eigenen Gründen) | `l1` |
 | `t` | eigene Gründe vorhanden – sie stehen dann hinter den Beschreibungen der Stationen | `t1` |
 | `d` | Datum (jjjjmmtt) | `d20261203` |

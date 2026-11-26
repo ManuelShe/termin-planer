@@ -186,13 +186,13 @@ h2{font:600 22px/1.2 "Red Hat Display",sans-serif;margin:0}
 .sbar i svg{flex:none;width:13px;height:13px}
 .sbar i b{flex:none;font-size:11.5px;font-weight:700;white-space:nowrap;line-height:1}
 .sbar i.noic svg,.sbar i.nolab b{display:none}
-.sbar .c-prep{color:#1d1f26}.sbar .c-stay{color:light-dark(#fff,#1d1f26)}.sbar .c-pause{color:light-dark(#1d1f26,#fff)}
+.sbar .c-prep{color:#1d1f26}.sbar .c-stay{color:light-dark(#fff,#1d1f26)}.sbar .c-pause{color:light-dark(#1d1f26,#fff)}.sbar .c-prog{color:light-dark(#fff,#14203a)}
 .sbw{position:relative}
 .sbar i.done{opacity:.35}
 .sbar .c-buf,.sleg .c-buf::before{background:repeating-linear-gradient(135deg,var(--c) 0 3px,light-dark(#fbe2df,#3b1d1a) 3px 6px)!important}
 .sbar .c-late,.sleg .c-late::before{background:repeating-linear-gradient(135deg,var(--p,#e5483b) 0 4px,color-mix(in srgb,var(--p,#e5483b) 50%,#000) 4px 7px)!important}
 /* Verspätung in der Farbe der Phase, in der sie entstanden ist */
-.ph-c-prep{--p:var(--sun)}.ph-c-drive{--p:var(--red)}.ph-c-ride{--p:light-dark(#f08a80,#b9463c)}.ph-c-stay{--p:light-dark(#3a3d47,#d9d6cf)}.ph-c-wait{--p:light-dark(#6b6e79,#aeaba4)}.ph-c-pause{--p:light-dark(#f0a49b,#8f3b33)}
+.ph-c-prep{--p:var(--sun)}.ph-c-drive{--p:var(--red)}.ph-c-ride{--p:light-dark(#f08a80,#b9463c)}.ph-c-stay{--p:light-dark(#3a3d47,#d9d6cf)}.ph-c-wait{--p:light-dark(#6b6e79,#aeaba4)}.ph-c-pause{--p:light-dark(#f0a49b,#8f3b33)}.ph-c-prog{--p:light-dark(#3d6fd6,#7aa2f2)}
 .sbar .c-late.ph-c-prep{color:#1d1f26}.sbar .c-late.ph-c-stay{color:light-dark(#fff,#1d1f26)}
 .sbar .c-late b{padding:2px 5px;border-radius:7px;background:var(--p,#e5483b)}   /* Dauer gut lesbar auf der Schraffur */
 .sticks i{position:absolute;top:-3px;bottom:-3px;width:3px;margin-left:-1.5px;border-radius:2px;background:var(--fixMark);box-shadow:0 0 0 1.5px var(--card)}
@@ -205,7 +205,7 @@ h2{font:600 22px/1.2 "Red Hat Display",sans-serif;margin:0}
 .sleg span{white-space:nowrap}
 .stotal{margin:6px 0 0;font-size:14px;color:var(--muted)}
 .sleg span::before{content:"";display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px;vertical-align:-1px;background:var(--c)}
-.c-prep{--c:var(--sun)}.c-drive{--c:var(--red)}.c-ride{--c:light-dark(#f08a80,#b9463c)}.c-buf{--c:light-dark(#f0a49b,#8f3b33)}.c-late{--c:#e5483b}.c-early{--c:#2f9e55}.c-stay{--c:light-dark(#3a3d47,#d9d6cf)}.c-wait{--c:light-dark(#6b6e79,#aeaba4)}.c-pause{--c:light-dark(#f0a49b,#8f3b33)}
+.c-prep{--c:var(--sun)}.c-drive{--c:var(--red)}.c-ride{--c:light-dark(#f08a80,#b9463c)}.c-buf{--c:light-dark(#f0a49b,#8f3b33)}.c-late{--c:#e5483b}.c-prog{--c:light-dark(#3d6fd6,#7aa2f2)}.c-early{--c:#2f9e55}.c-stay{--c:light-dark(#3a3d47,#d9d6cf)}.c-wait{--c:light-dark(#6b6e79,#aeaba4)}.c-pause{--c:light-dark(#f0a49b,#8f3b33)}
 @media(prefers-reduced-motion:reduce){.sbar i{transition:none}}
 .plan li.ready time{font-size:24px;color:light-dark(#55585f,#b3b5bc)}
 .plan .cd{font-size:14px;line-height:1.3;font-weight:700;max-width:15em;justify-self:end;text-align:center;padding:4px 10px;border-radius:12px;background:var(--soft);color:var(--ink);overflow-wrap:break-word}
@@ -366,9 +366,10 @@ dialog.sheet[open]{animation:slide .25s ease}
 .whys{grid-column:1/-1;font-size:12px;font-weight:700;color:var(--muted)}
 .sel{display:flex;flex-direction:column;gap:2px}
 .st2{align-items:end}
-.lab2{display:flex;justify-content:space-between;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--muted)}
+.lab2{display:flex;justify-content:space-between;align-items:center;gap:6px;min-height:24px;font-size:12px;font-weight:700;color:var(--muted)}
 .st2 .lab2 .ca,.lab2 .ca{flex-direction:row;display:inline-flex;align-items:center;gap:4px;font-weight:700;cursor:pointer;min-height:24px}
 .lab2 .ca input{width:16px;height:16px;margin:0;accent-color:var(--red)}
+.st2 .lab2{height:26px;min-height:0;align-items:center}.st2 .lab2>span{display:block;margin:0;line-height:1}.st2 .lab2 .ca{min-height:0;margin:0;padding:0}
 .st .info{margin-top:6px;font-size:14px}
 .plan .in{display:block;font-size:14px;color:var(--ink);opacity:.8;font-style:italic;overflow-wrap:anywhere}
 .ca-s{font-size:.5em;font-weight:700;margin-right:3px;vertical-align:.45em}
@@ -750,7 +751,7 @@ function cleanRoute(x){
   if(/^[\w-]+(\.[\w-]+)+(\/\S*)?$/.test(x)) return ('https://' + x).slice(0, 1500);
   return '';
 }
-const station = (o = {}) => ({par:false, type:'stop', desc:'', fixed:false, time:'', after:0, before:0, stay:0, early:0, why:0, whyx:'', info:'', afterCa:false, stayCa:false, buf:'', arr2:'', delay:0, wdelay:0, exact:false, timeCa:false, icon:'', ...o});
+const station = (o = {}) => ({par:false, beforeCa:false, type:'stop', desc:'', fixed:false, time:'', after:0, before:0, stay:0, early:0, why:0, whyx:'', info:'', afterCa:false, stayCa:false, buf:'', arr2:'', delay:0, wdelay:0, exact:false, timeCa:false, icon:'', ...o});
 /* Puffer für den Weg zu einer Station: '' | m5 (Minuten) | p10 (Prozent) */
 const BUFS = [['','kein'],['m5','+5 Min.'],['m10','+10 Min.'],['m15','+15 Min.'],['m20','+20 Min.'],['m30','+30 Min.'],['p10','+10 %'],['p20','+20 %'],['p30','+30 %'],['p50','+50 %']];
 const bufText = b => (BUFS.find(x => x[0] === b) || ['',''])[1];
@@ -806,7 +807,7 @@ state.stations = state.stations.map(s => station(s));
 /* „vor nächster“ gibt es nicht mehr: alten Wert in „Zeit bis hierhin“ der nächsten Station übernehmen */
 function normalize(){
   const S = state.stations;
-  S.forEach((s, k) => { if(s.before){ if(S[k+1]) S[k+1].after = Math.max(S[k+1].after || 0, s.before); s.before = 0; } });
+  S.forEach((s, k) => { if(s.before && state.mode !== 'a'){ if(S[k+1]) S[k+1].after = Math.max(S[k+1].after || 0, s.before); s.before = 0; } });
   S.forEach(s => { if(s.type === 'dest' || s.type === 'arrive') s.type = 'termin'; });   // Ziel/Ankommen → Termin
   // frühere Einstellung „Puffer für Wege“ (für alle) → bei jeder Station mit Weg
   if(state.buffer){ S.forEach(s => { if(s.type !== 'prep' && !s.buf && !(s.type === 'start' && !s.early)) s.buf = state.buffer; }); }
@@ -852,7 +853,8 @@ function encode(){
     const ex = s.exact && EXACTOK(s.type);
     const tc = s.fixed && s.timeCa;
     const ic = ownIcon(s) !== null ? ICON_KEYS.indexOf(ownIcon(s)) : 0;
-    if(s.afterCa || s.stayCa || ex || tc || ic || s.par) t.push('x' + ((s.afterCa ? 1 : 0) | (s.stayCa ? 2 : 0) | (ex ? 4 : 0) | (tc ? 8 : 0) | ic * 16 | (s.par ? 1024 : 0)));   // Bits: 1 Weg ca., 2 Aufenthalt ca., 4 Ende fest, 8 feste Uhrzeit ca.; 16 × Nummer des Symbols; 1024 gleichzeitig mit dem Punkt davor
+    const bc = !!s.beforeCa && s.before > 0;
+    if(s.afterCa || s.stayCa || ex || tc || ic || s.par || bc) t.push('x' + ((s.afterCa ? 1 : 0) | (s.stayCa ? 2 : 0) | (ex ? 4 : 0) | (tc ? 8 : 0) | ic * 16 | (s.par ? 1024 : 0) | (bc ? 2048 : 0)));   // Bits: 1 Weg ca., 2 Aufenthalt ca., 4 Ende fest, 8 feste Uhrzeit ca.; 16 × Nummer des Symbols; 1024 gleichzeitig mit dem Punkt davor; 2048 Abstand danach ca.
     if(s.buf) t.push((s.buf[0] === 'm' ? 'f' : 's') + s.buf.slice(1));   // Puffer: f = Minuten, s = Prozent
     if(s.type === 'transit' && toMin(s.arr2) !== null) t.push('z' + hm(s.arr2));   // Ankunft nach der Fahrt
     if(DEP(s.type) && s.delay) t.push('a' + s.delay);    // Verspätung Abfahrt/Abflug (Min.)
@@ -912,7 +914,7 @@ function decode(text){
       else if(k === 'e' && num <= 1440) last.early = num;
       else if(k === 'j' && num >= 1 && num <= WHY.length) last.why = 1 << (num - 1);   // ältere Links: ein einzelner Grund
       else if(k === 'o' && num > 0 && num < (1 << WHY.length)) last.why = num;
-      else if(k === 'x' && num >= 1 && num <= 2047){ last.afterCa = !!(num & 1); last.stayCa = !!(num & 2); last.exact = !!(num & 4); last.timeCa = !!(num & 8); last.icon = ICON_KEYS[(num & 1023) >> 4] || ''; last.par = !!(num & 1024); }
+      else if(k === 'x' && num >= 1 && num <= 4095){ last.afterCa = !!(num & 1); last.stayCa = !!(num & 2); last.exact = !!(num & 4); last.timeCa = !!(num & 8); last.icon = ICON_KEYS[(num & 1023) >> 4] || ''; last.par = !!(num & 1024); last.beforeCa = !!(num & 2048); }
       else if(k === 'f' && num > 0 && num <= 120) last.buf = 'm' + num;
       else if(k === 's' && num > 0 && num <= 200) last.buf = 'p' + num;
       else if(k === 'z' && HHMM.test(v)) last.arr2 = unhm(v);
@@ -957,7 +959,7 @@ const goal = s => s.early ? (DEP(s.type) ? (s.type === 'flight' ? 'Flughafen' : 
 const label = s => AT(s.type) ? (s.desc.trim() || TLABEL[s.type]) : s.type === 'custom' ? (s.desc.trim() || 'Station') : s.type === 'back' ? (s.desc.trim() || 'Zu Hause') : s.type === 'prep' ? (s.desc.trim() || 'Vorbereiten') : TLABEL[s.type] + (s.desc.trim() ? ' ' + s.desc.trim() : '');
 function compute(){
   // „gleichzeitig mit dem Punkt davor“: zählt für die Rechnung nicht (keine Dauer, keine feste Zeit)
-  const S = state.stations.map((s, k) => s.par && k ? {...s, stay:0, after:0, fixed:false, early:0, buf:'', exact:false, wdelay:0, delay:0, afterCa:false, stayCa:false} : s), n = S.length;
+  const S = state.stations.map((s, k) => k && state.stations[k-1].beforeCa && state.stations[k-1].before > 0 && !s.afterCa ? {...s, afterCa: true} : s).map((s, k) => s.par && k ? {...s, stay:0, after:0, fixed:false, early:0, buf:'', exact:false, wdelay:0, delay:0, afterCa:false, stayCa:false} : s), n = S.length;
   const base = S.map((s, k) => Math.max(s.after || 0, k ? (S[k-1].before || 0) : 0));
   // „Ankunft“ direkt nach Abflug/Haltestelle, beide mit Uhrzeit und ohne eigene Zeit bis hierhin:
   // die Fahr-/Flugzeit ergibt sich aus den beiden Uhrzeiten
@@ -983,6 +985,8 @@ function compute(){
   const gap = base.map((g, k) => g + buf[k]);
   const fixed = S.map(s => s.fixed ? toMin(s.time) : null);
   let L = -1; fixed.forEach((f, k) => { if(f !== null) L = k; });
+  // Ablauf: nur vor dem ersten festen Zeitpunkt rückwärts rechnen – danach schließt jeder Punkt direkt an den vorherigen an
+  if(state.mode === 'a'){ const F = fixed.findIndex(f => f !== null); if(F >= 0) L = F; }
   relMode = false;
   if(!n) return {err: 'Bitte eine Station hinzufügen.', prep: 0};
   // keine feste Uhrzeit: von der letzten Station aus rückwärts rechnen – die Übersicht zeigt dann „so viel vorher“
@@ -1028,7 +1032,7 @@ function compute(){
     if(s.type === 'arrival' && fixed[k] !== null) return (ride[k] ? dDep[k-1] : 0) + gd[k];
     return 0;
   });
-  const exact = S.map((s, k) => !!s.exact && EXACTOK(s.type) && s.stay > 0);   // nach dem Aufenthalt geht es wirklich weiter
+  const exact = S.map((s, k) => !!s.exact && EXACTOK(s.type) && s.stay > 0 && state.mode !== 'a');   // im Ablauf: „bis“ ist immer das Ende der Dauer, dafür gibt es „Abstand danach“   // nach dem Aufenthalt geht es wirklich weiter
   const delay = S.map((s, k) => s.type === 'arrival' ? adel[k] : dDep[k]);   // Verschiebung der Uhrzeit der Station selbst
   // ab der Station geht es so viel später weiter (Abflug: die folgende „Ankunft“ verschiebt sich selbst)
   const sh = S.map((s, k) => s.type === 'flight' ? (ride[k+1] ? 0 : dDep[k]) : s.type === 'transit' ? dDep[k] : s.type === 'arrival' ? adel[k] : 0);
@@ -1149,8 +1153,8 @@ function aBody(s, i){
   if(s.type !== 'end'){
     const w = s.type === 'pause' ? 'Pause' : 'Dauer';
     out.push(`<div class="sel"><div class="lab2"><span>${w}</span><label class="ca"><input type="checkbox" data-f="stayCa"${s.stayCa ? ' checked' : ''}>ca.</label></div><select data-f="stay" aria-label="${w}">${minOpts(s.stay)}</select></div>`);
-    if(!par && s.stay > 0) out.push(`<label class="exact" title="Danach geht es wirklich weiter – flexible Zeiten danach rücken nach vorne"><input type="checkbox" data-f="exact"${s.exact ? ' checked' : ''}><span><b>Ende fest</b> – danach geht es direkt weiter</span></label>`);
   }
+  if(!par && i < state.stations.length - 1) out.push(`<div class="sel" title="Zeit zwischen dem Ende dieses Punkts und dem nächsten Punkt"><div class="lab2"><span>Abstand danach</span><label class="ca"><input type="checkbox" data-f="beforeCa"${s.beforeCa ? ' checked' : ''}>ca.</label></div><select data-f="before" aria-label="Abstand danach">${minOpts(s.before || 0)}</select></div>`);
   if(i > 0 && s.type !== 'mark' && s.type !== 'end') out.push(`<label class="exact"><input type="checkbox" data-f="par"${par ? ' checked' : ''}><span><b>Gleichzeitig</b> mit dem Punkt davor – verschiebt die Zeiten danach nicht</span></label>`);
   return out.join('');
 }
@@ -1292,7 +1296,7 @@ function updatePreview(c){
     const s = c.slack[k-1];
     g = g.querySelector('.gtxt');
     if(state.stations[k].par){ g.textContent = 'gleichzeitig mit dem Punkt davor'; return; }
-    if(am() && !c.gap[k] && !c.rideT[k-1]){ const pk = mainOf(k - 1); g.textContent = `danach ${ca(c.leaveA[k-1], fmt(c.leave[k-1]))}${s > 0 ? ` · ${dur(s)} frei` : s < 0 ? ` · ${dur(-s)} zu knapp!` : ''}${pk !== k - 1 ? '' : ''}`; return; }
+    if(am() && !c.rideT[k-1]){ const pv = state.stations[k-1], end = c.arr[k-1] + (pv.par && k > 1 ? 0 : pv.stay); g.textContent = `danach ${ca(c.arrA[k-1] || pv.stayCa, fmt(end))}${c.gap[k] ? ` · ${ca(pv.beforeCa, dur(c.gap[k]))} Abstand` : ''}${s > 0 ? ` · ${dur(s)} frei` : s < 0 ? ` · ${dur(-s)} zu knapp!` : ''}`; return; }
     if(c.lead && k === c.lead){ g.textContent = `Los ${ca(c.departA, fmt(c.depart + c.losLate))} · ${c.gap[k] ? ca(state.stations[k].afterCa, dur(c.gap[k])) + ' Weg' + (c.buf[k] ? ` (inkl. ${dur(c.buf[k])} Puffer)` : '') : 'kein Weg'}`; return; }
     if(c.rideT[k-1]){ const w = c.gap[k] - c.rideT[k-1]; const d = c.delay[k-1], da = c.adel[k-1]; g.textContent = `Abfahrt ${fmt(c.arr[k-1] + d)}${d ? ` (+${d} Min.)` : ''} · ${dur(c.rideT[k-1])} Fahrt · Ankunft ${fmt(c.arr[k-1] + da + c.rideT[k-1])}${da ? ` (+${da} Min.)` : ''}${w ? ` · ${ca(state.stations[k].afterCa, dur(w))} Weg` : ''}`; return; }
     g.textContent = `${state.stations[k-1].type === 'prep' ? 'danach' : 'weiter'} ${ca(c.leaveA[k-1], fmt(c.leave[k-1] + (state.stations[k-1].type === 'flight' && c.ride[k] ? c.delay[k-1] : 0)))} · ${c.ride[k] ? dur(c.gap[k]) + ' unterwegs (aus Abfahrt und Ankunft)' : c.gap[k] ? ca(state.stations[k].afterCa, dur(c.gap[k])) + (c.buf[k] ? ` (inkl. ${dur(c.buf[k])} Puffer)` : '') : 'kein Abstand'}${s > 0 ? ` · ${dur(s)} Puffer` : s < 0 ? ` · ${dur(-s)} zu knapp!` : ''}`;
@@ -1480,7 +1484,7 @@ function render(){
     const rideK = c.rideT[k], gapNext = k < last ? c.gap[k+1] - rideK : 0;   // Weg nach dem Aussteigen
     // eigene Zeile „Weiter“, wenn man dort Zeit verbringt und danach noch unterwegs ist
     // (nicht bei der Haltestelle: dort fährt der Bus zur festen Uhrzeit ab)
-    const depStep = k < last && gapNext > 0 && !DEP(s.type) && (s.stay > 0 || c.slack[k] > 0);
+    const depStep = !A && k < last && gapNext > 0 && !DEP(s.type) && (s.stay > 0 || c.slack[k] > 0);
     if(s.fixed && !DEP(s.type)) parts.push(s.type === 'arrival' ? 'Ankunft' : 'feste Uhrzeit');   // Abfahrt/Abflug steht schon über der Uhrzeit
     if(DEP(s.type)) noteParts.push(depWord(s.type));
     const dd = c.delay[k], da = rideK ? c.adel[k] : dd;
@@ -1496,11 +1500,12 @@ function render(){
     const eff0 = c.early[k], arrRow0 = eff0 > 0 && (s.early || c.goneOn[k]);   // eigene Zeile „Ankommen“: Weg-Verspätung steht dort
     const wdT = wd ? (A ? `${dur(Math.abs(wd))} ${wd > 0 ? 'später' : 'früher'} begonnen` : wd > 0 ? `${dur(wd)} Verspätung unterwegs` : `${dur(-wd)} schneller unterwegs`) : '';
     if(wd && !arrRow0){ parts.unshift(wdT); noteParts.push(wdT); }
-    if(c.slack[k] > 0) parts.push(`${ca(c.slackA[k], dur(c.slack[k]))} Puffer`);
+    if(c.slack[k] > 0 && !A) parts.push( `${ca(c.slackA[k], dur(c.slack[k]))} Puffer`);
     if(k === last && s.stay && !A){ parts.push(`bis ${ca(c.leaveA[k], fmt(c.leave[k]))}`); noteParts.push(`bis ${ca(c.leaveA[k], fmt(c.leave[k]))} Uhr`); }
     const nextCa = k < last && S[k+1].afterCa;
-    const toNext = k < last ? (S[k+1].type === 'back' ? `${ca(nextCa, dur(gapNext))} Weg nach Hause` : `${ca(nextCa, dur(gapNext))} bis ${goal(S[k+1])}`) : '';
+    const toNext = k < last ? (A ? `danach ${ca(s.beforeCa, dur(gapNext))} Abstand` : S[k+1].type === 'back' ? `${ca(nextCa, dur(gapNext))} Weg nach Hause` : `${ca(nextCa, dur(gapNext))} bis ${goal(S[k+1])}`) : '';
     if(k < last && !depStep && gapNext && !rideK) parts.push(toNext);
+    if(A && c.slack[k] > 0) parts.push(`${ca(c.slackA[k], dur(c.slack[k]))} frei`);
     const eff = c.early[k];   // tatsächlich früher da (nach Bus/Bahn ergibt es sich aus der Ankunft)
     const arrRow = eff > 0 && (s.early || c.goneOn[k]);
     if(arrRow){
@@ -1515,7 +1520,7 @@ function render(){
     const expA = lb > 0 && !anc ? c.arr[k] - c.early[k] + lb : undefined;
     steps.push({bin: s.type === 'transit' && s.fixed ? (arrRow ? 'tr' : 'tr+') : s.type === 'prep' || arrRow ? '' : 'arr', canLeave: s.stay > 0 && !DEP(s.type) && s.type !== 'prep' && k < S.length - 1 && S[k+1].type !== 'prep', ride: rideK, si: k, binM: c.arr[k] - c.early[k] + (lb > 0 ? lb : 0), anchor: anc, al, expA, tooLate, k: label(s), m: c.arr[k] + c.delay[k], was: c.delay[k] ? c.arr[k] : c.plan.arr[k], late: (anc && c.relLate) || c.ld[k] || c.delay[k] || (rideK ? c.adel[k] : 0) || (arrRow ? 0 : wd), ca: c.arrA[k], depLab: DEP(s.type) && s.fixed ? depWord(s.type) : '', info: (s.info || '').trim(), d: parts.join(' · '), ic: s.type === 'termin' && arrRow ? '📅' : TICON[s.type], stop: s.type === 'stop' || s.type === 'custom' || s.type === 'task', fixed: s.fixed && toMin(s.time) !== null, dotIcon: dotFor(s, arrRow), note: noteParts.length ? ` (${noteParts.join(', ')})` : '', ...(losHere && k === L0 ? {go:true, dotIcon: A ? dotFor(s) || 'go' : s.type === 'go' || !TDOT[s.type] ? 'go' : TDOT[s.type], ic: s.type === 'go' ? '➡️' : TICON[s.type]} : {})});
     // Ablauf: Ende des Punkts als zweite Uhrzeit („bis …“)
-    if(A && s.stay > 0 && !rideK && !depStep) steps.push({k: 'Ende', m: c.leave[k], was: c.plan.leave[k], ca: c.leaveA[k], merge: true, endRow: true, noNote: true});
+    if(A && s.stay > 0 && !rideK && !depStep) steps.push({k: 'Ende', m: c.arr[k] + s.stay + (c.ld[k] || 0), was: c.plan.arr[k] + s.stay, ca: c.arrA[k] || !!s.stayCa, merge: true, endRow: true, noNote: true});   // Ende der Dauer (nicht „spätestens weiter“)
     if(rideK){
       // Ankunft von Bus/Bahn: zweite Uhrzeit in der Zeile der Haltestelle („an …“)
       steps.push({k:'Ankunft', m: c.arr[k] + c.adel[k] + rideK, was: c.arr[k] + rideK, ca: c.arrA[k], d: k < last && gapNext ? toNext : '', ic:'🛬', merge:true, rideArr:true, noNote:true});
@@ -1686,7 +1691,7 @@ function renderSplit(c, S){
     if(wd < 0){ let r = -wd; const cut = x => { const d = Math.min(x, r); r -= d; return x - d; }; bf = cut(bf); walk = cut(walk); ride = cut(ride); }
     const ic = k && DEP(S[k-1].type) ? (S[k-1].type === 'flight' ? 'plane' : 'bus') : '';
     add('c-ride', ride, `${k && S[k-1].type === 'flight' ? 'Flug' : 'Fahrt'} bis ${goal(s)}`, ic);
-    add('c-drive', walk, label0);
+    add(A ? 'c-wait' : 'c-drive', walk, A ? `Abstand vor ${label(S[j])}` : label0);
     add('c-buf', bf, `Puffer für den Weg bis ${goal(s)}`);
     add('c-late', Math.max(0, wd), `Verspätung ${A ? 'vor' : 'auf dem Weg zu'} ${label(S[j])}`, '', A ? prevPh : ride && !walk ? 'c-ride' : 'c-drive');
     return Math.max(0, -(dep + wd));   // so viel früher da (netto: später los und schneller unterwegs heben sich auf)
@@ -1711,7 +1716,7 @@ function renderSplit(c, S){
     const want = A ? e : Math.min(e, Math.max(s.early || 0, 0)), spare = e - want;
     add('c-wait', want, `Zeit vor Ort (${whyText(s) ? whyText(s) + ' – ' : ''}vor ${label(s)})`);
     add(A ? 'c-wait' : 'c-buf', spare, A ? `Freie Zeit vor ${label(s)}` : `Puffer vor ${label(s)}`);
-    add(s.type === 'pause' ? 'c-pause' : s.type === 'aprep' ? 'c-prep' : s.type === 'way' ? 'c-drive' : 'c-stay', s.stay, AT(s.type) || s.type === 'pause' ? label(s) : `Aufenthalt ${label(s)}`, dotFor(s));
+    add(s.type === 'pause' ? 'c-pause' : s.type === 'aprep' ? 'c-prep' : s.type === 'way' ? 'c-drive' : A ? 'c-prog' : 'c-stay', s.stay, AT(s.type) || s.type === 'pause' ? label(s) : `Aufenthalt ${label(s)}`, dotFor(s));
   });
   // Weg: „Zeit vor Ort“ und „Aufenthalt“ sind beides Zeit am Ort → ein Abschnitt „Vor Ort“
   if(!A){
@@ -1735,7 +1740,7 @@ function renderSplit(c, S){
   $('saxis').innerHTML = relMode ? '' : keep.map(x => `<span class="${x.cls}" style="${x.cls === 'r' ? 'right:0' : x.cls === 'l' ? 'left:0' : `left:${x.p}%`}">${fmt(x.m)}</span>`).join('');
   $('saxis').classList.toggle('hide', relMode);
   const sum = cls => seg.filter(x => x.cls === cls).reduce((a, x) => a + x.min, 0);
-  $('sleg').innerHTML = [['c-prep', A ? 'Orga' : 'Vorbereitung'],['c-ride', S.some(x => x.type === 'flight') && !S.some(x => x.type === 'transit') ? 'Flug' : 'Fahrt'],['c-drive','Weg'],['c-buf','Puffer'],['c-wait', A ? 'Freie Zeit' : 'Zeit vor Ort'],['c-stay', A ? 'Programm' : 'Vor Ort'],['c-pause','Pause'],['c-late','Verspätung'],['c-early','früher da']]
+  $('sleg').innerHTML = [['c-prep', A ? 'Orga' : 'Vorbereitung'],['c-ride', S.some(x => x.type === 'flight') && !S.some(x => x.type === 'transit') ? 'Flug' : 'Fahrt'],['c-drive','Weg'],['c-buf','Puffer'],['c-wait', A ? 'Freie Zeit' : 'Zeit vor Ort'],['c-prog','Programm'],['c-stay','Vor Ort'],['c-pause','Pause'],['c-late','Verspätung'],['c-early','früher da']]
     .filter(([cls]) => sum(cls)).map(([cls, name]) => `<span class="${cls}">${name} ${dur(sum(cls))}</span>`).join('');
   $('stotal').textContent = `Gesamtzeit ${dur(total)}`;
   splitNow();
@@ -1922,7 +1927,7 @@ $('stations').addEventListener('change', e => {
   const o = stOf(e.target); const f = e.target.dataset.f; if(!o || !f) return;
   if(f === 'type'){ if(o.s.stay === (STAY_DEF[o.s.type] || 0)) o.s.stay = 0;   // Standard-Aufenthalt der alten Kategorie nicht mitnehmen
     o.s.type = e.target.value; typeDefaults(o.s); if(o.s.fixed && !o.s.time) o.s.time = o.el.querySelector('.sttime').textContent.replace('--:--', '') || nextHour(); renderStations(); }
-  else if(f === 'afterCa' || f === 'stayCa' || f === 'timeCa') o.s[f] = e.target.checked;
+  else if(f === 'afterCa' || f === 'stayCa' || f === 'timeCa' || f === 'beforeCa') o.s[f] = e.target.checked;
   else if(f === 'exact') o.s.exact = e.target.checked;
   else if(f === 'par'){ o.s.par = e.target.checked; renderStations(); }
   else if(f === 'buf') o.s.buf = e.target.value;
@@ -2376,8 +2381,9 @@ $('prepBtn').addEventListener('click', () => {
 });
 
 /* Version und Änderungen – bei jeder neuen Version hier UND in sw.js (CACHE) anpassen */
-const APP_VERSION = '8.3';   // größere Änderung: erste Zahl +1 (z. B. 3.9 → 4.0), kleine Änderung: zweite Zahl +1 (3.9 → 3.10)
+const APP_VERSION = '8.4';   // größere Änderung: erste Zahl +1 (z. B. 3.9 → 4.0), kleine Änderung: zweite Zahl +1 (3.9 → 3.10)
 const CHANGES = [
+  ['8.4', '26.11.2026', ['Ablauf: neues Feld „Abstand danach“ (auch mit „ca.“) – Zeit zwischen dem Ende eines Punkts und dem nächsten', '„bis …“ zeigt jetzt immer das Ende der Dauer; „Ende fest“ gibt es im Ablauf nicht mehr', 'Nach einem festen Zeitpunkt schließt jeder Punkt direkt an den vorherigen an; bis zum nächsten festen Zeitpunkt steht „… frei“', 'Übersichtsbalken: Programm in Blau']],
   ['8.3', '26.11.2026', ['Nach „Bin da“: Bei „Ankommen“ steht die tatsächliche Verspätung gegenüber dem Plan (z. B. +4 Min.), „schneller unterwegs“ steht dort statt beim Termin', 'Übersichtsbalken: „früher da“ nur noch, wenn man insgesamt früher als geplant ankommt; Verspätung beim Losgehen nach der Vorbereitung gelb schraffiert']],
   ['8.2', '26.11.2026', ['Ablauf: aus „Vorbereitung“ wird „Orga“ – alles, was man selbst davor und danach erledigt (Einkaufen, Aufbau, Abbau …)', 'Das Klemmbrett oben blendet alle Orga-Punkte aus, auch die am Ende; erledigte Orga-Punkte verschwinden automatisch einzeln']],
   ['8.1', '26.11.2026', ['Ablauf: Vorbereitungen am Anfang lassen sich wie beim Weg mit dem Kleiderbügel ausblenden – oben steht dann der erste sichtbare Punkt; sind sie vorbei, verschwinden sie automatisch']],
