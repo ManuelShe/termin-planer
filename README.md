@@ -19,6 +19,12 @@ Die App läuft komplett im Browser auf Handy, Tablet und Computer – ohne Serve
 - Im Läuft-Modus (Ortsmarke) heißen die Knöpfe **„Gestartet“** und **„Fertig“** – dauert ein Punkt länger, rutscht alles danach mit
 - Bis zu 20 Stationen bzw. Punkte
 
+**Bis wann?**
+- Bei Stationen und Punkten mit fester Uhrzeit lässt sich zusätzlich ein Ende als Uhrzeit eintragen („bis“, auch „ca.“) – Aufenthalt bzw. Dauer ergeben sich daraus und das Auswahlfeld verschwindet
+
+**Verspätungen an allen folgenden Stationen**
+- Jede nicht feste Station zeigt im Kästchen die gesamte Abweichung vom ursprünglichen Plan (+ rot / − grün); feste Termine nur, wenn man voraussichtlich zu spät kommt oder später bzw. früher wieder losgeht
+
 **Übersichtsbalken** unter dem Ablauf
 - Abschnitte in zeitlicher Reihenfolge mit Dauer („30 Min.“, „1:30 Std.“) und Symbol, soweit der Platz reicht
 - Weg: Vorbereitung, **Fahrt** (Bus/Bahn/Flug, hellrot), Weg, **Puffer** (hell schraffiert, auch Luft vor einer festen Uhrzeit), **Vor Ort** (Zeit vor Ort und Aufenthalt zusammen)
@@ -185,7 +191,7 @@ Hinter dem `#` stehen alle Einstellungen. Zuerst ein Block aus Buchstaben und Za
 | `z` | Haltestelle: Ankunft nach der Fahrt (hhmm) | `z0805` |
 | `a` | Haltestelle/Abflug: Verspätung der Abfahrt in Minuten | `a10` |
 | `v` | Verspätung auf dem Weg zu dieser Station in Minuten (nach Haltestelle/Abflug: spätere Ankunft); vor der ersten Station: so viele Minuten später losgekommen. Ab 1000: so viel früher (`v1005` = 5 Min. früher) | `v10` |
-| `x` | Bits (addiert): 1 = Zeit bis hierhin ca., 2 = Aufenthalt ca., 4 = Aufenthalt „Ende fest“, 8 = feste Uhrzeit ca.; dazu 16 × Nummer des gewählten Symbols; 1024 = gleichzeitig mit dem Punkt davor; 2048 = Abstand danach ca. | `x4` |
+| `x` | Bits (addiert): 1 = Zeit bis hierhin ca., 2 = Aufenthalt ca., 4 = Aufenthalt „Ende fest“, 8 = feste Uhrzeit ca.; dazu 16 × Nummer des gewählten Symbols; 1024 = gleichzeitig mit dem Punkt davor; 2048 = Abstand danach ca.; 4096 = Ende als Uhrzeit („bis“, Aufenthalt bzw. Dauer ergibt sich aus fester Uhrzeit und `y`) | `x4` |
 | `l` | Details vorhanden – sie stehen hinter den Beschreibungen (und ggf. den eigenen Gründen) | `l1` |
 | `t` | eigene Gründe vorhanden – sie stehen dann hinter den Beschreibungen der Stationen | `t1` |
 | `d` | Datum (jjjjmmtt) | `d20261203` |
