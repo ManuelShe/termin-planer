@@ -2,9 +2,26 @@
 
 Eine kleine Webapp für Termine: Aus der gewünschten Ankunftszeit rechnet sie aus, **wann man mit der Vorbereitung anfangen** und **wann man losgehen bzw. losfahren** muss – zu Fuß, mit dem Rad, Auto oder Bus – auch mit Zwischenstopps und weiteren Stationen unterwegs. Dazu erzeugt sie einen Text, den man in die Notizen des Kalendertermins kopiert. Ein Link in diesem Text öffnet später genau diesen Zeitplan wieder in der App.
 
+Seit Version 8.0 plant sie außerdem **Abläufe** – z. B. eine Feier, eine Veranstaltung oder einen Tag mit vielen Programmpunkten: wann mit welcher Vorbereitung beginnen, wann kommen die Gäste, wann ist welcher Programmpunkt.
+
 Die App läuft komplett im Browser auf Handy, Tablet und Computer – ohne Server, ohne Konto, ohne Installation.
 
 ## Funktionen
+
+**Weg oder Ablauf**
+- Oben in den Einstellungen: „Was planst du?“ – **🚗 Weg** (wie bisher) oder **📋 Ablauf**. Umschalten legt einen neuen Plan an (mit „Rückgängig“)
+- Im Ablauf gibt es statt Stationen **Punkte**: Vorbereitung, Programmpunkt, Fester Zeitpunkt, Pause, Weg und Ende – jeweils mit Dauer (auch „ca.“), „Fest um“ und frei wählbarem Symbol (Haken, Einkaufen, Werkzeug, Kochen, Essen, Mikrofon, Musik, Feier, Foto, Geschenk, Auto …)
+- **Gleichzeitig mit dem Punkt davor:** beginnt zur selben Zeit und verschiebt die Zeiten danach nicht (z. B. Dekorieren, während das Essen vorbereitet wird)
+- **Beispiele:** Leerer Ablauf, Feier / Fest, Veranstaltung. Eigene Vorlagen merken sich, ob sie Weg oder Ablauf sind
+- Jeder Punkt zeigt Beginn und „bis …“; die Zusammenfassung lautet z. B. „7 Std. 50 Min. gesamt · 10 Punkte“
+- Im Läuft-Modus (Ortsmarke) heißen die Knöpfe **„Gestartet“** und **„Fertig“** – dauert ein Punkt länger, rutscht alles danach mit
+- Bis zu 20 Stationen bzw. Punkte
+
+**Übersichtsbalken** unter dem Ablauf
+- Abschnitte in zeitlicher Reihenfolge mit Dauer („30 Min.“, „1:30 Std.“) und Symbol, soweit der Platz reicht
+- Weg: Vorbereitung, **Fahrt** (Bus/Bahn/Flug, hellrot), Weg, **Puffer** (hell schraffiert, auch Luft vor einer festen Uhrzeit), **Vor Ort** (Zeit vor Ort und Aufenthalt zusammen)
+- **Verspätungen** dunkel schraffiert in der Farbe der Phase, in der sie entstanden sind (z. B. gelb, wenn die Vorbereitung länger gedauert hat); früher dran: grün
+- Zeitachse mit Beginn, festen Uhrzeiten (gelbe Striche) und Ende; ein Strich „Jetzt“ zeigt, wo man gerade steht, erledigte Abschnitte werden blasser
 
 **Anzeige**
 - Kopfzeile mit „Vorbereiten um“ und „Los um“, jeweils mit Countdown („noch 1 Std. 5 Min.“)
@@ -155,9 +172,9 @@ Hinter dem `#` stehen alle Einstellungen. Zuerst ein Block aus Buchstaben und Za
 
 | Kürzel | Bedeutung | Beispiel |
 |---|---|---|
-| `m` | `m0` = Vorbereitungen ausgeblendet | `m0` |
+| `m` | `m0` = Vorbereitungen ausgeblendet, `m2` = Ablauf (statt Weg) | `m0` |
 | `p` / `c` | nur in älteren Links: Vorbereitungszeit – wird beim Öffnen zur Station „Vorbereitung“ | `p15` |
-| `b` | neue Station: 2 Beginn, 3 Zwischenstopp, 4 Individuell, 5 Rückweg, 6 Termin, 7 Abholen, 8 Haltestelle, 9 Pause, 10 Bringen, 11 Treffen, 12 Abflug, 13 Ankunft, 14 Vorbereitung, 15 Los (0 und 1 aus älteren Links werden zu Termin) | `b6` |
+| `b` | neue Station: 2 Beginn, 3 Zwischenstopp, 4 Individuell, 5 Rückweg, 6 Termin, 7 Abholen, 8 Haltestelle, 9 Pause, 10 Bringen, 11 Treffen, 12 Abflug, 13 Ankunft, 14 Vorbereitung, 15 Los; Ablauf: 16 Programmpunkt, 17 Fester Zeitpunkt, 18 Weg, 19 Ende, 20 Vorbereitung (0 und 1 aus älteren Links werden zu Termin) | `b6` |
 | `u` | feste Uhrzeit der Station (hhmm) | `u1400` |
 | `n` | Minuten nach der vorherigen Station (Wegzeit) | `n30` |
 | `y` | Aufenthalt in Minuten | `y10` |
@@ -166,7 +183,7 @@ Hinter dem `#` stehen alle Einstellungen. Zuerst ein Block aus Buchstaben und Za
 | `z` | Haltestelle: Ankunft nach der Fahrt (hhmm) | `z0805` |
 | `a` | Haltestelle/Abflug: Verspätung der Abfahrt in Minuten | `a10` |
 | `v` | Verspätung auf dem Weg zu dieser Station in Minuten (nach Haltestelle/Abflug: spätere Ankunft); vor der ersten Station: so viele Minuten später losgekommen. Ab 1000: so viel früher (`v1005` = 5 Min. früher) | `v10` |
-| `x` | Bits (addiert): 1 = Zeit bis hierhin ca., 2 = Aufenthalt ca., 4 = Aufenthalt „Ende fest“, 8 = feste Uhrzeit ca.; dazu 16 × Nummer des gewählten Symbols | `x4` |
+| `x` | Bits (addiert): 1 = Zeit bis hierhin ca., 2 = Aufenthalt ca., 4 = Aufenthalt „Ende fest“, 8 = feste Uhrzeit ca.; dazu 16 × Nummer des gewählten Symbols; 1024 = gleichzeitig mit dem Punkt davor | `x4` |
 | `l` | Details vorhanden – sie stehen hinter den Beschreibungen (und ggf. den eigenen Gründen) | `l1` |
 | `t` | eigene Gründe vorhanden – sie stehen dann hinter den Beschreibungen der Stationen | `t1` |
 | `d` | Datum (jjjjmmtt) | `d20261203` |
