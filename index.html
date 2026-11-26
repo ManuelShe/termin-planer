@@ -617,7 +617,7 @@ details.more summary{cursor:pointer;font-weight:700;min-height:44px;display:flex
    <span class="lt" id="stLt">Stationen</span>
    <div class="stations" id="stations"></div>
    <button type="button" class="addst" id="addSt">+ Station hinzufügen</button>
-   <p class="hint hide" id="stHintA">Mindestens ein Punkt braucht eine feste Uhrzeit, z. B. „Gäste kommen“ um 18:00 – alles andere rechnet die App davon aus: was davor liegt rückwärts, was danach kommt vorwärts. „Gleichzeitig“ stellt einen Punkt neben den davor (z. B. Kuchen backen, während aufgeräumt wird), ohne die Zeiten danach zu verschieben.</p>
+   <p class="hint hide" id="stHintA">Mindestens ein Punkt braucht eine feste Uhrzeit, z. B. „Gäste kommen“ um 18:00 – alles andere rechnet die App davon aus: was davor liegt rückwärts, was danach kommt vorwärts. „Gleichzeitig“ stellt einen Punkt neben den davor (z. B. Kuchen backen, während aufgeräumt wird), ohne die Zeiten danach zu verschieben. „Orga“ ist alles, was man selbst davor und danach erledigt – das Klemmbrett oben blendet es aus.</p>
    <p class="hint" id="stHint">Mindestens eine Station braucht eine feste Uhrzeit – alles andere rechnet die App davon aus. „Zeit bis hierhin“ ist die Wegzeit (zu Fuß, mit Rad, Auto, Bus …) bzw. der Abstand zur Station davor (bei der ersten Station ab „Los“). Für den Heimweg als letzte Station „Rückweg“ wählen. Bei „Haltestelle“ ist die feste Uhrzeit die Abfahrt von Bus oder Bahn.</p>
   </div>
 
@@ -655,19 +655,21 @@ const APP_URL = LINK_URL
 
 /* Stationstypen (Reihenfolge = Nummer im Link) */
 const TYPES = ['dest','arrive','start','stop','custom','back','termin','pickup','transit','pause','dropoff','meet','flight','arrival','prep','go','task','mark','way','end','aprep'];   // Nummern im Link – nie umsortieren
-const MENU = ['prep','go','stop','termin','start','meet','pickup','dropoff','transit','flight','arrival','pause','back','custom'];
+const MENU = ['prep','go','stop','termin','start','meet','pickup','dropoff','transit','flight','arrival','pause','back','custom'];   // Reihenfolge im Auswahlmenü (Ziel/Ankommen gibt es nicht mehr → Termin)
 /* Ablauf (Feier, Veranstaltung, Tagesablauf): Punkte mit Dauer statt Stationen mit Weg */
 const AMENU = ['aprep','task','mark','pause','way','end'];
 const AT = t => t === 'task' || t === 'mark' || t === 'way' || t === 'end' || t === 'aprep';   // Punktart des Ablaufs
 const am = () => state.mode === 'a';   // Ablauf-Modus
-/* Ablauf: so viele Vorbereitungen stehen am Anfang (mit gleichzeitigen Punkten) – lassen sich wie beim Weg ausblenden */
-const aLeadN = () => { const S = state.stations; let i = 0; while(i < S.length && (S[i].type === 'aprep' || (i && S[i].par))) i++; return i < S.length ? i : 0; };   // Reihenfolge im Auswahlmenü (Ziel/Ankommen gibt es nicht mehr → Termin)
+/* Ablauf: „Orga“-Punkte (Einkaufen, Aufbau, Abbau …) lassen sich wie die Vorbereitung beim Weg ausblenden */
+const isOrga = (S, k) => !!S[k] && S[k].type === 'aprep';
+const hasOrga = () => am() && state.stations.some((s, k) => isOrga(state.stations, k));
+let orgaDone = 0, orgaNext = 0;   // erledigte (automatisch ausgeblendete) Orga-Punkte · Ende des nächsten
 // Kategorien mit fester Abfahrt (Bus/Bahn, Flugzeug): die Uhrzeit ist die Abfahrt, danach geht es sofort weiter
 const EXACTOK = t => !['transit','flight','prep','back','go'].includes(t);   // Aufenthalt mit „Ende fest“ möglich
 const LVOK = (s, k, S) => !!s && !DEP(s.type) && s.type !== 'prep' && s.type !== 'go' && s.type !== 'back' && s.stay > 0 && k < S.length - 1 && S[k+1].type !== 'prep';   // nach dem Aufenthalt später/früher los
 const DEP = t => t === 'transit' || t === 'flight';
 const depWord = t => t === 'flight' ? 'Abflug' : 'Abfahrt';
-const TLABEL = {go:'Los', prep:'Vorbereitung', dest:'Termin', arrive:'Termin', termin:'Termin', start:'Beginn', stop:'Zwischenstopp', pickup:'Abholen', dropoff:'Bringen', meet:'Treffen', transit:'Haltestelle', flight:'Abflug', arrival:'Ankunft', pause:'Pause', custom:'Individuell', back:'Rückweg', aprep:'Vorbereitung', task:'Programmpunkt', mark:'Fester Zeitpunkt', way:'Weg', end:'Ende'};
+const TLABEL = {go:'Los', prep:'Vorbereitung', dest:'Termin', arrive:'Termin', termin:'Termin', start:'Beginn', stop:'Zwischenstopp', pickup:'Abholen', dropoff:'Bringen', meet:'Treffen', transit:'Haltestelle', flight:'Abflug', arrival:'Ankunft', pause:'Pause', custom:'Individuell', back:'Rückweg', aprep:'Orga', task:'Programmpunkt', mark:'Fester Zeitpunkt', way:'Weg', end:'Ende'};
 const TICON = {go:'➡️', prep:'⏰', dest:'🏁', arrive:'🏁', termin:'🏁', start:'▶️', stop:'📌', pickup:'🙋', dropoff:'👋', meet:'🤝', transit:'🚏', flight:'✈️', arrival:'🛬', pause:'☕', custom:'🔹', back:'🏠', aprep:'✅', task:'🔹', mark:'📅', way:'🚗', end:'🏁'};
 const TDOT = {go:'go', termin:'flag', start:'play', back:'home', pickup:'person', dropoff:'drop', meet:'meet', transit:'bus', flight:'plane', arrival:'land', pause:'cup', aprep:'check', mark:'cal', way:'car', end:'flag'};   // Symbol im Kreis des Fortschrittsbalkens
 // Mit einer Zeile „Ankommen“ davor bekommt diese die Flagge und der Termin selbst ein Kalender-Symbol; der Beginn hat immer das Play-Symbol
@@ -1334,7 +1336,7 @@ function syncDate(){
 function syncMode(){
   const A = am();
   document.querySelector(`input[name=planMode][value="${A ? 'a' : 'w'}"]`).checked = true;
-  $('modeHint').textContent = A ? 'Ablauf: Vorbereitungen, Programmpunkte und feste Zeitpunkte – z. B. für eine Feier, eine Veranstaltung oder einen Tag mit vielen Terminen.' : 'Weg: wann vorbereiten, wann los – mit Stationen unterwegs, Bus und Bahn.';
+  $('modeHint').textContent = A ? 'Ablauf: Programmpunkte, feste Zeitpunkte und „Orga“ (Einkaufen, Aufbau, Abbau …) – z. B. für eine Feier, eine Veranstaltung oder einen Tag mit vielen Terminen.' : 'Weg: wann vorbereiten, wann los – mit Stationen unterwegs, Bus und Bahn.';
   $('exList').classList.toggle('hide', !A);
   $('exList').innerHTML = A ? '<span class="lt" style="width:100%;margin:0">Beispiele</span>' + Object.entries(EXAMPLES).map(([k, x]) => `<span class="tpl"><button type="button" class="use" data-ex="${k}" title="Beispiel laden">${esc(x[0])}</button></span>`).join('') : '';
   $('stLt').textContent = A ? 'Ablauf' : 'Stationen';
@@ -1454,14 +1456,12 @@ function render(){
   steps = [];
   if(!L0 && !losHere) steps.push(losStep());
   let firstPrep = true;
-  const A = am(), La = A ? aLeadN() : 0;
-  let aCut = 0;   // Ablauf: Schritte davor sind die Vorbereitungen am Anfang
+  const A = am();
   S.forEach((s, k) => {
-    if(La && k === La) aCut = steps.length;
     if(s.par && k){   // gleichzeitig mit dem Punkt davor: gleiche Startzeit, eigene Dauer, verschiebt nichts
       let j = k - 1; while(j > 0 && S[j].par) j--;
       const m0 = c.arr[j] + c.delay[j], w0 = c.plan.arr[j];
-      steps.push({k: label(s), m: m0, was: w0, ca: c.arrA[j], d: `gleichzeitig mit ${label(S[j])}${s.stay ? ` · ${s.type === 'pause' ? 'Pause' : 'dauert'} ${ca(s.stayCa, dur(s.stay))}` : ''}`, ic: TICON[s.type] || '🔹', stop: true, par: true, info: (s.info || '').trim(), dotIcon: dotFor(s), note: ` (gleichzeitig mit ${label(S[j])}${s.stay ? `, ${ca(s.stayCa, dur(s.stay))}` : ''})`});
+      steps.push({si: k, k: label(s), m: m0, was: w0, ca: c.arrA[j], d: `gleichzeitig mit ${label(S[j])}${s.stay ? ` · ${s.type === 'pause' ? 'Pause' : 'dauert'} ${ca(s.stayCa, dur(s.stay))}` : ''}`, ic: TICON[s.type] || '🔹', stop: true, par: true, info: (s.info || '').trim(), dotIcon: dotFor(s), note: ` (gleichzeitig mit ${label(S[j])}${s.stay ? `, ${ca(s.stayCa, dur(s.stay))}` : ''})`});
       if(s.stay) steps.push({k: 'Ende', m: m0 + s.stay, was: w0 + s.stay, ca: c.arrA[j] || s.stayCa, merge: true, endRow: true, noNote: true});
       return;
     }
@@ -1524,7 +1524,7 @@ function render(){
       steps.push({k: (home ? 'Rückweg' : 'Weiter') + (latest ? ' spätestens' : ''), m: c.leave[k], was: c.plan.leave[k], ca: c.leaveA[k], d: toNext, ic:'➡️', dotIcon:'go', merge:true, latest, note: ` (Weg ${ca(nextCa, dur(gapNext))})`});
     }
   });
-  steps.slice(0, aCut).forEach(s => { s.aLead = true; });
+  if(A) steps.forEach(s => { if(s.si !== undefined && isOrga(S, s.si)) s.orga = true; });
   steps.forEach(s => s.at = at(base, s.m));
   // Im Ablauf: „Weiter“ in die Zeile der Station davor legen (ein Punkt, zwei Uhrzeiten)
   const all = steps, view = [];
@@ -1538,17 +1538,38 @@ function render(){
   steps = view;
   // alle Vorbereitungen vorbei → im Ablauf ausblenden (Knopf zeigt sie bei Bedarf wieder)
   const pe = all.filter(s => s.prepStep);
-  steps.forEach(s => { if(s.aLead) pe.push({pEnd: s.m2 !== undefined ? s.m2 : s.m}); });
   prepEndAt = pe.length && !c.rel ? Math.max(...pe.map(s => +at(base, s.pEnd))) : 0;
-  if(!prepOver()) prepPeek = false;
-  prepHidden = prepOver() && !prepPeek;
-  const aHide = A && aCut > 0 && (prepHidden || state.showPrep === false);
-  if(prepHidden || aHide){
-    steps = steps.filter(s => !s.prepStep && !s.aLead);
-    if(A) $('summary').textContent = (prepHidden ? 'Vorbereitung erledigt ✓ · ' : 'Vorbereitung ausgeblendet · ') + $('summary').textContent;
-    else $('summary').textContent = $('summary').textContent.replace(/^[^·]*Vorbereitung/, 'Vorbereitung erledigt ✓');
+  if(!A && !prepOver()) prepPeek = false;
+  prepHidden = !A && prepOver() && !prepPeek;
+  if(prepHidden){
+    steps = steps.filter(s => !s.prepStep);
+    $('summary').textContent = $('summary').textContent.replace(/^[^·]*Vorbereitung/, 'Vorbereitung erledigt ✓');
   }
-  if(aHide && steps.length && !steps.some(x => x.go)) steps[0].go = true;   // Kopfzeile: erster sichtbarer Punkt
+  // Ablauf: Orga ausgeblendet (Knopf) – oder einzeln, sobald ein Orga-Punkt vorbei ist (Knopf zeigt sie wieder)
+  orgaDone = 0; orgaNext = 0;
+  let aHide = false;
+  if(A && steps.some(x => x.orga)){
+    const now = Date.now(), endOf = x => +at(base, x.m2 !== undefined ? x.m2 : x.m);
+    const first = steps[0];
+    if(state.showPrep === false){
+      const all0 = steps; steps = steps.filter(x => !x.orga);
+      // „Ende“ direkt nach ausgeblendeter Orga (z. B. Abbau): Ende des letzten sichtbaren Punkts
+      const e = steps[steps.length - 1], ei = all0.indexOf(e);
+      if(e && e.si !== undefined && S[e.si].type === 'end' && ei > 0 && all0[ei - 1].orga && steps.length > 1){
+        const pv = steps[steps.length - 2], m = pv.m2 !== undefined ? pv.m2 : pv.m, w = pv.m2 !== undefined ? pv.was2 : pv.was;
+        steps[steps.length - 1] = {...e, m, was: w, ca: pv.m2 !== undefined ? pv.ca2 : pv.ca, at: at(base, m), late: 0};
+      }
+      $('summary').textContent = 'Orga ausgeblendet · ' + $('summary').textContent;
+    }
+    else if(!prepPeek && !c.rel){
+      const done = x => x.orga && endOf(x) <= now;
+      orgaDone = steps.filter(done).length;
+      steps.filter(x => x.orga && endOf(x) > now).forEach(x => { orgaNext = orgaNext ? Math.min(orgaNext, endOf(x)) : endOf(x); });
+      if(orgaDone){ steps = steps.filter(x => !done(x)); $('summary').textContent = 'erledigte Orga ausgeblendet · ' + $('summary').textContent; }
+    }
+    aHide = steps[0] !== first;
+    if(aHide && steps.length){ steps.forEach(x => { x.go = false; }); steps[0].go = true; }   // Kopfzeile: erster sichtbarer Punkt
+  }
   syncPrepBtn();
   renderSplit(c, c.S);
   lastPlan = {all, base, c, ttl};
@@ -1597,7 +1618,7 @@ function render(){
     if(cause.length || cons.length) lines.push(`${state.icons ? (onlyEarly ? '✅ ' : '⚠️ ') : ''}${onlyEarly ? 'Früher dran' : 'Verspätung'}: ${cause.join(', ') || 'Zeit zu knapp'}${cons.length ? ' → ' + cons.join(', ') : ''}`);
     if(lines.length) lines.push('');
     for(const s of all){
-      if(s.noNote || (s.aLead && state.showPrep === false)) continue;
+      if(s.noNote || (s.orga && state.showPrep === false)) continue;
       const ex = [];
       if(s.k === 'Los' && c.losLate) ex.push(c.losLate > 0 ? `${dur(c.losLate)} später los` : `${dur(-c.losLate)} früher los`);
       if(!s.anchor && s.was !== undefined && s.was !== s.m && !/geplant/.test(s.note)) ex.push(`geplant ${fmt(s.was)} Uhr`);
@@ -1640,7 +1661,11 @@ function renderSplit(c, S){
   let cur = 0;
   const add = (cls, min, what, ic, ph) => { if(min > 0){ seg.push({cls, min, what, ic, ph, t: cur}); cur += min; } };   // ph: Phase, zu der eine Verspätung gehört (Farbe der Schraffur)
   const showP = state.showPrep !== false && !prepHidden;   // manuell oder automatisch (vorbei) ausgeblendet
-  const lead = c.lead, La = A && !showP ? aLeadN() : 0;   // Ablauf: ausgeblendete Vorbereitungen am Anfang
+  // Ablauf: ausgeblendete Orga-Punkte am Anfang und am Ende weglassen (in der Mitte bleiben sie stehen)
+  const hideO = A && state.showPrep === false, skipO = k => S[k].type === 'aprep' || (k && S[k].par) || S[k].type === 'end';
+  let La = 0; if(hideO){ while(La < S.length && skipO(La) && S[La].type !== 'end') La++; if(La >= S.length) La = 0; }
+  let Lz = S.length; if(hideO){ while(Lz > La + 1 && skipO(Lz - 1)) Lz--; }
+  const lead = c.lead;
   cur = La ? c.arr[La] - (c.early[La] || 0) - c.gap[La] : showP && lead ? c.arr[0] : lead ? c.depart : c.arr[0] - (c.early[0] || 0) - c.gap[0];
   const t0 = cur;
   // Weg zu Station k: Fahrt (Bus/Bahn/Flug), Fußweg, Puffer, Verspätung bzw. früher da
@@ -1665,7 +1690,7 @@ function renderSplit(c, S){
     return -Math.min(0, dep) - Math.min(0, wd);   // so viel früher da
   };
   S.forEach((s, k) => {
-    if(k < La) return;
+    if(k < La || k >= Lz) return;
     if(s.type === 'prep' && k < lead){ if(showP) add('c-prep', s.stay, label(s), dotFor(s)); return; }   // Vorbereitung zu Hause
     const prevEnd = La && k === La ? t0 : k === lead ? (lead ? c.depart : t0) : c.arr[k-1] + S[k-1].stay;
     if(cur < prevEnd) cur = prevEnd;
@@ -1708,7 +1733,7 @@ function renderSplit(c, S){
   $('saxis').innerHTML = relMode ? '' : keep.map(x => `<span class="${x.cls}" style="${x.cls === 'r' ? 'right:0' : x.cls === 'l' ? 'left:0' : `left:${x.p}%`}">${fmt(x.m)}</span>`).join('');
   $('saxis').classList.toggle('hide', relMode);
   const sum = cls => seg.filter(x => x.cls === cls).reduce((a, x) => a + x.min, 0);
-  $('sleg').innerHTML = [['c-prep','Vorbereitung'],['c-ride', S.some(x => x.type === 'flight') && !S.some(x => x.type === 'transit') ? 'Flug' : 'Fahrt'],['c-drive','Weg'],['c-buf','Puffer'],['c-wait', A ? 'Freie Zeit' : 'Zeit vor Ort'],['c-stay', A ? 'Programm' : 'Vor Ort'],['c-pause','Pause'],['c-late','Verspätung'],['c-early','früher da']]
+  $('sleg').innerHTML = [['c-prep', A ? 'Orga' : 'Vorbereitung'],['c-ride', S.some(x => x.type === 'flight') && !S.some(x => x.type === 'transit') ? 'Flug' : 'Fahrt'],['c-drive','Weg'],['c-buf','Puffer'],['c-wait', A ? 'Freie Zeit' : 'Zeit vor Ort'],['c-stay', A ? 'Programm' : 'Vor Ort'],['c-pause','Pause'],['c-late','Verspätung'],['c-early','früher da']]
     .filter(([cls]) => sum(cls)).map(([cls, name]) => `<span class="${cls}">${name} ${dur(sum(cls))}</span>`).join('');
   $('stotal').textContent = `Gesamtzeit ${dur(total)}`;
   splitNow();
@@ -1729,7 +1754,8 @@ function splitNow(){
 function tick(){
   const now = Date.now();
   splitNow();
-  if(steps.length && prepHidden !== (prepOver() && !prepPeek)){ render(); return; }   // Vorbereitung gerade vorbei
+  if(steps.length && !am() && prepHidden !== (prepOver() && !prepPeek)){ render(); return; }   // Vorbereitung gerade vorbei
+  if(am() && orgaNext && now >= orgaNext && state.showPrep !== false && !prepPeek){ render(); return; }   // Orga-Punkt gerade vorbei
   const items = [...document.querySelectorAll('#plan li')];
   if(!steps.length || !items.length){
     $('cdReady').textContent = '–'; $('cdDep').textContent = '–';
@@ -2150,12 +2176,16 @@ $('linkBtn').addEventListener('click', async () => {
 });
 
 /* Vorbereitungen ein-/ausblenden (wird im Link gespeichert) */
+const ICO_HANGER = '<path d="M12 7.2a2.2 2.2 0 1 1 2.2-2.2c0 1.1-.9 1.5-1.6 1.9-.4.2-.6.5-.6.9v.6"/><path d="M12 8.4 3.3 15.2a1.3 1.3 0 0 0 .8 2.3h15.8a1.3 1.3 0 0 0 .8-2.3L12 8.4"/>';
+const ICO_CLIP = '<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V2.6h6V4M8.5 10.5h7M8.5 14.5h5"/>';
 function syncPrepBtn(){
-  const on = state.showPrep !== false && !prepHidden, b = $('prepBtn');
+  const A = am(), on = state.showPrep !== false && (A ? !orgaDone || prepPeek : !prepHidden), b = $('prepBtn'), w = A ? 'Orga' : 'Vorbereitung';
   b.setAttribute('aria-pressed', on);
-  b.title = b.ariaLabel = on ? 'Vorbereitung ausblenden' : 'Vorbereitung einblenden';
+  b.title = on ? `${w} ausblenden` : `${w} einblenden`;
   b.setAttribute('aria-label', b.title);
-  b.classList.toggle('hide', !state.stations.some(s => s.type === 'prep') && !(am() && aLeadN()));
+  const svg = b.querySelector('svg'), ic = A ? 'clip' : 'hanger';
+  if(svg.dataset.ic !== ic){ svg.dataset.ic = ic; svg.innerHTML = (A ? ICO_CLIP : ICO_HANGER) + '<path class="slash" d="M3.5 3.5l17 17"/>'; }
+  b.classList.toggle('hide', A ? !hasOrga() : !state.stations.some(s => s.type === 'prep'));
 }
 /* QR-Code (Byte-Modus, Fehlerkorrektur M) – nach dem Verfahren von Project Nayuki (MIT), stark gekürzt, ohne Internet */
 const QR = (() => {
@@ -2333,14 +2363,20 @@ document.addEventListener('visibilitychange', () => { if(keepOn && document.visi
 syncWake();
 
 $('prepBtn').addEventListener('click', () => {
-  if(state.showPrep !== false && prepOver()) prepPeek = !prepPeek;   // erledigte Vorbereitungen nur kurz wieder zeigen
+  if(am()){   // Ablauf: alle Orga-Punkte aus ↔ alle wieder da (auch erledigte)
+    if(state.showPrep === false){ state.showPrep = true; prepPeek = true; }
+    else if(orgaDone && !prepPeek) prepPeek = true;
+    else { state.showPrep = false; prepPeek = false; }
+  }
+  else if(state.showPrep !== false && prepOver()) prepPeek = !prepPeek;   // erledigte Vorbereitungen nur kurz wieder zeigen
   else state.showPrep = state.showPrep === false;
   syncPrepBtn(); update();
 });
 
 /* Version und Änderungen – bei jeder neuen Version hier UND in sw.js (CACHE) anpassen */
-const APP_VERSION = '8.1';   // größere Änderung: erste Zahl +1 (z. B. 3.9 → 4.0), kleine Änderung: zweite Zahl +1 (3.9 → 3.10)
+const APP_VERSION = '8.2';   // größere Änderung: erste Zahl +1 (z. B. 3.9 → 4.0), kleine Änderung: zweite Zahl +1 (3.9 → 3.10)
 const CHANGES = [
+  ['8.2', '26.11.2026', ['Ablauf: aus „Vorbereitung“ wird „Orga“ – alles, was man selbst davor und danach erledigt (Einkaufen, Aufbau, Abbau …)', 'Das Klemmbrett oben blendet alle Orga-Punkte aus, auch die am Ende; erledigte Orga-Punkte verschwinden automatisch einzeln']],
   ['8.1', '26.11.2026', ['Ablauf: Vorbereitungen am Anfang lassen sich wie beim Weg mit dem Kleiderbügel ausblenden – oben steht dann der erste sichtbare Punkt; sind sie vorbei, verschwinden sie automatisch']],
   ['8.0', '26.11.2026', ['Neu: Ablauf planen – z. B. eine Feier, eine Veranstaltung oder einen Tag mit vielen Programmpunkten (oben in den Einstellungen „Was planst du?“)', 'Punkte mit Dauer, festen Zeitpunkten, frei wählbaren Symbolen und „gleichzeitig mit dem Punkt davor“, dazu Beispiele für Feier und Veranstaltung', 'Läuft-Modus mit „Gestartet“ und „Fertig“', 'Übersichtsbalken neu: Dauer und Symbole in den Abschnitten, Bus/Bahn und Puffer extra, Verspätungen schraffiert in der Farbe ihrer Phase, Zeitachse und „Jetzt“-Strich', 'Weg: „Zeit vor Ort“ und „Aufenthalt“ im Balken zusammengefasst zu „Vor Ort“', 'Bis zu 20 Stationen bzw. Punkte']],
   ['7.2', '26.11.2026', ['„ca.“ steht bei festen Uhrzeiten mit in der gelben Box', 'Ungefähre Uhrzeiten (ca.) sind gestrichelt umrandet – ohne Füllung, bei festen Uhrzeiten mit gelbem gestrichelten Rahmen; auch im Ausdruck und im Bild fürs iPhone']],

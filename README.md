@@ -10,8 +10,9 @@ Die App läuft komplett im Browser auf Handy, Tablet und Computer – ohne Serve
 
 **Weg oder Ablauf**
 - Oben in den Einstellungen: „Was planst du?“ – **🚗 Weg** (wie bisher) oder **📋 Ablauf**. Umschalten legt einen neuen Plan an (mit „Rückgängig“)
-- Im Ablauf gibt es statt Stationen **Punkte**: Vorbereitung, Programmpunkt, Fester Zeitpunkt, Pause, Weg und Ende – jeweils mit Dauer (auch „ca.“), „Fest um“ und frei wählbarem Symbol (Haken, Einkaufen, Werkzeug, Kochen, Essen, Mikrofon, Musik, Feier, Foto, Geschenk, Auto …)
+- Im Ablauf gibt es statt Stationen **Punkte**: Orga, Programmpunkt, Fester Zeitpunkt, Pause, Weg und Ende – jeweils mit Dauer (auch „ca.“), „Fest um“ und frei wählbarem Symbol (Haken, Einkaufen, Werkzeug, Kochen, Essen, Mikrofon, Musik, Feier, Foto, Geschenk, Auto …)
 - **Gleichzeitig mit dem Punkt davor:** beginnt zur selben Zeit und verschiebt die Zeiten danach nicht (z. B. Dekorieren, während das Essen vorbereitet wird)
+- **Orga** ist alles, was man selbst davor und danach erledigt (Einkaufen, Aufbau, Abbau …). Das Klemmbrett oben blendet alle Orga-Punkte aus bzw. wieder ein (im Link gespeichert); erledigte Orga-Punkte verschwinden automatisch einzeln
 - **Beispiele:** Leerer Ablauf, Feier / Fest, Veranstaltung. Eigene Vorlagen merken sich, ob sie Weg oder Ablauf sind
 - Jeder Punkt zeigt Beginn und „bis …“; die Zusammenfassung lautet z. B. „7 Std. 50 Min. gesamt · 10 Punkte“
 - Im Läuft-Modus (Ortsmarke) heißen die Knöpfe **„Gestartet“** und **„Fertig“** – dauert ein Punkt länger, rutscht alles danach mit
@@ -172,9 +173,9 @@ Hinter dem `#` stehen alle Einstellungen. Zuerst ein Block aus Buchstaben und Za
 
 | Kürzel | Bedeutung | Beispiel |
 |---|---|---|
-| `m` | `m0` = Vorbereitungen ausgeblendet, `m2` = Ablauf (statt Weg), `m3` = Ablauf mit ausgeblendeten Vorbereitungen | `m0` |
+| `m` | `m0` = Vorbereitungen ausgeblendet, `m2` = Ablauf (statt Weg), `m3` = Ablauf mit ausgeblendeter Orga | `m0` |
 | `p` / `c` | nur in älteren Links: Vorbereitungszeit – wird beim Öffnen zur Station „Vorbereitung“ | `p15` |
-| `b` | neue Station: 2 Beginn, 3 Zwischenstopp, 4 Individuell, 5 Rückweg, 6 Termin, 7 Abholen, 8 Haltestelle, 9 Pause, 10 Bringen, 11 Treffen, 12 Abflug, 13 Ankunft, 14 Vorbereitung, 15 Los; Ablauf: 16 Programmpunkt, 17 Fester Zeitpunkt, 18 Weg, 19 Ende, 20 Vorbereitung (0 und 1 aus älteren Links werden zu Termin) | `b6` |
+| `b` | neue Station: 2 Beginn, 3 Zwischenstopp, 4 Individuell, 5 Rückweg, 6 Termin, 7 Abholen, 8 Haltestelle, 9 Pause, 10 Bringen, 11 Treffen, 12 Abflug, 13 Ankunft, 14 Vorbereitung, 15 Los; Ablauf: 16 Programmpunkt, 17 Fester Zeitpunkt, 18 Weg, 19 Ende, 20 Orga (0 und 1 aus älteren Links werden zu Termin) | `b6` |
 | `u` | feste Uhrzeit der Station (hhmm) | `u1400` |
 | `n` | Minuten nach der vorherigen Station (Wegzeit) | `n30` |
 | `y` | Aufenthalt in Minuten | `y10` |
